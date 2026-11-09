@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENGLISH WORD HUNTER: VOCABULARY BATTLE</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Georgia', serif; }
+  body {
+    min-height:100vh;
+    background: 
+      radial-gradient(ellipse at center, #3d2817 0%, #1a0f08 100%);
+    overflow-x:hidden;
+    color:#f4e4bc;
+    position:relative;
+  }
+
+  /* ===== PARCHMENT BACKGROUND ===== */
+  .parchment-bg {
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:
+      repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(139,90,43,0.03) 2px, rgba(139,90,43,0.03) 4px),
+      radial-gradient(ellipse at 30% 20%, rgba(255,215,0,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(139,69,19,0.2) 0%, transparent 50%),
+      linear-gradient(135deg, #2d1810 0%, #1a0f08 50%, #2d1810 100%);
+    z-index:-2;
+  }
+  .parchment-bg::before {
+    content:'';
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    background-image: 
+      radial-gradient(circle at 15% 25%, rgba(255,215,0,0.08) 0%, transparent 2%),
+      radial-gradient(circle at 85% 75%, rgba(255,215,0,0.08) 0%, transparent 2%),
+      radial-gradient(circle at 50% 10%, rgba(255,215,0,0.05) 0%, transparent 1.5%),
+      radial-gradient(circle at 20% 80%, rgba(255,215,0,0.05) 0%, transparent 1.5%);
+    animation: sparkle 4s ease-in-out infinite;
+  }
+  @keyframes sparkle {
+    0%,100% { opacity:0.5; }
+    50% { opacity:1; }
+  }
+
+  /* Floating coins */
+  .floating-coin {
+    position:fixed;
+    font-size:1.5em;
+    opacity:0.3;
+    pointer-events:none;
+    z-index:-1;
+    animation: floatCoin 15s linear infinite;
+  }
+  @keyframes floatCoin {
+    0% { transform: translateY(100vh) rotate(0deg); opacity:0; }
+    10% { opacity:0.3; }
+    90% { opacity:0.3; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity:0; }
+  }
+
+  .container {
+    max-width:1200px;
+    margin:0 auto;
+    padding:20px;
+    position:relative;
+    z-index:1;
+  }
+  .screen { display:none; animation: fadeIn 0.6s ease; }
+  .screen.active { display:block; }
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* ===== START SCREEN ===== */
+  .start-screen {
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px;
+  }
+  .treasure-chest {
+    font-size:7em;
+    margin-bottom:20px;
+    animation: chestBounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
+    display:inline-block;
+  }
+  @keyframes chestBounce {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-15px) rotate(3deg); }
+  }
+  .main-title {
+    font-size:3em;
+    font-weight:bold;
+    background: linear-gradient(180deg, #ffd700 0%, #ffed4e 40%, #b8860b 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow: 0 0 30px rgba(255,215,0,0.5);
+    letter-spacing:3px;
+    line-height:1.2;
+    margin-bottom:10px;
+  }
+  .subtitle {
+    font-size:1.4em;
+    color:#daa520;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    margin-bottom:30px;
+    font-style:italic;
+  }
+
+  .rules-scroll {
+    background: 
+      linear-gradient(135deg, rgba(139,90,43,0.3), rgba(60,30,15,0.5));
+    border:3px solid #8b5a2b;
+    border-radius:15px;
+    padding:25px;
+    margin:20px 0;
+    max-width:600px;
+    text-align:left;
+    position:relative;
+    box-shadow: 
+      inset 0 0 30px rgba(0,0,0,0.5),
+      0 0 30px rgba(139,90,43,0.3);
+  }
+  .rules-scroll::before, .rules-scroll::after {
+    content:'';
+    position:absolute;
+    left:10px; right:10px;
+    height:15px;
+    background: linear-gradient(90deg, #8b5a2b, #daa520, #8b5a2b);
+    border-radius:50%;
+  }
+  .rules-scroll::before { top:-7px; }
+  .rules-scroll::after { bottom:-7px; }
+  .rules-scroll h3 {
+    color:#ffd700;
+    margin-bottom:15px;
+    text-align:center;
+    letter-spacing:3px;
+    font-size:1.3em;
+  }
+  .rules-scroll ul { list-style:none; }
+  .rules-scroll li {
+    padding:6px 0;
+    padding-left:30px;
+    position:relative;
+    font-size:0.95em;
+    line-height:1.5;
+  }
+  .rules-scroll li::before {
+    content:'🗝️';
+    position:absolute;
+    left:0;
+  }
+
+  .category-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:10px;
+    max-width:700px;
+    margin:20px 0;
+  }
+  .category-tag {
+    background: linear-gradient(135deg, rgba(139,90,43,0.4), rgba(60,30,15,0.6));
+    border:2px solid #8b5a2b;
+    border-radius:10px;
+    padding:10px;
+    font-size:0.85em;
+    color:#ffd700;
+    text-align:center;
+    transition: all 0.3s;
+  }
+  .category-tag:hover {
+    transform: translateY(-3px);
+    border-color:#ffd700;
+    box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+  }
+  .category-tag .icon { font-size:1.5em; display:block; margin-bottom:5px; }
+
+  .input-box {
+    background: rgba(0,0,0,0.5);
+    border:2px solid #daa520;
+    border-radius:50px;
+    padding:5px;
+    margin:20px 0;
+    display:flex;
+    align-items:center;
+    max-width:400px;
+    width:100%;
+    box-shadow: 0 0 20px rgba(218,165,32,0.3);
+  }
+  .input-box input {
+    flex:1;
+    background:transparent;
+    border:none;
+    padding:15px 20px;
+    color:#f4e4bc;
+    font-size:1.1em;
+    outline:none;
+    font-family:inherit;
+  }
+  .input-box input::placeholder { color:rgba(244,228,188,0.5); }
+
+  .start-btn {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #b8860b 100%);
+    border:none;
+    padding:18px 50px;
+    font-size:1.3em;
+    font-weight:bold;
+    color:#3d2817;
+    border-radius:50px;
+    cursor:pointer;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    box-shadow: 0 0 30px rgba(255,215,0,0.5);
+    transition: all 0.3s;
+    margin-top:15px;
+    font-family:inherit;
+  }
+  .start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px rgba(255,215,0,0.8);
+  }
+  .btn-group {
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:15px;
+  }
+  .btn-secondary {
+    background: linear-gradient(135deg, #8b5a2b, #5a3a1a);
+    color:#ffd700;
+    border:2px solid #daa520;
+  }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+    margin-bottom:20px;
+  }
+  @media (max-width:700px) {
+    .game-header { grid-template-columns:repeat(2, 1fr); }
+  }
+  .stat-box {
+    background: linear-gradient(135deg, rgba(139,90,43,0.4), rgba(60,30,15,0.6));
+    border:2px solid #8b5a2b;
+    border-radius:12px;
+    padding:12px;
+    text-align:center;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+  }
+  .stat-box .lbl {
+    font-size:0.7em;
+    color:#daa520;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .stat-box .val {
+    font-size:1.5em;
+    font-weight:bold;
+    color:#ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.5);
+  }
+
+  /* Timer */
+  .timer-container {
+    margin-bottom:20px;
+    position:relative;
+  }
+  .timer-bar {
+    height:18px;
+    background: rgba(0,0,0,0.5);
+    border-radius:10px;
+    overflow:hidden;
+    border:2px solid #8b5a2b;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  }
+  .timer-fill {
+    height:100%;
+    background: linear-gradient(90deg, #ffd700, #ffed4e, #daa520);
+    width:100%;
+    transition: width 1s linear;
+    border-radius:10px;
+    position:relative;
+    box-shadow: 0 0 15px rgba(255,215,0,0.5);
+  }
+  .timer-fill::after {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  .timer-fill.danger {
+    background: linear-gradient(90deg, #ff0040, #ff6600);
+    animation: dangerPulse 0.5s infinite;
+  }
+  @keyframes dangerPulse {
+    0%,100% { box-shadow: 0 0 15px rgba(255,0,64,0.5); }
+    50% { box-shadow: 0 0 25px rgba(255,0,64,0.9); }
+  }
+  .timer-text {
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%, -50%);
+    font-weight:bold;
+    font-size:0.9em;
+    color:#fff;
+    text-shadow: 0 0 5px #000;
+    z-index:2;
+  }
+
+  /* Challenge Card */
+  .challenge-card {
+    background: 
+      linear-gradient(135deg, rgba(139,90,43,0.3), rgba(60,30,15,0.5));
+    border:3px solid #8b5a2b;
+    border-radius:20px;
+    padding:30px;
+    margin-bottom:20px;
+    position:relative;
+    box-shadow: 
+      0 0 30px rgba(139,90,43,0.4),
+      inset 0 0 30px rgba(0,0,0,0.3);
+    min-height:250px;
+  }
+  .challenge-card::before {
+    content:'';
+    position:absolute;
+    inset:8px;
+    border:2px dashed rgba(218,165,32,0.4);
+    border-radius:15px;
+    pointer-events:none;
+  }
+  .challenge-badges {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .badge {
+    padding:6px 15px;
+    border-radius:20px;
+    font-size:0.8em;
+    font-weight:bold;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .badge-type {
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    color:#3d2817;
+  }
+  .badge-category {
+    background: rgba(0,0,0,0.4);
+    color:#daa520;
+    border:1px solid #daa520;
+  }
+
+  .challenge-question {
+    font-size:1.3em;
+    line-height:1.6;
+    text-align:center;
+    color:#f4e4bc;
+    margin:20px 0;
+    text-shadow: 0 0 10px rgba(255,215,0,0.2);
+  }
+  .challenge-question .word-highlight {
+    display:inline-block;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color:#3d2817;
+    padding:5px 20px;
+    border-radius:10px;
+    font-weight:bold;
+    font-size:1.2em;
+    margin:5px;
+    box-shadow: 0 0 20px rgba(255,215,0,0.5);
+    animation: wordGlow 2s ease-in-out infinite;
+  }
+  @keyframes wordGlow {
+    0%,100% { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+    50% { box-shadow: 0 0 35px rgba(255,215,0,0.9); }
+  }
+  .challenge-question .sentence {
+    display:block;
+    background: rgba(0,0,0,0.4);
+    padding:15px;
+    border-radius:10px;
+    margin:15px 0;
+    font-style:italic;
+    border-left:4px solid #ffd700;
+    text-align:left;
+    color:#ffed4e;
+  }
+  .challenge-question .blank {
+    display:inline-block;
+    min-width:80px;
+    border-bottom:3px dashed #ffd700;
+    color:#ffd700;
+    font-weight:bold;
+    padding:0 5px;
+  }
+
+  /* Options */
+  .options-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:20px;
+  }
+  @media (max-width:600px) {
+    .options-grid { grid-template-columns:1fr; }
+  }
+  .option-btn {
+    background: linear-gradient(135deg, rgba(60,30,15,0.8), rgba(30,15,5,0.9));
+    border:2px solid #8b5a2b;
+    color:#f4e4bc;
+    padding:16px 20px;
+    font-size:1.05em;
+    border-radius:12px;
+    cursor:pointer;
+    text-align:left;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    transition: all 0.3s;
+    font-family:inherit;
+    position:relative;
+    overflow:hidden;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+  }
+  .option-btn::before {
+    content:'';
+    position:absolute;
+    top:0; left:-100%;
+    width:100%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent);
+    transition: left 0.5s;
+  }
+  .option-btn:hover:not(.disabled)::before { left:100%; }
+  .option-btn:hover:not(.disabled) {
+    background: linear-gradient(135deg, rgba(139,90,43,0.6), rgba(60,30,15,0.8));
+    border-color:#ffd700;
+    transform: translateX(5px);
+    box-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+  .option-letter {
+    width:40px; height:40px;
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    color:#3d2817;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:1.2em;
+    flex-shrink:0;
+    box-shadow: 0 0 10px rgba(255,215,0,0.4);
+  }
+  .option-btn.correct {
+    background: linear-gradient(135deg, #006633, #00aa44);
+    border-color:#00ff66;
+    color:#fff;
+    animation: correctFlash 0.6s;
+  }
+  @keyframes correctFlash {
+    0%,100% { box-shadow: 0 0 20px rgba(0,255,102,0.6); }
+    50% { box-shadow: 0 0 50px rgba(0,255,102,1); }
+  }
+  .option-btn.wrong {
+    background: linear-gradient(135deg, #660022, #aa0033);
+    border-color:#ff0040;
+    animation: wrongShake 0.5s;
+  }
+  @keyframes wrongShake {
+    0%,100% { transform:translateX(0); }
+    25% { transform:translateX(-10px); }
+    75% { transform:translateX(10px); }
+  }
+  .option-btn.disabled {
+    cursor:not-allowed;
+    pointer-events:none;
+  }
+
+  /* Progress Map */
+  .progress-map {
+    background: linear-gradient(135deg, rgba(139,90,43,0.3), rgba(60,30,15,0.5));
+    border:2px solid #8b5a2b;
+    border-radius:15px;
+    padding:15px;
+    margin-bottom:20px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+  }
+  .progress-map h4 {
+    color:#ffd700;
+    text-align:center;
+    margin-bottom:10px;
+    letter-spacing:2px;
+  }
+  .map-nodes {
+    display:grid;
+    grid-template-columns:repeat(10, 1fr);
+    gap:5px;
+  }
+  @media (max-width:700px) {
+    .map-nodes { grid-template-columns:repeat(5, 1fr); }
+  }
+  .map-node {
+    aspect-ratio:1;
+    background: rgba(0,0,0,0.4);
+    border:2px solid #8b5a2b;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.8em;
+    font-weight:bold;
+    color:#8b5a2b;
+    position:relative;
+    transition: all 0.3s;
+  }
+  .map-node.current {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color:#3d2817;
+    border-color:#fff;
+    box-shadow: 0 0 15px rgba(255,215,0,0.8);
+    animation: nodePulse 1s infinite;
+  }
+  @keyframes nodePulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.1); }
+  }
+  .map-node.completed {
+    background: linear-gradient(135deg, #006633, #00aa44);
+    color:#fff;
+    border-color:#00ff66;
+  }
+  .map-node.failed {
+    background: linear-gradient(135deg, #660022, #aa0033);
+    color:#fff;
+    border-color:#ff0040;
+  }
+  .map-node.bonus {
+    box-shadow: 0 0 10px rgba(255,215,0,0.6);
+  }
+
+  /* Leaderboard */
+  .leaderboard-panel {
+    background: linear-gradient(135deg, rgba(139,90,43,0.3), rgba(60,30,15,0.5));
+    border:2px solid #8b5a2b;
+    border-radius:15px;
+    padding:15px;
+    margin-bottom:20px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+  }
+  .leaderboard-panel h4 {
+    color:#ffd700;
+    text-align:center;
+    margin-bottom:10px;
+    letter-spacing:2px;
+  }
+  .lb-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 12px;
+    margin:4px 0;
+    background: rgba(0,0,0,0.3);
+    border-radius:8px;
+    border-left:3px solid #8b5a2b;
+    font-size:0.9em;
+  }
+  .lb-row.me {
+    background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(218,165,32,0.1));
+    border-left-color:#ffd700;
+  }
+  .lb-row.gold { border-left-color:#ffd700; }
+  .lb-row.silver { border-left-color:#c0c0c0; }
+  .lb-row.bronze { border-left-color:#cd7f32; }
+  .lb-rank {
+    font-weight:bold;
+    width:30px;
+    color:#ffd700;
+  }
+  .lb-name { flex:1; }
+  .lb-score {
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    color:#3d2817;
+    padding:3px 10px;
+    border-radius:15px;
+    font-weight:bold;
+    font-size:0.85em;
+  }
+
+  /* Feedback Overlay */
+  .feedback-overlay {
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .feedback-overlay.show { display:flex; animation: fadeIn 0.3s; }
+  .feedback-box {
+    background: linear-gradient(135deg, #3d2817, #1a0f08);
+    border:3px solid;
+    border-radius:25px;
+    padding:35px;
+    max-width:600px;
+    width:100%;
+    text-align:center;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes popIn {
+    from { transform:scale(0.3) rotate(-10deg); opacity:0; }
+    to { transform:scale(1) rotate(0); opacity:1; }
+  }
+  .feedback-box.correct { border-color:#00ff66; box-shadow: 0 0 60px rgba(0,255,102,0.6); }
+  .feedback-box.wrong { border-color:#ff0040; box-shadow: 0 0 60px rgba(255,0,64,0.6); }
+  .feedback-box.timeout { border-color:#ffaa00; box-shadow: 0 0 60px rgba(255,170,0,0.6); }
+  .feedback-icon {
+    font-size:5em;
+    margin-bottom:15px;
+    animation: iconBounce 0.6s;
+  }
+  @keyframes iconBounce {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.3); }
+  }
+  .feedback-title {
+    font-size:2em;
+    font-weight:bold;
+    margin-bottom:10px;
+    letter-spacing:3px;
+  }
+  .feedback-box.correct .feedback-title { color:#00ff66; }
+  .feedback-box.wrong .feedback-title { color:#ff0040; }
+  .feedback-box.timeout .feedback-title { color:#ffaa00; }
+  .points-display {
+    font-size:1.5em;
+    color:#ffd700;
+    margin:10px 0;
+    font-weight:bold;
+    text-shadow: 0 0 15px rgba(255,215,0,0.8);
+  }
+  .points-display .bonus {
+    color:#ffed4e;
+    animation: bonusPulse 0.5s ease-in-out 3;
+  }
+  @keyframes bonusPulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.2); }
+  }
+  .explanation-box {
+    background: rgba(0,0,0,0.4);
+    border:1px solid rgba(218,165,32,0.4);
+    padding:15px;
+    border-radius:15px;
+    margin-top:15px;
+    text-align:left;
+    line-height:1.6;
+  }
+  .explanation-box strong { color:#ffd700; }
+
+  /* Result Screen */
+  .result-screen {
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px;
+  }
+  .trophy-container { margin:20px 0; }
+  .trophy {
+    font-size:8em;
+    animation: trophyFloat 3s ease-in-out infinite;
+    display:inline-block;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+  }
+  @keyframes trophyFloat {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  .champion-title {
+    font-size:2.5em;
+    font-weight:bold;
+    background: linear-gradient(180deg, #fff 0%, #ffd700 50%, #b8860b 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin:20px 0;
+    letter-spacing:3px;
+  }
+  .final-score {
+    font-size:3.5em;
+    color:#ffd700;
+    font-weight:bold;
+    margin:15px 0;
+    text-shadow: 0 0 30px rgba(255,215,0,0.8);
+    font-family:'Courier New', monospace;
+  }
+  .result-stats {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
+    gap:15px;
+    max-width:700px;
+    width:100%;
+    margin:20px 0;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, rgba(139,90,43,0.4), rgba(60,30,15,0.6));
+    border:2px solid #8b5a2b;
+    border-radius:15px;
+    padding:15px;
+  }
+  .stat-card .n {
+    font-size:2em;
+    font-weight:bold;
+    color:#ffd700;
+  }
+  .stat-card .l {
+    font-size:0.8em;
+    color:#daa520;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .rank-badge {
+    display:inline-block;
+    padding:12px 30px;
+    border-radius:50px;
+    font-size:1.2em;
+    font-weight:bold;
+    letter-spacing:3px;
+    margin:15px 0;
+    text-transform:uppercase;
+    animation: rankGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes rankGlow {
+    from { box-shadow: 0 0 20px currentColor; }
+    to { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+  }
+  .rank-badge.legend { background: linear-gradient(135deg, #ffd700, #ff6600); color:#3d2817; }
+  .rank-badge.master { background: linear-gradient(135deg, #daa520, #8b5a2b); color:#fff; }
+  .rank-badge.hunter { background: linear-gradient(135deg, #8b5a2b, #5a3a1a); color:#ffd700; border:2px solid #ffd700; }
+  .rank-badge.seeker { background: linear-gradient(135deg, #5a3a1a, #3d2817); color:#daa520; border:2px solid #daa520; }
+  .rank-badge.novice { background: rgba(0,0,0,0.5); color:#8b5a2b; border:2px solid #8b5a2b; }
+
+  .btn {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #b8860b 100%);
+    border:none;
+    padding:15px 40px;
+    font-size:1.1em;
+    font-weight:bold;
+    color:#3d2817;
+    border-radius:50px;
+    cursor:pointer;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    box-shadow: 0 0 20px rgba(255,215,0,0.5);
+    transition: all 0.3s;
+    margin:5px;
+    font-family:inherit;
+  }
+  .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255,215,0,0.8);
+  }
+
+  /* Confetti */
+  .confetti {
+    position:fixed;
+    pointer-events:none;
+    z-index:9999;
+    font-size:1.5em;
+  }
+
+  /* Coin animation */
+  .coin-pop {
+    position:fixed;
+    font-size:2em;
+    pointer-events:none;
+    z-index:999;
+    animation: coinPop 1.5s ease-out forwards;
+  }
+  @keyframes coinPop {
+    0% { transform: translate(0, 0) scale(0); opacity:1; }
+    50% { transform: translate(var(--dx), -100px) scale(1.5); opacity:1; }
+    100% { transform: translate(var(--dx), -200px) scale(0.5); opacity:0; }
+  }
+
+  @media (max-width:600px) {
+    .main-title { font-size:2em; }
+    .treasure-chest { font-size:5em; }
+    .challenge-question { font-size:1.1em; }
+    .champion-title { font-size:1.8em; }
+    .final-score { font-size:2.5em; }
+    .trophy { font-size:5em; }
+  }
+</style>
+</head>
+<body>
+<div class="parchment-bg"></div>
+
+<div class="container">
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active start-screen">
+    <div class="treasure-chest">🗝️</div>
+    <h1 class="main-title">ENGLISH WORD HUNTER</h1>
+    <div class="subtitle">⚔️ Vocabulary Battle ⚔️</div>
+
+    <div class="rules-scroll">
+      <h3>📜 QUEST RULES 📜</h3>
+      <ul>
+        <li>20 tantangan vocabulary menanti!</li>
+        <li>Timer 15 detik per tantangan</li>
+        <li>+10 poin untuk jawaban benar</li>
+        <li>+5 poin BONUS untuk jawaban cepat (&lt;5 detik)</li>
+        <li>6 jenis tantangan: sinonim, antonim, arti, definisi, konteks, lengkapi kalimat</li>
+        <li>Kumpulkan harta karun kata & jadilah Word Hunter sejati!</li>
+      </ul>
+    </div>
+
+    <h3 style="color:#ffd700; margin:15px 0; letter-spacing:2px;">🗺️ 8 REALM OF WORDS 🗺️</h3>
+    <div class="category-grid">
+      <div class="category-tag"><span class="icon">🔄</span>Synonyms & Antonyms</div>
+      <div class="category-tag"><span class="icon">🎓</span>Academic</div>
+      <div class="category-tag"><span class="icon">🌿</span>Environment</div>
+      <div class="category-tag"><span class="icon">💻</span>Technology</div>
+      <div class="category-tag"><span class="icon">📚</span>Education</div>
+      <div class="category-tag"><span class="icon">⚕️</span>Health</div>
+      <div class="category-tag"><span class="icon">🌍</span>Social Issues</div>
+      <div class="category-tag"><span class="icon">👤</span>Personality</div>
+    </div>
+
+    <div class="input-box">
+      <input type="text" id="playerName" placeholder="Enter your name, hunter..." maxlength="20">
+    </div>
+
+    <div class="btn-group">
+      <button class="start-btn" onclick="startGame()">🗡️ START HUNT</button>
+      <button class="btn btn-secondary" onclick="showLeaderboardScreen()">🏆 LEADERBOARD</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" class="screen">
+    <div class="game-header">
+      <div class="stat-box">
+        <div class="lbl">🗡️ Hunter</div>
+        <div class="val" id="playerDisplay" style="font-size:1em;">-</div>
+      </div>
+      <div class="stat-box">
+        <div class="lbl">📍 Quest</div>
+        <div class="val"><span id="qNum">1</span>/20</div>
+      </div>
+      <div class="stat-box">
+        <div class="lbl">💰 Treasure</div>
+        <div class="val" id="scoreDisplay">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="lbl">🔥 Streak</div>
+        <div class="val" id="streakDisplay">0</div>
+      </div>
+    </div>
+
+    <div class="timer-container">
+      <div class="timer-bar">
+        <div class="timer-fill" id="timerFill"></div>
+      </div>
+      <div class="timer-text" id="timerText">15</div>
+    </div>
+
+    <div class="challenge-card">
+      <div class="challenge-badges">
+        <span class="badge badge-type" id="typeBadge">TYPE</span>
+        <span class="badge badge-category" id="categoryBadge">CATEGORY</span>
+      </div>
+      <div class="challenge-question" id="questionText">Question</div>
+      <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+    <div class="progress-map">
+      <h4>🗺️ TREASURE MAP 🗺️</h4>
+      <div class="map-nodes" id="mapNodes"></div>
+    </div>
+
+    <div class="leaderboard-panel">
+      <h4>🏆 TOP HUNTERS 🏆</h4>
+      <div id="leaderboardList"></div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="resultScreen" class="screen result-screen">
+    <div class="trophy-container">
+      <div class="trophy" id="trophyIcon">🏆</div>
+    </div>
+    <h1 class="champion-title" id="championTitle">HUNT COMPLETE!</h1>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="rank-badge" id="rankBadge">RANK</div>
+    <p id="resultMessage" style="font-size:1.1em; max-width:600px; line-height:1.6;"></p>
+
+    <div class="result-stats">
+      <div class="stat-card">
+        <div class="n" id="statCorrect">0</div>
+        <div class="l">Correct</div>
+      </div>
+      <div class="stat-card">
+        <div class="n" id="statWrong">0</div>
+        <div class="l">Wrong</div>
+      </div>
+      <div class="stat-card">
+        <div class="n" id="statBonus">0</div>
+        <div class="l">Bonus</div>
+      </div>
+      <div class="stat-card">
+        <div class="n" id="statMaxStreak">0</div>
+        <div class="l">Max Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="n" id="statAccuracy">0%</div>
+        <div class="l">Accuracy</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn" onclick="restartGame()">🔄 HUNT AGAIN</button>
+      <button class="btn btn-secondary" onclick="goHome()">🏠 HOME</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="leaderboardScreen" class="screen">
+    <div style="text-align:center; padding:30px 20px;">
+      <div style="font-size:5em;">🏆</div>
+      <h1 class="main-title" style="font-size:2em;">HALL OF FAME</h1>
+      <div class="subtitle" style="font-size:1em;">Greatest Word Hunters</div>
+    </div>
+    <div class="leaderboard-panel" style="max-width:600px; margin:0 auto;">
+      <h4>🏆 TOP 10 HUNTERS 🏆</h4>
+      <div id="leaderboardFull"></div>
+    </div>
+    <div class="btn-group" style="margin-top:20px;">
+      <button class="btn" onclick="goHome()">🏠 HOME</button>
+      <button class="btn btn-secondary" onclick="clearLeaderboard()">🗑️ CLEAR</button>
+    </div>
+  </div>
+
+  <!-- FEEDBACK OVERLAY -->
+  <div class="feedback-overlay" id="feedbackOverlay">
+    <div class="feedback-box" id="feedbackBox">
+      <div class="feedback-icon" id="feedbackIcon">✓</div>
+      <div class="feedback-title" id="feedbackTitle">CORRECT!</div>
+      <div class="points-display" id="pointsDisplay">+10</div>
+      <div class="explanation-box" id="explanationBox"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ QUESTIONS DATABASE (20 challenges) ============
+const questions = [
+  // 1. Synonym - Academic
+  {
+    type: "Synonym",
+    category: "Academic",
+    question: `Find the SYNONYM of: <span class="word-highlight">Elucidate</span>`,
+    options: ["Confuse", "Clarify", "Hide", "Complicate"],
+    answer: 1,
+    explanation: "'Elucidate' means to make something clear or explain it. Synonym: clarify, explain, illuminate. Example: 'The professor elucidated the complex theory.'"
+  },
+  // 2. Antonym - Personality
+  {
+    type: "Antonym",
+    category: "Personality",
+    question: `Find the ANTONYM of: <span class="word-highlight">Benevolent</span>`,
+    options: ["Kind", "Malevolent", "Generous", "Compassionate"],
+    answer: 1,
+    explanation: "'Benevolent' means kind and generous. Its antonym is 'malevolent' (having evil intentions). Kind, generous, and compassionate are synonyms."
+  },
+  // 3. Definition - Technology
+  {
+    type: "Definition",
+    category: "Technology",
+    question: `Which word matches this definition?<br><br><em>"A process or set of rules followed by a computer to solve a problem or perform a task."</em>`,
+    options: ["Algorithm", "Database", "Network", "Software"],
+    answer: 0,
+    explanation: "'Algorithm' is a step-by-step procedure or formula for solving a problem, especially used in computing. It's the foundation of all computer programs."
+  },
+  // 4. Context - Environment
+  {
+    type: "Context",
+    category: "Environment",
+    question: `Choose the correct word for the blank:<br><span class="sentence">"We must adopt ___ practices to protect the environment for future generations."</span>`,
+    options: ["destructive", "sustainable", "harmful", "polluting"],
+    answer: 1,
+    explanation: "'Sustainable' means able to be maintained at a certain rate or level without depleting natural resources. It's the key concept in environmental protection."
+  },
+  // 5. Meaning - Health
+  {
+    type: "Meaning",
+    category: "Health",
+    question: `What does <span class="word-highlight">Chronic</span> mean in medical context?`,
+    options: ["Sudden and severe", "Persisting for a long time", "Mild and temporary", "Contagious"],
+    answer: 1,
+    explanation: "'Chronic' refers to a condition that persists for a long time or constantly recurs (e.g., chronic diabetes, chronic pain). Opposite of 'acute'."
+  },
+  // 6. Synonym - Social Issues
+  {
+    type: "Synonym",
+    category: "Social Issues",
+    question: `Find the SYNONYM of: <span class="word-highlight">Disparity</span>`,
+    options: ["Equality", "Inequality", "Harmony", "Similarity"],
+    answer: 1,
+    explanation: "'Disparity' means a great difference or inequality, especially in wealth, opportunity, or treatment. Example: 'the disparity between rich and poor'."
+  },
+  // 7. Antonym - Education
+  {
+    type: "Antonym",
+    category: "Education",
+    question: `Find the ANTONYM of: <span class="word-highlight">Mandatory</span>`,
+    options: ["Required", "Compulsory", "Optional", "Obligatory"],
+    answer: 2,
+    explanation: "'Mandatory' means required by law or rules; compulsory. Its antonym is 'optional' (not compulsory; left to choice). Required, compulsory, and obligatory are synonyms."
+  },
+  // 8. Definition - Personality
+  {
+    type: "Definition",
+    category: "Personality",
+    question: `Which word matches this definition?<br><br><em>"Able to withstand or recover quickly from difficult conditions."</em>`,
+    options: ["Fragile", "Resilient", "Sensitive", "Weak"],
+    answer: 1,
+    explanation: "'Resilient' describes someone who can recover quickly from difficulties; tough and adaptable. It's a highly valued personality trait."
+  },
+  // 9. Context - Technology
+  {
+    type: "Context",
+    category: "Technology",
+    question: `Choose the correct word:<br><span class="sentence">"The new smartphone features an ___ design with cutting-edge technology."</span>`,
+    options: ["obsolete", "innovative", "outdated", "primitive"],
+    answer: 1,
+    explanation: "'Innovative' means featuring new methods; advanced and creative. It fits the context of 'cutting-edge technology'. The other options mean old/outdated."
+  },
+  // 10. Meaning - Environment
+  {
+    type: "Meaning",
+    category: "Environment",
+    question: `What does <span class="word-highlight">Biodiversity</span> mean?`,
+    options: [
+      "Variety of life in a particular habitat",
+      "Biological weapons",
+      "Biochemical processes",
+      "Biographical diversity"
+    ],
+    answer: 0,
+    explanation: "'Biodiversity' refers to the variety of life in the world or in a particular habitat/ecosystem. High biodiversity indicates a healthy ecosystem."
+  },
+  // 11. Synonym - Health
+  {
+    type: "Synonym",
+    category: "Health",
+    question: `Find the SYNONYM of: <span class="word-highlight">Epidemic</span>`,
+    options: ["Outbreak", "Cure", "Prevention", "Diagnosis"],
+    answer: 0,
+    explanation: "'Epidemic' refers to a widespread occurrence of a disease in a community at a particular time. Synonym: outbreak, pandemic (larger scale)."
+  },
+  // 12. Antonym - Social Issues
+  {
+    type: "Antonym",
+    category: "Social Issues",
+    question: `Find the ANTONYM of: <span class="word-highlight">Affluent</span>`,
+    options: ["Wealthy", "Prosperous", "Impoverished", "Rich"],
+    answer: 2,
+    explanation: "'Affluent' means having a great deal of money; wealthy. Its antonym is 'impoverished' (poor; deprived). Wealthy, prosperous, and rich are synonyms."
+  },
+  // 13. Definition - Academic
+  {
+    type: "Definition",
+    category: "Academic",
+    question: `Which word matches this definition?<br><br><em>"Based on, concerned with, or verifiable by observation or experience rather than theory."</em>`,
+    options: ["Theoretical", "Hypothetical", "Empirical", "Speculative"],
+    answer: 2,
+    explanation: "'Empirical' means based on observation or experience rather than theory or pure logic. 'Empirical evidence' is evidence gathered through observation."
+  },
+  // 14. Context - Personality
+  {
+    type: "Context",
+    category: "Personality",
+    question: `Choose the correct word:<br><span class="sentence">"Despite facing many failures, she remained ___ and continued pursuing her dreams."</span>`,
+    options: ["pessimistic", "tenacious", "apathetic", "indifferent"],
+    answer: 1,
+    explanation: "'Tenacious' means tending to keep a firm hold of something; clinging closely; persistent and determined. It fits someone who continues despite failures."
+  },
+  // 15. Meaning - Education
+  {
+    type: "Meaning",
+    category: "Education",
+    question: `What does <span class="word-highlight">Curriculum</span> mean?`,
+    options: [
+      "A school building",
+      "Subjects comprising a course of study",
+      "A teacher's salary",
+      "A student's uniform"
+    ],
+    answer: 1,
+    explanation: "'Curriculum' refers to the subjects comprising a course of study in a school or college. It's the planned content and learning experiences."
+  },
+  // 16. Synonym - Technology
+  {
+    type: "Synonym",
+    category: "Technology",
+    question: `Find the SYNONYM of: <span class="word-highlight">Obsolete</span>`,
+    options: ["Modern", "Outdated", "Cutting-edge", "Advanced"],
+    answer: 1,
+    explanation: "'Obsolete' means no longer produced or used; out of date. Synonyms: outdated, antiquated, archaic. Example: 'floppy disks are now obsolete'."
+  },
+  // 17. Antonym - Health
+  {
+    type: "Antonym",
+    category: "Health",
+    question: `Find the ANTONYM of: <span class="word-highlight">Acute</span> (medical context)`,
+    options: ["Severe", "Chronic", "Sharp", "Sudden"],
+    answer: 1,
+    explanation: "'Acute' in medicine means severe or sudden in onset. Its antonym is 'chronic' (persisting for a long time). Severe, sharp, and sudden are related meanings."
+  },
+  // 18. Definition - Environment
+  {
+    type: "Definition",
+    category: "Environment",
+    question: `Which word matches this definition?<br><br><em>"The action of preserving and protecting the natural environment."</em>`,
+    options: ["Pollution", "Deforestation", "Conservation", "Industrialization"],
+    answer: 2,
+    explanation: "'Conservation' is the preservation, protection, or restoration of the natural environment. The other options are harmful activities."
+  },
+  // 19. Context - Social Issues
+  {
+    type: "Context",
+    category: "Social Issues",
+    question: `Choose the correct word:<br><span class="sentence">"The government implemented policies to address the ___ between urban and rural areas."</span>`,
+    options: ["harmony", "disparity", "similarity", "equality"],
+    answer: 1,
+    explanation: "'Disparity' means a great difference. The sentence discusses addressing the gap/difference between urban and rural areas, which is a common social issue."
+  },
+  // 20. Meaning - Academic
+  {
+    type: "Meaning",
+    category: "Academic",
+    question: `What does <span class="word-highlight">Paradigm</span> mean?`,
+    options: [
+      "A type of disease",
+      "A typical example or pattern; a model",
+      "A mathematical formula",
+      "A historical event"
+    ],
+    answer: 1,
+    explanation: "'Paradigm' means a typical example or pattern of something; a model. In academic context, 'paradigm shift' refers to a fundamental change in approach."
+  }
+];
+
+// ============ GAME STATE ============
+let currentIndex = 0;
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let bonusCount = 0;
+let playerName = "";
+let timeLeft = 15;
+let timerInterval = null;
+let answered = false;
+let audioCtx = null;
+let questionStartTime = 0;
+let mapResults = []; // track each question result
+
+// ============ AUDIO ============
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playSound(type) {
+  try {
+    initAudio();
+    const now = audioCtx.currentTime;
+    if (type === 'correct') {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.08);
+        gain.gain.linearRampToValueAtTime(0.25, now + i*0.08 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.08 + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now + i*0.08); osc.stop(now + i*0.08 + 0.3);
+      });
+    } else if (type === 'wrong') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(100, now + 0.5);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.5);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now); osc.stop(now + 0.5);
+    } else if (type === 'tick') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = 900;
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.04);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now); osc.stop(now + 0.04);
+    } else if (type === 'bonus') {
+      [800, 1000, 1200, 1400].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.05);
+        gain.gain.linearRampToValueAtTime(0.2, now + i*0.05 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.05 + 0.15);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now + i*0.05); osc.stop(now + i*0.05 + 0.15);
+      });
+    } else if (type === 'timeout') {
+      [400, 300, 200].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.15);
+        gain.gain.linearRampToValueAtTime(0.2, now + i*0.15 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.15 + 0.2);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now + i*0.15); osc.stop(now + i*0.15 + 0.2);
+      });
+    } else if (type === 'victory') {
+      const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51];
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.12);
+        gain.gain.linearRampToValueAtTime(0.3, now + i*0.12 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.12 + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now + i*0.12); osc.stop(now + i*0.12 + 0.3);
+      });
+    } else if (type === 'click') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 700;
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.05);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(now); osc.stop(now + 0.05);
+    } else if (type === 'chest') {
+      [400, 500, 600, 800].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.1);
+        gain.gain.linearRampToValueAtTime(0.2, now + i*0.1 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.1 + 0.25);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now + i*0.1); osc.stop(now + i*0.1 + 0.25);
+      });
+    }
+  } catch(e) { console.log('Audio error:', e); }
+}
+
+// ============ FLOATING COINS ============
+function createFloatingCoins() {
+  const coins = ['🪙', '💰', '💎', '🗝️'];
+  for (let i = 0; i < 8; i++) {
+    const coin = document.createElement('div');
+    coin.className = 'floating-coin';
+    coin.textContent = coins[Math.floor(Math.random()*coins.length)];
+    coin.style.left = Math.random()*100 + 'vw';
+    coin.style.animationDelay = Math.random()*15 + 's';
+    coin.style.animationDuration = (10 + Math.random()*10) + 's';
+    document.body.appendChild(coin);
+  }
+}
+createFloatingCoins();
+
+// ============ CONFETTI ============
+function createConfetti(count = 50) {
+  const emojis = ['🪙', '💰', '💎', '🗝️', '⭐', '✨'];
+  for (let i = 0; i < count; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.top = '-30px';
+    document.body.appendChild(c);
+    const duration = 2 + Math.random()*3;
+    const drift = (Math.random()-0.5)*400;
+    c.animate([
+      { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+      { transform: `translate(${drift}px, 100vh) rotate(${Math.random()*720}deg)`, opacity: 0 }
+    ], { duration: duration*1000, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+    setTimeout(() => c.remove(), duration*1000);
+  }
+}
+
+// ============ COIN POP ANIMATION ============
+function createCoinPop(x, y, amount) {
+  for (let i = 0; i < Math.min(amount/5, 8); i++) {
+    const coin = document.createElement('div');
+    coin.className = 'coin-pop';
+    coin.textContent = '🪙';
+    coin.style.left = x + 'px';
+    coin.style.top = y + 'px';
+    coin.style.setProperty('--dx', (Math.random()-0.5)*100 + 'px');
+    document.body.appendChild(coin);
+    setTimeout(() => coin.remove(), 1500);
+  }
+}
+
+// ============ SCREEN NAVIGATION ============
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  playSound('click');
+  showScreen('startScreen');
+}
+
+// ============ PROGRESS MAP ============
+function renderMap() {
+  const container = document.getElementById('mapNodes');
+  container.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
+    const node = document.createElement('div');
+    node.className = 'map-node';
+    node.textContent = i + 1;
+    if (i < currentIndex) {
+      if (mapResults[i] === 'correct') node.classList.add('completed');
+      else if (mapResults[i] === 'wrong') node.classList.add('failed');
+      if (mapResults[i] === 'bonus') node.classList.add('completed', 'bonus');
+    } else if (i === currentIndex) {
+      node.classList.add('current');
+    }
+    container.appendChild(node);
+  }
+}
+
+// ============ LEADERBOARD ============
+function saveScore(name, score) {
+  let lb = JSON.parse(localStorage.getItem('wordHunterLB') || '[]');
+  lb.push({ name, score, date: new Date().toLocaleDateString('id-ID') });
+  lb.sort((a,b) => b.score - a.score);
+  lb = lb.slice(0, 20);
+  localStorage.setItem('wordHunterLB', JSON.stringify(lb));
+}
+
+function renderLeaderboard(containerId, highlightName = null) {
+  const lb = JSON.parse(localStorage.getItem('wordHunterLB') || '[]');
+  const container = document.getElementById(containerId);
+  if (lb.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:20px; opacity:0.6;">No hunters yet. Be the first! 🗡️</p>';
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  const rowClasses = ['gold', 'silver', 'bronze'];
+  container.innerHTML = lb.slice(0, 10).map((entry, i) => {
+    const isMe = highlightName && entry.name === highlightName && i < 3;
+    return `
+      <div class="lb-row ${rowClasses[i] || ''} ${isMe ? 'me' : ''}">
+        <div class="lb-rank">${medals[i] || (i+1)}</div>
+        <div class="lb-name">${escapeHtml(entry.name)} <small style="opacity:0.6;">(${entry.date})</small></div>
+        <div class="lb-score">${entry.score} 💰</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showLeaderboardScreen() {
+  playSound('click');
+  showScreen('leaderboardScreen');
+  renderLeaderboard('leaderboardFull');
+}
+
+function clearLeaderboard() {
+  if (confirm('Clear all leaderboard data?')) {
+    localStorage.removeItem('wordHunterLB');
+    renderLeaderboard('leaderboardFull');
+    playSound('click');
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============ GAME LOGIC ============
+function startGame() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) {
+    alert('Please enter your name, hunter! 🗡️');
+    return;
+  }
+  playerName = name;
+  currentIndex = 0;
+  score = 0;
+  streak = 0;
+  maxStreak = 0;
+  correctCount = 0;
+  wrongCount = 0;
+  bonusCount = 0;
+  mapResults = [];
+
+  document.getElementById('playerDisplay').textContent = playerName;
+  showScreen('gameScreen');
+  playSound('chest');
+  renderMap();
+  renderLeaderboard('leaderboardList');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[currentIndex];
+  questionStartTime = Date.now();
+
+  document.getElementById('qNum').textContent = currentIndex + 1;
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+  document.getElementById('typeBadge').textContent = '⚔️ ' + q.type.toUpperCase();
+  document.getElementById('categoryBadge').textContent = '🗺️ ' + q.category;
+  document.getElementById('questionText').innerHTML = q.question;
+
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = (e) => selectAnswer(i, btn, e);
+    grid.appendChild(btn);
+  });
+
+  renderMap();
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = 15;
+  document.getElementById('timerText').textContent = timeLeft;
+  const fill = document.getElementById('timerFill');
+  fill.style.width = '100%';
+  fill.classList.remove('danger');
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timerText').textContent = timeLeft;
+    fill.style.width = (timeLeft/15*100) + '%';
+    if (timeLeft <= 5 && timeLeft > 0) {
+      fill.classList.add('danger');
+      playSound('tick');
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      handleTimeout();
+    }
+  }, 1000);
+}
+
+function selectAnswer(index, btn, event) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  playSound('click');
+
+  const q = questions[currentIndex];
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.classList.add('disabled'));
+
+  const timeTaken = (Date.now() - questionStartTime) / 1000;
+  const isFast = timeTaken < 5;
+
+  if (index === q.answer) {
+    btn.classList.add('correct');
+    playSound('correct');
+    createConfetti(30);
+
+    let points = 10;
+    let bonus = 0;
+    if (isFast) {
+      bonus = 5;
+      bonusCount++;
+      setTimeout(() => playSound('bonus'), 300);
+      if (event) {
+        const rect = btn.getBoundingClientRect();
+        createCoinPop(rect.left + rect.width/2, rect.top, 5);
+      }
+    }
+    score += points + bonus;
+    streak++;
+    correctCount++;
+    if (streak > maxStreak) maxStreak = streak;
+    mapResults[currentIndex] = isFast ? 'bonus' : 'correct';
+
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('streakDisplay').textContent = streak;
+
+    showFeedback('correct', q, points, bonus);
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.answer].classList.add('correct');
+    playSound('wrong');
+    streak = 0;
+    wrongCount++;
+    mapResults[currentIndex] = 'wrong';
+
+    document.getElementById('streakDisplay').textContent = streak;
+    showFeedback('wrong', q, 0, 0);
+  }
+
+  setTimeout(nextQuestion, 4500);
+}
+
+function handleTimeout() {
+  if (answered) return;
+  answered = true;
+  playSound('timeout');
+  const q = questions[currentIndex];
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.classList.add('disabled'));
+  allBtns[q.answer].classList.add('correct');
+  streak = 0;
+  wrongCount++;
+  mapResults[currentIndex] = 'wrong';
+  document.getElementById('streakDisplay').textContent = streak;
+  showFeedback('timeout', q, 0, 0);
+  setTimeout(nextQuestion, 4500);
+}
+
+function showFeedback(type, q, points, bonus) {
+  const overlay = document.getElementById('feedbackOverlay');
+  const box = document.getElementById('feedbackBox');
+  const icon = document.getElementById('feedbackIcon');
+  const title = document.getElementById('feedbackTitle');
+  const pointsDisplay = document.getElementById('pointsDisplay');
+  const exp = document.getElementById('explanationBox');
+
+  box.className = 'feedback-box ' + type;
+
+  if (type === 'correct') {
+    icon.textContent = bonus > 0 ? '💎' : '✓';
+    title.textContent = bonus > 0 ? 'TREASURE FOUND!' : 'CORRECT!';
+    let pointsHtml = `+${points} 💰`;
+    if (bonus > 0) {
+      pointsHtml += ` <span class="bonus">+${bonus} BONUS ⚡</span>`;
+    }
+    pointsDisplay.innerHTML = pointsHtml;
+  } else if (type === 'wrong') {
+    icon.textContent = '✗';
+    title.textContent = 'WRONG PATH!';
+    pointsDisplay.innerHTML = `<span style="color:#ff0040;">+0 💰</span>`;
+  } else {
+    icon.textContent = '⏰';
+    title.textContent = "TIME'S UP!";
+    pointsDisplay.innerHTML = `<span style="color:#ffaa00;">+0 💰</span>`;
+  }
+
+  exp.innerHTML = `<strong>💡 Explanation:</strong> ${q.explanation}`;
+  overlay.classList.add('show');
+  setTimeout(() => overlay.classList.remove('show'), 4000);
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= questions.length) {
+    endGame();
+  } else {
+    loadQuestion();
+  }
+}
+
+function endGame() {
+  showScreen('resultScreen');
+  playSound('victory');
+  createConfetti(80);
+  setTimeout(() => createConfetti(60), 600);
+
+  document.getElementById('finalScore').textContent = score + ' 💰';
+  document.getElementById('statCorrect').textContent = correctCount;
+  document.getElementById('statWrong').textContent = wrongCount;
+  document.getElementById('statBonus').textContent = bonusCount;
+  document.getElementById('statMaxStreak').textContent = maxStreak;
+  const accuracy = Math.round((correctCount / 20) * 100);
+  document.getElementById('statAccuracy').textContent = accuracy + '%';
+
+  // Rank
+  const rankBadge = document.getElementById('rankBadge');
+  const trophyIcon = document.getElementById('trophyIcon');
+  let rank, message;
+
+  if (score >= 280) {
+    rank = '👑 LEGENDARY HUNTER 👑';
+    rankBadge.className = 'rank-badge legend';
+    trophyIcon.textContent = '👑';
+    message = `INCREDIBLE, ${playerName.toUpperCase()}! You've mastered the vocabulary realm!`;
+  } else if (score >= 220) {
+    rank = '🏆 MASTER HUNTER 🏆';
+    rankBadge.className = 'rank-badge master';
+    trophyIcon.textContent = '🏆';
+    message = `AMAZING, ${playerName.toUpperCase()}! You're a true word master!`;
+  } else if (score >= 150) {
+    rank = '⚔️ SKILLED HUNTER ⚔️';
+    rankBadge.className = 'rank-badge hunter';
+    trophyIcon.textContent = '⚔️';
+    message = `GREAT JOB, ${playerName.toUpperCase()}! Your vocabulary is impressive!`;
+  } else if (score >= 80) {
+    rank = '🗡️ WORD SEEKER 🗡️';
+    rankBadge.className = 'rank-badge seeker';
+    trophyIcon.textContent = '🗡️';
+    message = `GOOD EFFORT, ${playerName.toUpperCase()}! Keep hunting for more words!`;
+  } else {
+    rank = '🌱 NOVICE HUNTER 🌱';
+    rankBadge.className = 'rank-badge novice';
+    trophyIcon.textContent = '🗝️';
+    message = `DON'T GIVE UP, ${playerName.toUpperCase()}! Every master was once a beginner!`;
+  }
+
+  rankBadge.textContent = rank;
+  document.getElementById('championTitle').textContent = rank;
+  document.getElementById('resultMessage').textContent = message;
+
+  saveScore(playerName, score);
+  renderLeaderboard('leaderboardList', playerName);
+}
+
+function restartGame() {
+  playSound('click');
+  startGame();
+}
+
+// Enter key to start
+document.getElementById('playerName').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') startGame();
+});
+</script>
+</body>
+</html>
