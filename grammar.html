@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BASIC ENGLISH GRAMMAR: The Grammar Adventure</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Comic Sans MS', sans-serif; }
+  :root {
+    --blue: #3B82F6; --purple: #8B5CF6; --yellow: #FBBF24;
+    --green: #10B981; --pink: #EC4899; --dark: #1E293B;
+    --red: #EF4444; --orange: #F97316;
+  }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh; color: #fff; overflow-x: hidden;
+    background-attachment: fixed;
+  }
+  .bg-scene { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .float-letter {
+    position: absolute; font-size: 40px; font-weight: 900;
+    color: rgba(255,255,255,.12); animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0); }
+    100% { transform: translateY(-20vh) rotate(360deg); }
+  }
+  .app { position: relative; z-index: 1; min-height: 100vh; padding: 20px; }
+  .screen { display: none; animation: fadeIn .5s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .top-bar {
+    position: fixed; top: 10px; right: 10px; z-index: 50;
+    display: flex; gap: 8px;
+  }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,0,0,.4); border: 2px solid rgba(255,255,255,.3);
+    color: #fff; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .3s; backdrop-filter: blur(10px);
+  }
+  .icon-btn:hover { transform: scale(1.1); }
+  .icon-btn.muted { opacity: .5; }
+
+  .btn {
+    padding: 12px 28px; font-size: 15px; font-weight: bold;
+    border: none; border-radius: 30px; cursor: pointer;
+    color: #fff; transition: all .3s;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.05); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(45deg, var(--yellow), #F59E0B); color: var(--dark); }
+  .btn-success { background: linear-gradient(45deg, var(--green), #059669); }
+  .btn-info { background: linear-gradient(45deg, var(--blue), var(--purple)); }
+  .btn-pink { background: linear-gradient(45deg, var(--pink), #DB2777); }
+  .btn-danger { background: linear-gradient(45deg, var(--red), #DC2626); }
+  .btn-small { padding: 8px 18px; font-size: 13px; }
+
+  /* HOME */
+  .home-screen {
+    min-height: 90vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 20px;
+  }
+  .home-illus {
+    position: relative; width: min(450px, 90vw); height: 200px;
+    margin-bottom: 15px;
+  }
+  .home-book {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    font-size: 90px; filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
+    animation: bookBounce 2s ease-in-out infinite;
+  }
+  @keyframes bookBounce {
+    0%,100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
+    50% { transform: translateX(-50%) translateY(-15px) rotate(3deg); }
+  }
+  .home-letter {
+    position: absolute; font-size: 35px; font-weight: 900;
+    animation: letterFloat 3s ease-in-out infinite;
+  }
+  .home-letter.l1 { top: 10px; left: 10%; color: var(--yellow); }
+  .home-letter.l2 { top: 30px; right: 15%; color: var(--pink); animation-delay: .5s; }
+  .home-letter.l3 { top: 60px; left: 20%; color: var(--green); animation-delay: 1s; }
+  .home-letter.l4 { top: 50px; right: 25%; color: var(--blue); animation-delay: 1.5s; }
+  @keyframes letterFloat {
+    0%,100% { transform: translateY(0) rotate(-10deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+  }
+  .home-mascot {
+    position: absolute; bottom: 10px; right: 10%;
+    font-size: 55px; animation: mascotWave 2s ease-in-out infinite;
+  }
+  @keyframes mascotWave { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(10deg); } }
+
+  .game-title {
+    font-size: clamp(26px, 5vw, 48px); font-weight: 900;
+    background: linear-gradient(45deg, #FBBF24, #EC4899, #8B5CF6, #3B82F6);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .subtitle { font-size: clamp(13px, 2.5vw, 17px); margin-bottom: 20px; font-style: italic; }
+
+  .name-input {
+    padding: 12px 18px; font-size: 17px; border: 3px solid #fff;
+    border-radius: 30px; background: rgba(255,255,255,.2);
+    color: #fff; text-align: center; width: min(300px, 80vw);
+    margin: 12px 0; backdrop-filter: blur(10px);
+  }
+  .name-input::placeholder { color: rgba(255,255,255,.7); }
+  .name-input:focus { outline: none; background: rgba(255,255,255,.3); }
+
+  .home-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .stats-box {
+    margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .stat-card {
+    background: rgba(0,0,0,.3); padding: 10px 18px;
+    border-radius: 15px; backdrop-filter: blur(10px);
+  }
+  .stat-card .label { font-size: 11px; opacity: .8; }
+  .stat-card .value { font-size: 20px; font-weight: bold; color: var(--yellow); }
+
+  /* PAGE HEADER */
+  .page-header {
+    background: rgba(0,0,0,.3); padding: 10px 18px; border-radius: 20px;
+    margin-bottom: 18px; backdrop-filter: blur(10px);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .player-info { display: flex; align-items: center; gap: 10px; }
+  .player-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(45deg, var(--yellow), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+  .stat-box {
+    background: rgba(255,255,255,.2); padding: 5px 12px;
+    border-radius: 12px; font-size: 13px; font-weight: bold;
+  }
+  .page-title { text-align: center; font-size: clamp(20px, 4vw, 28px); margin-bottom: 18px; }
+
+  /* GRID */
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px; max-width: 1100px; margin: 0 auto;
+  }
+  .card {
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 18px;
+    padding: 18px; cursor: pointer; transition: all .3s;
+    position: relative; overflow: hidden;
+  }
+  .card:hover:not(.locked) {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,.4);
+    border-color: var(--yellow);
+  }
+  .card.locked { opacity: .5; cursor: not-allowed; filter: grayscale(.5); }
+  .card.completed { border-color: var(--green); }
+  .card-icon { font-size: 42px; text-align: center; margin-bottom: 8px; }
+  .card-name { font-size: 15px; font-weight: bold; text-align: center; margin-bottom: 4px; }
+  .card-desc { font-size: 12px; text-align: center; opacity: .9; margin-bottom: 8px; }
+  .card-badge { position: absolute; top: 8px; right: 8px; font-size: 18px; }
+  .card-stars { text-align: center; font-size: 16px; letter-spacing: 2px; }
+
+  /* GAME SCREEN */
+  .game-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,.3); padding: 10px 18px; border-radius: 20px;
+    margin-bottom: 15px; flex-wrap: wrap; gap: 8px;
+    backdrop-filter: blur(10px);
+  }
+  .level-title { font-size: 14px; font-weight: bold; }
+  .timer {
+    background: linear-gradient(45deg, var(--yellow), #F59E0B);
+    color: var(--dark); padding: 5px 12px; border-radius: 12px;
+    font-weight: bold; font-size: 14px; min-width: 70px; text-align: center;
+  }
+  .timer.warning { background: linear-gradient(45deg, #EF4444, #DC2626); color: #fff; animation: shake .5s infinite; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+  .game-container {
+    max-width: 900px; margin: 0 auto;
+    background: rgba(255,255,255,.1); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.2); border-radius: 22px;
+    padding: 22px;
+  }
+  .guide {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(255,255,255,.15); padding: 12px;
+    border-radius: 12px; margin-bottom: 15px;
+  }
+  .guide-avatar { font-size: 40px; flex-shrink: 0; }
+  .speech-bubble {
+    background: #fff; color: var(--dark); padding: 10px 14px;
+    border-radius: 12px; position: relative; font-size: 13px;
+    line-height: 1.5; flex: 1;
+  }
+  .speech-bubble::before {
+    content: ""; position: absolute; left: -10px; top: 12px;
+    border: 8px solid transparent; border-right-color: #fff;
+  }
+
+  .progress-wrap {
+    background: rgba(0,0,0,.3); padding: 5px; border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .progress-bar {
+    height: 12px; background: rgba(255,255,255,.2);
+    border-radius: 8px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--green), var(--yellow));
+    width: 0%; transition: width .4s;
+  }
+
+  /* QUESTION */
+  .question-box {
+    background: rgba(255,255,255,.15); padding: 16px;
+    border-radius: 14px; margin-bottom: 12px;
+  }
+  .q-meta { font-size: 12px; opacity: .8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .q-mode-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    background: var(--purple); font-size: 11px; font-weight: bold;
+  }
+  .q-text { font-size: 16px; font-weight: 600; line-height: 1.5; white-space: pre-wrap; }
+  .q-sentence {
+    background: rgba(0,0,0,.25); padding: 10px; border-radius: 10px;
+    margin-top: 8px; font-family: 'Courier New', monospace;
+    font-size: 15px; line-height: 1.6;
+  }
+  .blank {
+    display: inline-block; min-width: 60px; border-bottom: 2px solid var(--yellow);
+    padding: 0 4px; color: var(--yellow); font-weight: bold;
+  }
+
+  /* OPTIONS */
+  .options { display: grid; gap: 8px; margin-bottom: 12px; }
+  .option {
+    padding: 12px 16px; background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 12px;
+    cursor: pointer; font-size: 14px; color: #fff; text-align: left;
+    transition: all .25s; display: flex; align-items: center; gap: 10px;
+  }
+  .option:hover:not(:disabled) { background: rgba(255,255,255,.3); border-color: var(--yellow); transform: translateX(4px); }
+  .option:disabled { cursor: not-allowed; }
+  .option-letter {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,.3); display: flex;
+    align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0; font-size: 13px;
+  }
+  .option.correct { background: var(--green); border-color: #059669; animation: pop .4s; }
+  .option.wrong { background: var(--red); border-color: #DC2626; animation: shake .4s; }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+  /* FILL INPUT */
+  .fill-input {
+    width: 100%; padding: 12px; font-size: 16px;
+    background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.4);
+    border-radius: 12px; color: #fff; margin-bottom: 10px;
+  }
+  .fill-input:focus { outline: none; border-color: var(--yellow); background: rgba(255,255,255,.3); }
+  .fill-input::placeholder { color: rgba(255,255,255,.6); }
+
+  /* SCRAMBLE */
+  .scramble-area {
+    background: rgba(0,0,0,.25); padding: 12px; border-radius: 12px;
+    min-height: 60px; margin-bottom: 10px; display: flex;
+    flex-wrap: wrap; gap: 6px; align-items: center;
+  }
+  .scramble-word {
+    padding: 8px 14px; background: rgba(255,255,255,.2);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 10px;
+    cursor: pointer; font-size: 14px; transition: all .2s;
+    user-select: none;
+  }
+  .scramble-word:hover { background: var(--yellow); color: var(--dark); }
+  .scramble-word.used { opacity: .3; cursor: not-allowed; }
+  .scramble-word.in-answer { background: var(--blue); border-color: var(--blue); }
+  .answer-area {
+    background: rgba(255,255,255,.1); padding: 12px; border-radius: 12px;
+    min-height: 60px; margin-bottom: 10px; display: flex;
+    flex-wrap: wrap; gap: 6px; align-items: center;
+    border: 2px dashed rgba(255,255,255,.3);
+  }
+  .answer-word {
+    padding: 8px 14px; background: var(--green);
+    border-radius: 10px; cursor: pointer; font-size: 14px;
+    color: #fff; font-weight: bold;
+  }
+  .answer-word:hover { background: var(--red); }
+
+  /* FEEDBACK */
+  .feedback {
+    text-align: center; padding: 10px; border-radius: 10px;
+    margin: 8px 0; font-weight: bold; font-size: 14px;
+    animation: fadeIn .3s;
+  }
+  .feedback.correct { background: var(--green); }
+  .feedback.wrong { background: var(--red); }
+  .feedback.info { background: var(--blue); }
+  .explanation {
+    background: rgba(0,0,0,.3); padding: 10px; border-radius: 10px;
+    margin-top: 6px; font-size: 12px; font-weight: normal;
+    text-align: left; line-height: 1.5;
+  }
+  .hint-box {
+    background: rgba(251,191,36,.2); border: 2px dashed var(--yellow);
+    padding: 10px; border-radius: 10px; margin-bottom: 8px;
+    font-size: 13px; animation: fadeIn .3s;
+  }
+
+  .action-row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* MATERIAL */
+  .material-container {
+    max-width: 800px; margin: 0 auto;
+    background: rgba(255,255,255,.1); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.2); border-radius: 22px;
+    padding: 25px;
+  }
+  .material-title {
+    font-size: 24px; font-weight: bold; text-align: center;
+    margin-bottom: 15px; color: var(--yellow);
+  }
+  .material-section {
+    background: rgba(255,255,255,.1); padding: 15px;
+    border-radius: 12px; margin-bottom: 12px;
+  }
+  .material-section h3 {
+    color: var(--yellow); margin-bottom: 8px; font-size: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .material-section p, .material-section li {
+    font-size: 14px; line-height: 1.6; margin-bottom: 6px;
+  }
+  .material-section ul { padding-left: 20px; }
+  .formula-box {
+    background: rgba(0,0,0,.3); padding: 12px; border-radius: 10px;
+    font-family: 'Courier New', monospace; font-size: 14px;
+    margin: 8px 0; border-left: 4px solid var(--yellow);
+  }
+  .example-box {
+    background: rgba(16,185,129,.15); padding: 10px; border-radius: 10px;
+    margin: 6px 0; border-left: 4px solid var(--green);
+    font-size: 13px;
+  }
+  .example-box b { color: var(--yellow); }
+
+  /* RESULT */
+  .result-card {
+    max-width: 600px; margin: 30px auto;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 22px;
+    padding: 25px; text-align: center;
+  }
+  .result-icon { font-size: 70px; margin-bottom: 8px; animation: floaty 2s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .result-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+  .result-grade {
+    display: inline-block; padding: 8px 22px; border-radius: 20px;
+    font-size: 16px; font-weight: bold; margin-bottom: 12px;
+  }
+  .grade-master { background: var(--yellow); color: var(--dark); }
+  .grade-expert { background: var(--green); }
+  .grade-champion { background: var(--blue); }
+  .grade-learner { background: var(--purple); }
+  .grade-practice { background: var(--pink); }
+
+  .result-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px; margin: 15px 0;
+  }
+  .stat-item { background: rgba(255,255,255,.15); padding: 12px; border-radius: 12px; }
+  .stat-value { font-size: 22px; font-weight: bold; color: var(--yellow); }
+  .stat-label { font-size: 11px; opacity: .9; }
+
+  .result-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+
+  /* CERTIFICATE */
+  .certificate {
+    max-width: 700px; margin: 20px auto;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    color: var(--dark); border: 8px double #92400E;
+    border-radius: 15px; padding: 35px 25px;
+    text-align: center; position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .cert-corner { position: absolute; width: 50px; height: 50px; font-size: 26px; }
+  .cert-corner.tl { top: 8px; left: 8px; }
+  .cert-corner.tr { top: 8px; right: 8px; }
+  .cert-corner.bl { bottom: 8px; left: 8px; }
+  .cert-corner.br { bottom: 8px; right: 8px; }
+  .cert-title {
+    font-size: 28px; font-weight: 900;
+    background: linear-gradient(45deg, #92400E, #DC2626);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .cert-subtitle { font-style: italic; margin-bottom: 15px; color: #78350F; }
+  .cert-name {
+    font-size: 32px; font-weight: bold;
+    border-bottom: 2px solid #92400E;
+    display: inline-block; padding: 0 25px 4px;
+    margin: 8px 0; color: #7C2D12; font-family: 'Georgia', serif;
+  }
+  .cert-body { font-size: 14px; line-height: 1.6; margin: 12px 0; }
+  .cert-achievement {
+    display: inline-block; padding: 6px 18px;
+    background: linear-gradient(45deg, #F59E0B, #DC2626);
+    color: #fff; border-radius: 20px; font-weight: bold;
+    margin: 8px 0; font-size: 16px;
+  }
+  .cert-stars { font-size: 32px; letter-spacing: 6px; margin: 8px 0; }
+  .cert-footer { display: flex; justify-content: space-around; margin-top: 25px; font-size: 12px; }
+  .cert-sign { border-top: 1px solid #92400E; padding-top: 4px; min-width: 140px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+    padding: 20px; animation: fadeIn .3s;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 20px;
+    padding: 22px; max-width: 500px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+  }
+  .modal h2 { margin-bottom: 12px; text-align: center; }
+  .modal p, .modal li { font-size: 13px; line-height: 1.6; margin-bottom: 6px; }
+  .modal ul { padding-left: 20px; }
+
+  /* LEADERBOARD */
+  .leaderboard {
+    max-width: 600px; margin: 20px auto;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border-radius: 20px; padding: 20px;
+  }
+  .lb-title { text-align: center; font-size: 22px; margin-bottom: 12px; }
+  .lb-row {
+    display: flex; align-items: center; padding: 8px 12px;
+    background: rgba(255,255,255,.1); border-radius: 10px;
+    margin-bottom: 6px; gap: 10px;
+  }
+  .lb-rank {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--yellow); color: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0; font-size: 13px;
+  }
+  .lb-rank.gold { background: linear-gradient(45deg, #FFD700, #FFA500); }
+  .lb-rank.silver { background: linear-gradient(45deg, #C0C0C0, #A8A8A8); }
+  .lb-rank.bronze { background: linear-gradient(45deg, #CD7F32, #B87333); }
+  .lb-name { flex: 1; font-weight: bold; font-size: 13px; }
+  .lb-score { font-weight: bold; color: var(--yellow); font-size: 13px; }
+
+  .achievement-popup {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-200%);
+    background: linear-gradient(45deg, var(--yellow), #F59E0B);
+    color: var(--dark); padding: 12px 22px; border-radius: 50px;
+    font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    z-index: 100; transition: transform .5s cubic-bezier(.5,1.6,.4,1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .achievement-popup.show { transform: translateX(-50%) translateY(0); }
+
+  .confetti {
+    position: fixed; width: 10px; height: 10px;
+    pointer-events: none; z-index: 99;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .app { padding: 10px; }
+    .game-container, .result-card, .material-container, .certificate { padding: 15px; }
+    .q-text { font-size: 14px; }
+    .option { font-size: 13px; padding: 10px 12px; }
+    .cert-name { font-size: 24px; }
+    .cert-title { font-size: 22px; }
+  }
+
+  @media print {
+    body > *:not(.certificate) { display: none !important; }
+    .certificate { box-shadow: none; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-scene" id="bgScene"></div>
+
+<div class="top-bar">
+  <button class="icon-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
+  <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+</div>
+
+<div class="achievement-popup" id="achievementPopup">
+  <span id="achBadge" style="font-size:26px;">🏆</span>
+  <span id="achText">Achievement!</span>
+</div>
+
+<div class="app">
+
+  <!-- HOME -->
+  <div class="screen active" id="homeScreen">
+    <div class="home-screen">
+      <div class="home-illus">
+        <div class="home-letter l1">A</div>
+        <div class="home-letter l2">B</div>
+        <div class="home-letter l3">C</div>
+        <div class="home-letter l4">Z</div>
+        <div class="home-book">📚</div>
+        <div class="home-mascot">🦉</div>
+      </div>
+      <h1 class="game-title">BASIC ENGLISH GRAMMAR</h1>
+      <p class="subtitle">✨ The Grammar Adventure ✨</p>
+      <p style="max-width:500px; margin-bottom:10px; padding: 0 15px; font-size:13px;">
+        Learn Grammar, Build Confidence! Master English grammar through 10 exciting levels!
+      </p>
+      <input type="text" class="name-input" id="playerName" placeholder="Enter your name..." maxlength="20">
+      <div class="home-buttons">
+        <button class="btn btn-primary" onclick="startGame()">🚀 START GAME</button>
+        <button class="btn btn-info btn-small" onclick="showHowToPlay()">📖 HOW TO PLAY</button>
+        <button class="btn btn-pink btn-small" onclick="showLeaderboard()">🏆 LEADERBOARD</button>
+      </div>
+      <div class="stats-box">
+        <div class="stat-card"><div class="label">💎 TOTAL SCORE</div><div class="value" id="homeScore">0</div></div>
+        <div class="stat-card"><div class="label">🏅 BADGES</div><div class="value" id="homeBadges">0</div></div>
+        <div class="stat-card"><div class="label">📚 LEVELS</div><div class="value" id="homeLevels">0/10</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="screen" id="mapScreen">
+    <div class="page-header">
+      <div class="player-info">
+        <div class="player-avatar">🧑‍🎓</div>
+        <div>
+          <div style="font-weight:bold;" id="displayName">Explorer</div>
+          <div style="font-size:11px; opacity:.8;">Grammar Adventurer</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">💎 <span id="totalScore">0</span></div>
+        <div class="stat-box">⭐ <span id="totalStars">0</span>/30</div>
+      </div>
+    </div>
+    <h2 class="page-title">🗺️ Grammar Adventure Map</h2>
+    <div class="grid" id="levelGrid"></div>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn btn-info btn-small" onclick="showLeaderboard()">🏆 Leaderboard</button>
+      <button class="btn btn-pink btn-small" onclick="showHome()">🏠 Home</button>
+    </div>
+  </div>
+
+  <!-- MATERIAL -->
+  <div class="screen" id="materialScreen">
+    <div class="page-header">
+      <div class="player-info">
+        <div class="player-avatar">🧑‍🎓</div>
+        <div>
+          <div style="font-weight:bold;" id="matPlayerName">Explorer</div>
+          <div style="font-size:11px; opacity:.8;" id="matLevelName">Level 1</div>
+        </div>
+      </div>
+    </div>
+    <div class="material-container" id="materialContent"></div>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn btn-success" onclick="startLevel()">🎮 Start Challenge</button>
+      <button class="btn btn-pink btn-small" onclick="showMap()">← Back to Map</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <div class="level-title" id="currentLevelTitle">Level 1</div>
+      <div class="timer" id="timer">⏱ 30s</div>
+      <div class="stat-box">💎 <span id="gameScore">0</span></div>
+    </div>
+    <div class="game-container">
+      <div class="guide">
+        <div class="guide-avatar">🦉</div>
+        <div class="speech-bubble" id="guideText">Let's learn grammar!</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div id="questionArea"></div>
+      <div id="feedbackArea"></div>
+      <div class="action-row">
+        <button class="btn btn-info btn-small" id="hintBtn" onclick="useHint()">💡 Hint (<span id="hintCount">3</span>)</button>
+        <button class="btn btn-primary btn-small" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="resultScreen">
+    <div class="result-card">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <h2 class="result-title" id="resultTitle">Great Job!</h2>
+      <div class="result-grade" id="resultGrade">Grammar Master</div>
+      <div class="result-stats">
+        <div class="stat-item"><div class="stat-value" id="rCorrect">0</div><div class="stat-label">Correct</div></div>
+        <div class="stat-item"><div class="stat-value" id="rWrong">0</div><div class="stat-label">Wrong</div></div>
+        <div class="stat-item"><div class="stat-value" id="rScore">0</div><div class="stat-label">Points</div></div>
+        <div class="stat-item"><div class="stat-value" id="rPercent">0%</div><div class="stat-label">Accuracy</div></div>
+      </div>
+      <div class="result-buttons">
+        <button class="btn btn-success btn-small" onclick="retryLevel()">🔄 Retry</button>
+        <button class="btn btn-primary btn-small" onclick="showMap()">🗺️ Map</button>
+        <button class="btn btn-info btn-small" id="nextLevelBtn" onclick="nextLevel()">➡ Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="screen" id="finalScreen">
+    <div class="certificate" id="certificate">
+      <div class="cert-corner tl">🌟</div>
+      <div class="cert-corner tr">🌟</div>
+      <div class="cert-corner bl">🌟</div>
+      <div class="cert-corner br">🌟</div>
+      <div class="cert-title">🏆 Certificate of Achievement 🏆</div>
+      <div class="cert-subtitle">Basic English Grammar: The Grammar Adventure</div>
+      <div style="font-size:13px; margin-bottom:4px;">This certificate is proudly awarded to</div>
+      <div class="cert-name" id="certName">Hero</div>
+      <div class="cert-body">
+        for successfully completing all ten levels of the Grammar Adventure Quest
+        and demonstrating excellent mastery of English grammar fundamentals.
+      </div>
+      <div class="cert-achievement" id="certGrade">GRAMMAR MASTER</div>
+      <div class="cert-stars" id="certStars">⭐⭐⭐⭐⭐⭐</div>
+      <div class="cert-body">
+        <strong>Total Score:</strong> <span id="certScore">0</span> points<br>
+        <strong>Date:</strong> <span id="certDate"></span>
+      </div>
+      <div class="cert-footer">
+        <div class="cert-sign">Professor Owl<br><em>Grammar Master</em></div>
+        <div class="cert-sign">Phase E<br><em>Kurikulum Merdeka</em></div>
+      </div>
+    </div>
+    <div style="text-align:center; margin: 15px 0;">
+      <button class="btn btn-info btn-small" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-primary" onclick="playAgain()">🔄 Play Again</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="screen" id="leaderboardScreen">
+    <div class="leaderboard">
+      <h2 class="lb-title">🏆 Hall of Grammar Masters</h2>
+      <div id="lbList"></div>
+      <div style="text-align:center; margin-top:15px;">
+        <button class="btn btn-info btn-small" onclick="closeLB()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOW TO PLAY MODAL -->
+<div class="modal-overlay" id="howToPlayModal">
+  <div class="modal">
+    <h2>📖 How to Play</h2>
+    <p><b>🎯 Goal:</b> Master English grammar through 10 exciting levels!</p>
+    <p><b>🎮 Game Modes:</b></p>
+    <ul>
+      <li><b>📝 Grammar Quiz:</b> Multiple choice A, B, C, D.</li>
+      <li><b>✍️ Fill in the Blanks:</b> Type the missing word.</li>
+      <li><b>🔀 Sentence Scramble:</b> Arrange words into a correct sentence.</li>
+      <li><b>🔍 Find the Mistake:</b> Spot the grammar error.</li>
+      <li><b>⚔️ Grammar Battle:</b> Fast-paced timed challenge!</li>
+    </ul>
+    <p><b>⭐ Scoring:</b></p>
+    <ul>
+      <li>✅ Correct: +10 points</li>
+      <li>🎁 Level completion: +20 bonus</li>
+      <li>💯 No mistakes: +30 perfect bonus</li>
+    </ul>
+    <p><b>💡 Tips:</b> Use hints wisely (3 per level). Read the material first!</p>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-primary btn-small" onclick="closeHowToPlay()">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   AUDIO
+   ============================================================ */
+let audioCtx = null, musicOn = true, soundOn = true, musicInterval = null;
+function initAudio() {
+  if (!audioCtx) try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+}
+function playTone(freq, duration, type='sine', volume=0.1) {
+  if (!soundOn || !audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+function playCorrectSound() {
+  playTone(523.25, 0.12, 'sine', 0.15);
+  setTimeout(() => playTone(659.25, 0.12, 'sine', 0.15), 80);
+  setTimeout(() => playTone(783.99, 0.2, 'sine', 0.15), 160);
+}
+function playWrongSound() {
+  playTone(200, 0.2, 'sawtooth', 0.1);
+  setTimeout(() => playTone(150, 0.3, 'sawtooth', 0.1), 150);
+}
+function playClickSound() { playTone(800, 0.05, 'square', 0.05); }
+function playLevelUpSound() {
+  [523.25, 659.25, 783.99, 1046.50].forEach((n, i) =>
+    setTimeout(() => playTone(n, 0.2, 'sine', 0.15), i * 120));
+}
+const melody = [
+  { f: 523.25, d: 0.3 }, { f: 587.33, d: 0.3 }, { f: 659.25, d: 0.3 }, { f: 523.25, d: 0.3 },
+  { f: 659.25, d: 0.3 }, { f: 698.46, d: 0.3 }, { f: 783.99, d: 0.6 },
+  { f: 783.99, d: 0.2 }, { f: 880.00, d: 0.2 }, { f: 783.99, d: 0.2 }, { f: 698.46, d: 0.2 },
+  { f: 659.25, d: 0.4 }, { f: 523.25, d: 0.4 }
+];
+function startMusic() {
+  if (!musicOn || !audioCtx) return;
+  stopMusic();
+  let i = 0;
+  const playNext = () => {
+    if (!musicOn) return;
+    const note = melody[i % melody.length];
+    playTone(note.f, note.d, 'triangle', 0.04);
+    i++;
+  };
+  playNext();
+  musicInterval = setInterval(() => {
+    if (!musicOn) { stopMusic(); return; }
+    const note = melody[i % melody.length];
+    playTone(note.f, note.d, 'triangle', 0.04);
+    i++;
+  }, 350);
+}
+function stopMusic() { if (musicInterval) { clearInterval(musicInterval); musicInterval = null; } }
+function toggleMusic() {
+  initAudio();
+  musicOn = !musicOn;
+  document.getElementById('musicBtn').classList.toggle('muted', !musicOn);
+  document.getElementById('musicBtn').textContent = musicOn ? '🎵' : '🔇';
+  if (musicOn) startMusic(); else stopMusic();
+}
+function toggleSound() {
+  initAudio();
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').classList.toggle('muted', !soundOn);
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔈';
+}
+
+/* ============================================================
+   LEVELS DATA: 10 levels with materials and questions
+   ============================================================ */
+const LEVELS = [
+  {
+    id: 1, name: "Parts of Speech", icon: "🔤", color: "#3B82F6",
+    desc: "Learn the 8 parts of speech",
+    material: {
+      title: "🔤 Parts of Speech",
+      sections: [
+        {
+          title: "📘 What are Parts of Speech?",
+          content: `<p>Parts of speech are categories of words based on their function in a sentence. There are <b>8 parts of speech</b> in English:</p>
+            <ul>
+              <li><b>Noun</b> — names a person, place, thing, or idea (book, Jakarta, happiness)</li>
+              <li><b>Pronoun</b> — replaces a noun (he, she, they, it)</li>
+              <li><b>Verb</b> — shows action or state (run, is, think)</li>
+              <li><b>Adjective</b> — describes a noun (beautiful, tall, happy)</li>
+              <li><b>Adverb</b> — describes a verb, adjective, or other adverb (quickly, very, well)</li>
+              <li><b>Preposition</b> — shows relationship (in, on, at, under)</li>
+              <li><b>Conjunction</b> — connects words/clauses (and, but, because)</li>
+              <li><b>Interjection</b> — expresses emotion (Wow!, Oh!, Ouch!)</li>
+            </ul>`
+        },
+        {
+          title: "💡 Examples",
+          content: `<div class="example-box"><b>"The <u>beautiful</u> girl <u>quickly</u> <u>ran</u> to the <u>park</u>."</u></b><br>
+            beautiful = adjective, quickly = adverb, ran = verb, park = noun</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'quiz', q: 'Identify the part of speech of the underlined word:\n"She is a beautiful girl."', sentence: 'She is a <u>beautiful</u> girl.', options: ['Noun', 'Verb', 'Adjective', 'Adverb'], a: 2, e: '"Beautiful" describes the noun "girl", so it is an adjective.', h: 'What does the word describe?' },
+      { type: 'quiz', q: 'What part of speech is "quickly" in: "He runs quickly"?', options: ['Noun', 'Verb', 'Adjective', 'Adverb'], a: 3, e: '"Quickly" describes how he runs → adverb.', h: 'It describes the verb "runs".' },
+      { type: 'quiz', q: 'Which word is a NOUN?', options: ['Run', 'Beautiful', 'Book', 'Quickly'], a: 2, e: '"Book" is a thing → noun.', h: 'A thing, person, place, or idea.' },
+      { type: 'quiz', q: 'Identify the verb in: "They play football every day."', options: ['They', 'Play', 'Football', 'Every'], a: 1, e: '"Play" is the action → verb.', h: 'Find the action word.' },
+      { type: 'fill', q: 'Fill in the blank with the correct part of speech label:\n"In the sentence \'Wow! That\'s amazing!\', the word \'Wow!\' is an ______."', answer: 'interjection', e: '"Wow!" expresses emotion → interjection.', h: 'It expresses strong emotion.' },
+      { type: 'quiz', q: 'Which word is a PRONOUN?', options: ['Book', 'She', 'Run', 'Beautiful'], a: 1, e: '"She" replaces a noun → pronoun.', h: 'It replaces a noun.' },
+      { type: 'quiz', q: 'What part of speech is "under" in: "The cat is under the table"?', options: ['Noun', 'Verb', 'Preposition', 'Adjective'], a: 2, e: '"Under" shows position → preposition.', h: 'It shows relationship/position.' },
+      { type: 'quiz', q: 'Which word is a CONJUNCTION?', options: ['And', 'Run', 'Book', 'Quickly'], a: 0, e: '"And" connects words/clauses → conjunction.', h: 'It connects words or clauses.' },
+      { type: 'mistake', q: 'Find the mistake in this sentence:', sentence: 'She happy is today.', options: ['She', 'happy', 'is', 'today'], a: 1, e: 'Correct: "She is happy today." Adjective should come after "is".', h: 'Check the word order.' },
+      { type: 'quiz', q: '"Jakarta" is an example of:', options: ['Verb', 'Proper Noun', 'Adjective', 'Adverb'], a: 1, e: '"Jakarta" is a specific place name → proper noun.', h: 'It\'s a name of a place.' }
+    ]
+  },
+  {
+    id: 2, name: "To Be", icon: "🔗", color: "#10B981",
+    desc: "Am, Is, Are, Was, Were",
+    material: {
+      title: "🔗 To Be: Am, Is, Are, Was, Were",
+      sections: [
+        {
+          title: "📘 Present To Be",
+          content: `<div class="formula-box">I → <b>am</b><br>He/She/It → <b>is</b><br>You/We/They → <b>are</b></div>
+            <div class="example-box"><b>(+)</b> She <b>is</b> a student.<br><b>(-)</b> She <b>is not (isn't)</b> a student.<br><b>(?)</b> <b>Is</b> she a student?</div>`
+        },
+        {
+          title: "📘 Past To Be",
+          content: `<div class="formula-box">I/He/She/It → <b>was</b><br>You/We/They → <b>were</b></div>
+            <div class="example-box"><b>(+)</b> They <b>were</b> happy yesterday.<br><b>(-)</b> They <b>were not (weren't)</b> happy.<br><b>(?)</b> <b>Were</b> they happy?</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'fill', q: 'Complete: "I ___ a student."', answer: 'am', e: '"I" uses "am".', h: 'Subject is "I".' },
+      { type: 'quiz', q: 'Choose the correct to be: "She ___ my sister."', options: ['am', 'is', 'are', 'were'], a: 1, e: '"She" uses "is".', h: 'Subject is "She" (singular).' },
+      { type: 'fill', q: 'Complete: "They ___ playing football now."', answer: 'are', e: '"They" uses "are".', h: 'Subject is "They" (plural).' },
+      { type: 'quiz', q: 'Choose the correct past to be: "We ___ at the cinema last night."', options: ['was', 'were', 'are', 'is'], a: 1, e: '"We" in past uses "were".', h: 'Past tense + "We".' },
+      { type: 'fill', q: 'Complete: "He ___ sick yesterday."', answer: 'was', e: '"He" in past uses "was".', h: 'Past tense + "He".' },
+      { type: 'quiz', q: '"___ you happy yesterday?"', options: ['Was', 'Were', 'Are', 'Is'], a: 1, e: '"You" in past uses "were".', h: 'Past tense + "you".' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'She are my best friend.', options: ['She', 'are', 'my', 'friend'], a: 1, e: 'Should be "She is my best friend."', h: 'Check subject-verb agreement.' },
+      { type: 'quiz', q: '"The books ___ on the table." (present)', options: ['is', 'are', 'was', 'am'], a: 1, e: '"The books" is plural → are.', h: '"Books" is plural.' },
+      { type: 'fill', q: 'Complete: "You ___ very smart." (present)', answer: 'are', e: '"You" uses "are".', h: 'Subject is "You".' },
+      { type: 'quiz', q: '"I ___ tired last night."', options: ['am', 'is', 'was', 'were'], a: 2, e: '"I" in past uses "was".', h: 'Past tense + "I".' }
+    ]
+  },
+  {
+    id: 3, name: "Simple Present Tense", icon: "📅", color: "#8B5CF6",
+    desc: "Daily habits and facts",
+    material: {
+      title: "📅 Simple Present Tense",
+      sections: [
+        {
+          title: "📘 Usage",
+          content: `<p>Used for:</p>
+            <ul>
+              <li>Habits/routines: <i>I wake up at 6 AM.</i></li>
+              <li>General truths: <i>The sun rises in the east.</i></li>
+              <li>Facts: <i>Water boils at 100°C.</i></li>
+            </ul>`
+        },
+        {
+          title: "📘 Formula",
+          content: `<div class="formula-box"><b>(+)</b> S + V1 (s/es for he/she/it)<br><b>(-)</b> S + do/does + not + V1<br><b>(?)</b> Do/Does + S + V1?</div>
+            <div class="example-box"><b>(+)</b> She <b>studies</b> English every day.<br><b>(-)</b> She <b>does not (doesn't) study</b> English.<br><b>(?)</b> <b>Does</b> she <b>study</b> English?</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'fill', q: 'Complete: "She ___ (study) English every day."', answer: 'studies', e: 'He/She/It + V1 + s/es. "Study" → "studies".', h: 'Subject is "She" (needs -s/-es).' },
+      { type: 'quiz', q: 'Choose the correct form: "They ___ football every Sunday."', options: ['play', 'plays', 'playing', 'played'], a: 0, e: '"They" uses V1 without -s.', h: '"They" is plural.' },
+      { type: 'fill', q: 'Complete the negative: "He ___ (not, like) coffee."', answer: "doesn't like", alt: ['does not like'], e: 'He/She/It + doesn\'t + V1.', h: 'Negative for "He" uses "doesn\'t".' },
+      { type: 'quiz', q: '"___ you speak English?"', options: ['Do', 'Does', 'Are', 'Is'], a: 0, e: '"You" uses "Do" in questions.', h: 'Question with "you".' },
+      { type: 'scramble', q: 'Arrange the words:', words: ['every', 'goes', 'she', 'to', 'school', 'day'], answer: 'she goes to school every day', e: 'S + V + O + time.', h: 'Start with subject "she".' },
+      { type: 'fill', q: 'Complete: "My father ___ (watch) TV every night."', answer: 'watches', e: '"My father" (he) → watches.', h: 'Subject is singular (he).' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'He don\'t like pizza.', options: ['He', 'don\'t', 'like', 'pizza'], a: 1, e: 'Should be "He doesn\'t like pizza."', h: 'Check "He" with do/does.' },
+      { type: 'quiz', q: '"The cat ___ milk." (like)', options: ['like', 'likes', 'liking', 'liked'], a: 1, e: '"The cat" (it) → likes.', h: 'Singular subject needs -s.' },
+      { type: 'fill', q: 'Complete the question: "___ she live in Jakarta?"', answer: 'does', e: '"She" uses "Does" in questions.', h: 'Question with "she".' },
+      { type: 'quiz', q: 'Which sentence is correct?', options: ['I goes to school.', 'I go to school.', 'I going to school.', 'I gone to school.'], a: 1, e: '"I" uses V1 without -s → "go".', h: '"I" + V1.' }
+    ]
+  },
+  {
+    id: 4, name: "Present Continuous", icon: "🏃", color: "#EC4899",
+    desc: "Actions happening now",
+    material: {
+      title: "🏃 Present Continuous Tense",
+      sections: [
+        {
+          title: "📘 Usage",
+          content: `<p>Used for actions happening <b>right now</b> or <b>around this time</b>.</p>`
+        },
+        {
+          title: "📘 Formula",
+          content: `<div class="formula-box"><b>(+)</b> S + am/is/are + V-ing<br><b>(-)</b> S + am/is/are + not + V-ing<br><b>(?)</b> Am/Is/Are + S + V-ing?</div>
+            <div class="example-box"><b>(+)</b> She <b>is reading</b> a book now.<br><b>(-)</b> She <b>is not (isn't) reading</b> now.<br><b>(?)</b> <b>Is</b> she <b>reading</b> now?</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'fill', q: 'Complete: "I ___ (read) a book now."', answer: 'am reading', e: '"I" + am + V-ing.', h: 'Subject is "I".' },
+      { type: 'quiz', q: '"She ___ TV at the moment."', options: ['watches', 'is watching', 'watch', 'watched'], a: 1, e: '"At the moment" → Present Continuous.', h: 'Happening now.' },
+      { type: 'fill', q: 'Complete: "They ___ (play) football right now."', answer: 'are playing', e: '"They" + are + V-ing.', h: 'Subject is "They".' },
+      { type: 'quiz', q: '"Look! The baby ___!"', options: ['cries', 'cry', 'is crying', 'cried'], a: 2, e: '"Look!" indicates happening now.', h: 'Happening right now.' },
+      { type: 'scramble', q: 'Arrange:', words: ['cooking', 'mother', 'is', 'my', 'dinner'], answer: 'my mother is cooking dinner', e: 'S + am/is/are + V-ing + O.', h: 'Start with "my mother".' },
+      { type: 'fill', q: 'Complete the negative: "He ___ (not, sleep) now."', answer: "isn't sleeping", alt: ['is not sleeping'], e: 'He + is not + V-ing.', h: 'Negative form.' },
+      { type: 'quiz', q: '"___ you listening to me?"', options: ['Do', 'Does', 'Are', 'Is'], a: 2, e: '"You" uses "Are" in Present Continuous questions.', h: 'Question form.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'She is study English now.', options: ['She', 'is', 'study', 'now'], a: 2, e: 'Should be "studying" (V-ing).', h: 'Present Continuous needs V-ing.' },
+      { type: 'fill', q: 'Complete: "We ___ (have) lunch at the moment."', answer: 'are having', e: '"We" + are + V-ing. Note: have → having.', h: 'Subject is "We".' },
+      { type: 'quiz', q: 'Which sentence is in Present Continuous?', options: ['I eat rice.', 'I am eating rice.', 'I ate rice.', 'I will eat rice.'], a: 1, e: '"am eating" = Present Continuous.', h: 'Look for am/is/are + V-ing.' }
+    ]
+  },
+  {
+    id: 5, name: "Simple Past Tense", icon: "📜", color: "#F97316",
+    desc: "Past events and experiences",
+    material: {
+      title: "📜 Simple Past Tense",
+      sections: [
+        {
+          title: "📘 Usage",
+          content: `<p>Used for actions that happened in the <b>past</b> and are <b>finished</b>.</p>
+            <p>Time signals: yesterday, last week, two days ago, in 2010.</p>`
+        },
+        {
+          title: "📘 Formula",
+          content: `<div class="formula-box"><b>(+)</b> S + V2<br><b>(-)</b> S + did not (didn't) + V1<br><b>(?)</b> Did + S + V1?</div>
+            <div class="example-box"><b>Regular verbs:</b> play → played, study → studied<br><b>Irregular verbs:</b> go → went, eat → ate, see → saw</div>
+            <div class="example-box"><b>(+)</b> She <b>went</b> to Bali last year.<br><b>(-)</b> She <b>didn't go</b> to Bali.<br><b>(?)</b> <b>Did</b> she <b>go</b> to Bali?</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'fill', q: 'Complete: "I ___ (go) to Jakarta yesterday."', answer: 'went', e: '"Go" is irregular → went.', h: 'Past of "go".' },
+      { type: 'quiz', q: '"She ___ a book last night." (read)', options: ['read', 'reads', 'readed', 'reading'], a: 0, e: '"Read" is irregular (same form, pronounced "red").', h: 'Past of "read".' },
+      { type: 'fill', q: 'Complete: "They ___ (play) football yesterday."', answer: 'played', e: '"Play" is regular → played.', h: 'Regular verb + -ed.' },
+      { type: 'quiz', q: '"He ___ (not, come) to the party last week."', options: ["didn't came", "didn't come", "doesn't come", "don't come"], a: 1, e: 'Didn\'t + V1 (come).', h: 'Negative past uses didn\'t + V1.' },
+      { type: 'scramble', q: 'Arrange:', words: ['visited', 'we', 'museum', 'the', 'yesterday'], answer: 'we visited the museum yesterday', e: 'S + V2 + O + time.', h: 'Start with "we".' },
+      { type: 'fill', q: 'Complete the question: "___ you watch the movie last night?"', answer: 'did', e: 'Questions in past use "Did".', h: 'Past question.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'She didn\'t went to school.', options: ['She', 'didn\'t', 'went', 'school'], a: 2, e: 'Should be "didn\'t go" (V1 after didn\'t).', h: 'After didn\'t, use V1.' },
+      { type: 'quiz', q: 'What is the past form of "eat"?', options: ['eated', 'ate', 'eaten', 'eating'], a: 1, e: '"Eat" → "ate" (irregular).', h: 'Irregular verb.' },
+      { type: 'fill', q: 'Complete: "My mother ___ (cook) nasi goreng this morning."', answer: 'cooked', e: '"Cook" is regular → cooked.', h: 'Regular verb.' },
+      { type: 'quiz', q: '"___ they happy yesterday?"', options: ['Do', 'Does', 'Were', 'Are'], a: 2, e: 'Past "to be" for "they" → Were.', h: 'Past question with "they".' }
+    ]
+  },
+  {
+    id: 6, name: "Pronouns", icon: "👥", color: "#EF4444",
+    desc: "Subject, Object, Possessive",
+    material: {
+      title: "👥 Pronouns",
+      sections: [
+        {
+          title: "📘 Types of Pronouns",
+          content: `<div class="formula-box"><b>Subject:</b> I, you, we, they, he, she, it<br><b>Object:</b> me, you, us, them, him, her, it<br><b>Possessive Adj:</b> my, your, our, their, his, her, its<br><b>Possessive Pro:</b> mine, yours, ours, theirs, his, hers<br><b>Reflexive:</b> myself, yourself, ourselves, themselves, himself, herself, itself</div>`
+        },
+        {
+          title: "💡 Examples",
+          content: `<div class="example-box"><b>Subject:</b> <b>She</b> is smart.<br><b>Object:</b> I called <b>him</b>.<br><b>Poss. Adj:</b> This is <b>my</b> book.<br><b>Poss. Pro:</b> This book is <b>mine</b>.<br><b>Reflexive:</b> She hurt <b>herself</b>.</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'quiz', q: 'Choose the correct subject pronoun: "___ is my teacher." (Mrs. Ani)', options: ['He', 'She', 'It', 'They'], a: 1, e: 'Mrs. Ani → female → "She".', h: 'Female person.' },
+      { type: 'fill', q: 'Complete: "I gave ___ (he) a gift." (object form)', answer: 'him', e: 'Object form of "he" is "him".', h: 'Object form needed.' },
+      { type: 'quiz', q: '"This is ___ book." (my possession)', options: ['I', 'me', 'my', 'mine'], a: 2, e: 'Before noun → possessive adjective "my".', h: 'Before a noun.' },
+      { type: 'fill', q: 'Complete: "This book is ___." (my possession, no noun after)', answer: 'mine', e: 'No noun after → possessive pronoun "mine".', h: 'No noun after the blank.' },
+      { type: 'quiz', q: '"She made the cake ___." (by herself)', options: ['her', 'hers', 'herself', 'she'], a: 2, e: 'Reflexive: "herself".', h: 'Reflexive pronoun.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'Him is my brother.', options: ['Him', 'is', 'my', 'brother'], a: 0, e: 'Should be "He is my brother" (subject).', h: 'Subject position.' },
+      { type: 'quiz', q: '"The dog hurt ___." (reflexive)', options: ['it', 'its', 'itself', 'him'], a: 2, e: 'Reflexive for "it" → "itself".', h: 'Reflexive form.' },
+      { type: 'fill', q: 'Complete: "___ are my best friends." (they)', answer: 'They', e: 'Subject position → "They".', h: 'Subject pronoun.' },
+      { type: 'quiz', q: '"Is this pen ___?" (your possession)', options: ['you', 'your', 'yours', 'yourself'], a: 2, e: 'No noun after → possessive pronoun "yours".', h: 'No noun after.' },
+      { type: 'fill', q: 'Complete: "We enjoyed ___ at the party." (reflexive)', answer: 'ourselves', e: 'Reflexive of "we" → "ourselves".', h: 'Reflexive of "we".' }
+    ]
+  },
+  {
+    id: 7, name: "Articles & Determiners", icon: "📝", color: "#14B8A6",
+    desc: "A, An, The, Some, Any",
+    material: {
+      title: "📝 Articles & Determiners",
+      sections: [
+        {
+          title: "📘 Articles",
+          content: `<div class="formula-box"><b>A</b> — before consonant sound (a book, a university)<br><b>An</b> — before vowel sound (an apple, an hour)<br><b>The</b> — specific/known thing (the sun, the book I read)</div>`
+        },
+        {
+          title: "📘 Some vs Any",
+          content: `<div class="formula-box"><b>Some</b> — positive sentences, offers<br><b>Any</b> — negative & questions</div>
+            <div class="example-box">I have <b>some</b> money.<br>I don't have <b>any</b> money.<br>Do you have <b>any</b> money?</div>`
+        },
+        {
+          title: "📘 Much vs Many",
+          content: `<div class="formula-box"><b>Much</b> — uncountable nouns (much water, much time)<br><b>Many</b> — countable nouns (many books, many students)</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'quiz', q: 'Choose the correct article: "I saw ___ elephant at the zoo."', options: ['a', 'an', 'the', '—'], a: 1, e: '"Elephant" starts with vowel sound → "an".', h: 'Vowel sound.' },
+      { type: 'fill', q: 'Complete: "She is ___ honest woman."', answer: 'an', e: '"Honest" starts with silent H (vowel sound) → "an".', h: 'Silent H = vowel sound.' },
+      { type: 'quiz', q: '"I have ___ apples." (positive)', options: ['some', 'any', 'much', 'a'], a: 0, e: 'Positive sentence → "some".', h: 'Positive sentence.' },
+      { type: 'fill', q: 'Complete: "Do you have ___ questions?"', answer: 'any', e: 'Question → "any".', h: 'Question form.' },
+      { type: 'quiz', q: '"There isn\'t ___ milk in the fridge."', options: ['some', 'any', 'many', 'a'], a: 1, e: 'Negative → "any".', h: 'Negative sentence.' },
+      { type: 'fill', q: 'Complete: "I don\'t have ___ money." (uncountable)', answer: 'much', e: 'Uncountable noun → "much".', h: 'Uncountable noun.' },
+      { type: 'quiz', q: '"There are ___ students in the class."', options: ['much', 'many', 'any', 'a'], a: 1, e: 'Countable noun → "many".', h: 'Countable noun.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'I saw a elephant yesterday.', options: ['I', 'saw', 'a', 'elephant'], a: 2, e: 'Should be "an elephant" (vowel sound).', h: 'Vowel sound.' },
+      { type: 'fill', q: 'Complete: "___ sun rises in the east." (specific)', answer: 'The', e: 'Unique thing → "The".', h: 'Specific/unique.' },
+      { type: 'quiz', q: '"She wants to buy ___ umbrella."', options: ['a', 'an', 'the', 'some'], a: 1, e: '"Umbrella" starts with vowel sound → "an".', h: 'Vowel sound.' }
+    ]
+  },
+  {
+    id: 8, name: "Prepositions", icon: "📍", color: "#A855F7",
+    desc: "In, On, At, Under, etc.",
+    material: {
+      title: "📍 Prepositions of Place & Time",
+      sections: [
+        {
+          title: "📘 Prepositions of Place",
+          content: `<div class="formula-box"><b>In</b> — inside (in the box, in Jakarta)<br><b>On</b> — on surface (on the table, on Monday)<br><b>At</b> — specific point (at school, at 7 o'clock)<br><b>Under</b> — below (under the bed)<br><b>Behind</b> — at the back (behind the door)<br><b>Between</b> — in the middle of two (between A and B)<br><b>Next to</b> — beside (next to the bank)<br><b>In front of</b> — before (in front of the school)</div>`
+        },
+        {
+          title: "📘 Prepositions of Time",
+          content: `<div class="formula-box"><b>In</b> — months, years, centuries (in July, in 2024)<br><b>On</b> — days, dates (on Monday, on July 17)<br><b>At</b> — specific time (at 7 AM, at noon)</div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'fill', q: 'Complete: "The book is ___ the table."', answer: 'on', e: 'Surface → "on".', h: 'On a surface.' },
+      { type: 'quiz', q: '"I was born ___ 2008."', options: ['in', 'on', 'at', 'by'], a: 0, e: 'Year → "in".', h: 'Year.' },
+      { type: 'fill', q: 'Complete: "The meeting is ___ Monday."', answer: 'on', e: 'Day → "on".', h: 'Day of the week.' },
+      { type: 'quiz', q: '"She wakes up ___ 6 AM."', options: ['in', 'on', 'at', 'by'], a: 2, e: 'Specific time → "at".', h: 'Specific time.' },
+      { type: 'fill', q: 'Complete: "The cat is hiding ___ the bed."', answer: 'under', e: 'Below → "under".', h: 'Below something.' },
+      { type: 'quiz', q: '"The bank is ___ the post office and the school."', options: ['between', 'next', 'behind', 'on'], a: 0, e: 'Two things → "between".', h: 'Two things.' },
+      { type: 'fill', q: 'Complete: "I live ___ Jakarta." (city)', answer: 'in', e: 'City/large area → "in".', h: 'City.' },
+      { type: 'quiz', q: '"She is sitting ___ me." (beside)', options: ['between', 'next to', 'under', 'in'], a: 1, e: 'Beside → "next to".', h: 'Beside.' },
+      { type: 'fill', q: 'Complete: "The ball is ___ the box." (inside)', answer: 'in', e: 'Inside → "in".', h: 'Inside.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'I was born in July 17.', options: ['I', 'was', 'in', 'July'], a: 2, e: 'Specific date → "on July 17".', h: 'Specific date.' }
+    ]
+  },
+  {
+    id: 9, name: "Comparative & Superlative", icon: "📊", color: "#F43F5E",
+    desc: "Comparing things",
+    material: {
+      title: "📊 Comparative & Superlative",
+      sections: [
+        {
+          title: "📘 Formula",
+          content: `<div class="formula-box"><b>Short adj (1 syllable):</b><br>Comparative: adj + <b>er</b> + than<br>Superlative: the + adj + <b>est</b><br><br><b>Long adj (2+ syllables):</b><br>Comparative: <b>more</b> + adj + than<br>Superlative: the <b>most</b> + adj</div>`
+        },
+        {
+          title: "💡 Examples",
+          content: `<div class="example-box">tall → <b>taller</b> → <b>the tallest</b><br>big → <b>bigger</b> → <b>the biggest</b><br>beautiful → <b>more beautiful</b> → <b>the most beautiful</b><br>good → <b>better</b> → <b>the best</b><br>bad → <b>worse</b> → <b>the worst</b></div>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'fill', q: 'Complete: "She is ___ (tall) than her sister."', answer: 'taller', e: 'Short adj → -er.', h: 'Comparing two.' },
+      { type: 'quiz', q: '"This is the ___ (big) house in the street."', options: ['bigger', 'biggest', 'most big', 'more big'], a: 1, e: 'Superlative of "big" → "biggest".', h: 'The + superlative.' },
+      { type: 'fill', q: 'Complete: "English is ___ (difficult) than Math." (long adj)', answer: 'more difficult', e: 'Long adj → more + adj.', h: 'Long adjective.' },
+      { type: 'quiz', q: '"She is the ___ (beautiful) girl in class."', options: ['beautifuler', 'most beautiful', 'more beautiful', 'beautifulest'], a: 1, e: 'Long adj superlative → "the most beautiful".', h: 'Long adj + superlative.' },
+      { type: 'fill', q: 'Complete: "This book is ___ (good) than that one."', answer: 'better', e: 'Irregular: good → better.', h: 'Irregular form.' },
+      { type: 'quiz', q: '"He is the ___ (bad) player in the team."', options: ['badder', 'worst', 'worse', 'most bad'], a: 1, e: 'Irregular superlative: bad → the worst.', h: 'Irregular superlative.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'She is more taller than me.', options: ['She', 'is', 'more', 'taller'], a: 2, e: 'Don\'t use "more" with "-er". Just "taller".', h: 'Short adj uses -er only.' },
+      { type: 'fill', q: 'Complete: "My bag is ___ (heavy) than yours."', answer: 'heavier', e: 'Heavy → heavier (y → ier).', h: 'Y → IER.' },
+      { type: 'quiz', q: '"Today is the ___ (hot) day of the year."', options: ['hotter', 'hottest', 'more hot', 'most hot'], a: 1, e: 'Hot → hottest (double t).', h: 'Double consonant.' },
+      { type: 'fill', q: 'Complete: "This is the ___ (interesting) movie I\'ve ever seen."', answer: 'most interesting', e: 'Long adj superlative → most interesting.', h: 'Long adj.' }
+    ]
+  },
+  {
+    id: 10, name: "Final Boss", icon: "👑", color: "#FBBF24",
+    desc: "Master Challenge — All Grammar!",
+    material: {
+      title: "👑 FINAL BOSS — Grammar Master Challenge",
+      sections: [
+        {
+          title: "🎯 The Ultimate Challenge",
+          content: `<p>This is the FINAL BOSS! You will face <b>20 questions</b> covering ALL grammar topics from Level 1-9:</p>
+            <ul>
+              <li>🔤 Parts of Speech</li>
+              <li>🔗 To Be</li>
+              <li>📅 Simple Present</li>
+              <li>🏃 Present Continuous</li>
+              <li>📜 Simple Past</li>
+              <li>👥 Pronouns</li>
+              <li>📝 Articles & Determiners</li>
+              <li>📍 Prepositions</li>
+              <li>📊 Comparative & Superlative</li>
+            </ul>
+            <p><b>Are you ready to become a GRAMMAR MASTER?</b></p>`
+        }
+      ]
+    },
+    questions: [
+      { type: 'quiz', q: '"She ___ a doctor." (present)', options: ['am', 'is', 'are', 'be'], a: 1, e: 'She → is.', h: 'To be + she.' },
+      { type: 'fill', q: 'Complete: "They ___ (play) tennis every weekend."', answer: 'play', e: 'They + V1.', h: 'Simple present.' },
+      { type: 'quiz', q: '"Look! It ___!"', options: ['rains', 'is raining', 'rained', 'rain'], a: 1, e: '"Look!" → happening now.', h: 'Happening now.' },
+      { type: 'fill', q: 'Complete: "I ___ (go) to Bali last year."', answer: 'went', e: 'Past of "go" → went.', h: 'Simple past.' },
+      { type: 'scramble', q: 'Arrange:', words: ['is', 'reading', 'she', 'book', 'a'], answer: 'she is reading a book', e: 'S + am/is/are + V-ing + O.', h: 'Present continuous.' },
+      { type: 'quiz', q: '"This is ___ umbrella."', options: ['a', 'an', 'the', 'some'], a: 1, e: 'Vowel sound → "an".', h: 'Article.' },
+      { type: 'fill', q: 'Complete: "The cat is ___ the table." (below)', answer: 'under', e: 'Below → under.', h: 'Preposition.' },
+      { type: 'quiz', q: '"He is ___ than his brother." (tall)', options: ['tall', 'taller', 'tallest', 'more tall'], a: 1, e: 'Comparative → taller.', h: 'Comparing two.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'She don\'t like coffee.', options: ['She', 'don\'t', 'like', 'coffee'], a: 1, e: 'Should be "doesn\'t".', h: 'She + doesn\'t.' },
+      { type: 'fill', q: 'Complete: "___ you happy yesterday?"', answer: 'Were', e: 'Past + you → Were.', h: 'Past to be.' },
+      { type: 'quiz', q: '"I called ___ yesterday." (he - object)', options: ['he', 'him', 'his', 'himself'], a: 1, e: 'Object form → him.', h: 'Object pronoun.' },
+      { type: 'fill', q: 'Complete: "I have ___ friends." (positive)', answer: 'many', e: 'Countable → many.', h: 'Countable noun.' },
+      { type: 'quiz', q: '"She is the ___ (smart) student."', options: ['smarter', 'smartest', 'most smart', 'more smart'], a: 1, e: 'Superlative → smartest.', h: 'Superlative.' },
+      { type: 'scramble', q: 'Arrange:', words: ['to', 'went', 'they', 'beach', 'the'], answer: 'they went to the beach', e: 'S + V2 + O.', h: 'Simple past.' },
+      { type: 'fill', q: 'Complete: "He ___ (not, come) yesterday."', answer: "didn't come", alt: ['did not come'], e: 'Past negative → didn\'t + V1.', h: 'Past negative.' },
+      { type: 'quiz', q: '"This book is ___." (my possession)', options: ['my', 'mine', 'me', 'I'], a: 1, e: 'No noun after → mine.', h: 'Possessive pronoun.' },
+      { type: 'fill', q: 'Complete: "The meeting is ___ 9 AM."', answer: 'at', e: 'Specific time → at.', h: 'Specific time.' },
+      { type: 'quiz', q: '"This is the ___ (bad) movie ever."', options: ['worse', 'worst', 'badder', 'most bad'], a: 1, e: 'Irregular superlative: worst.', h: 'Irregular.' },
+      { type: 'mistake', q: 'Find the mistake:', sentence: 'He is more smarter than me.', options: ['He', 'is', 'more', 'smarter'], a: 2, e: 'Don\'t use "more" with "-er".', h: 'Short adj.' },
+      { type: 'fill', q: 'Complete: "She ___ (study) English every day."', answer: 'studies', e: 'She + V1 + s/es.', h: 'Simple present + she.' }
+    ]
+  }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  playerName: "",
+  currentLevel: 1,
+  totalScore: 0,
+  totalStars: 0,
+  levelProgress: {},
+  achievements: [],
+  // Game state
+  gameScore: 0,
+  gameCorrect: 0,
+  gameWrong: 0,
+  gameStartTime: 0,
+  hintsLeft: 3,
+  timer: null,
+  timeLeft: 0,
+  currentQ: 0,
+  questions: [],
+  answered: false,
+  previousScreen: "homeScreen",
+  // Scramble state
+  scrambleAnswer: []
+};
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function saveProgress() {
+  localStorage.setItem('bg_progress', JSON.stringify({
+    playerName: state.playerName,
+    totalScore: state.totalScore,
+    totalStars: state.totalStars,
+    levelProgress: state.levelProgress,
+    achievements: state.achievements
+  }));
+}
+function loadProgress() {
+  const data = localStorage.getItem('bg_progress');
+  if (data) {
+    const p = JSON.parse(data);
+    state.playerName = p.playerName || "";
+    state.totalScore = p.totalScore || 0;
+    state.totalStars = p.totalStars || 0;
+    state.levelProgress = p.levelProgress || {};
+    state.achievements = p.achievements || [];
+  }
+}
+function saveLeaderboard(name, score) {
+  const lb = JSON.parse(localStorage.getItem('bg_leaderboard') || '[]');
+  lb.push({ name, score, date: new Date().toLocaleDateString() });
+  lb.sort((a, b) => b.score - a.score);
+  localStorage.setItem('bg_leaderboard', JSON.stringify(lb.slice(0, 10)));
+}
+function getLeaderboard() {
+  return JSON.parse(localStorage.getItem('bg_leaderboard') || '[]');
+}
+function isLevelUnlocked(levelId) {
+  if (levelId === 1) return true;
+  return state.levelProgress[levelId - 1] && state.levelProgress[levelId - 1].completed;
+}
+function confetti() {
+  const colors = ['#FBBF24', '#EC4899', '#8B5CF6', '#3B82F6', '#10B981'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+function showAchievement(badge, text) {
+  const popup = document.getElementById('achievementPopup');
+  document.getElementById('achBadge').textContent = badge;
+  document.getElementById('achText').textContent = text;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 3000);
+}
+function createBgScene() {
+  const scene = document.getElementById('bgScene');
+  const letters = ['A', 'B', 'C', 'is', 'am', 'V-ing', 'V2', '?', '!'];
+  for (let i = 0; i < 15; i++) {
+    const l = document.createElement('div');
+    l.className = 'float-letter';
+    l.textContent = letters[Math.floor(Math.random() * letters.length)];
+    l.style.left = Math.random() * 100 + '%';
+    l.style.fontSize = (25 + Math.random() * 30) + 'px';
+    l.style.animationDuration = (15 + Math.random() * 20) + 's';
+    l.style.animationDelay = -Math.random() * 20 + 's';
+    scene.appendChild(l);
+  }
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function startGame() {
+  initAudio();
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) { alert("Please enter your name!"); return; }
+  state.playerName = name;
+  loadProgress();
+  if (!state.playerName) state.playerName = name;
+  playClickSound();
+  if (musicOn) startMusic();
+  renderMap();
+  showScreen('mapScreen');
+}
+function showHome() {
+  playClickSound();
+  updateHomeStats();
+  showScreen('homeScreen');
+}
+function updateHomeStats() {
+  document.getElementById('homeScore').textContent = state.totalScore;
+  document.getElementById('homeBadges').textContent = state.achievements.length;
+  const completed = Object.values(state.levelProgress).filter(p => p.completed).length;
+  document.getElementById('homeLevels').textContent = `${completed}/10`;
+}
+function renderMap() {
+  document.getElementById('displayName').textContent = state.playerName;
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('totalStars').textContent = state.totalStars;
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  LEVELS.forEach(lv => {
+    const unlocked = isLevelUnlocked(lv.id);
+    const prog = state.levelProgress[lv.id] || { completed: false, bestScore: 0, stars: 0 };
+    const card = document.createElement('div');
+    card.className = 'card' + (!unlocked ? ' locked' : '') + (prog.completed ? ' completed' : '');
+    card.innerHTML = `
+      ${!unlocked ? '<div class="card-badge">🔒</div>' : (prog.completed ? '<div class="card-badge">✅</div>' : '')}
+      <div class="card-icon">${lv.icon}</div>
+      <div class="card-name">Level ${lv.id}: ${lv.name}</div>
+      <div class="card-desc">${lv.desc}</div>
+      <div class="card-stars">${'⭐'.repeat(prog.stars)}${'☆'.repeat(3 - prog.stars)}</div>
+      <div style="text-align:center; font-size:11px; margin-top:4px; opacity:.8;">Best: ${prog.bestScore} pts</div>
+    `;
+    if (unlocked) card.onclick = () => { playClickSound(); showMaterial(lv.id); };
+    grid.appendChild(card);
+  });
+}
+function showMaterial(levelId) {
+  state.currentLevel = levelId;
+  const lv = LEVELS.find(l => l.id === levelId);
+  document.getElementById('matPlayerName').textContent = state.playerName;
+  document.getElementById('matLevelName').textContent = `Level ${lv.id}: ${lv.name}`;
+  const content = document.getElementById('materialContent');
+  let html = `<div class="material-title">${lv.material.title}</div>`;
+  lv.material.sections.forEach(sec => {
+    html += `<div class="material-section"><h3>${sec.title}</h3>${sec.content}</div>`;
+  });
+  content.innerHTML = html;
+  showScreen('materialScreen');
+}
+function showMap() {
+  playClickSound();
+  clearTimers();
+  renderMap();
+  showScreen('mapScreen');
+  const allDone = LEVELS.every(lv => state.levelProgress[lv.id] && state.levelProgress[lv.id].completed);
+  if (allDone) setTimeout(showFinal, 500);
+}
+function showHowToPlay() {
+  playClickSound();
+  document.getElementById('howToPlayModal').classList.add('show');
+}
+function closeHowToPlay() {
+  playClickSound();
+  document.getElementById('howToPlayModal').classList.remove('show');
+}
+function showLeaderboard() {
+  playClickSound();
+  state.previousScreen = document.querySelector('.screen.active').id;
+  const lb = getLeaderboard();
+  const list = document.getElementById('lbList');
+  if (lb.length === 0) {
+    list.innerHTML = '<p style="text-align:center; opacity:.8; padding:20px;">No champions yet. Be the first!</p>';
+  } else {
+    list.innerHTML = lb.map((p, i) => {
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+      return `<div class="lb-row">
+        <div class="lb-rank ${rankClass}">${medal}</div>
+        <div class="lb-name">${p.name}</div>
+        <div class="lb-score">💎 ${p.score}</div>
+      </div>`;
+    }).join('');
+  }
+  showScreen('leaderboardScreen');
+}
+function closeLB() {
+  playClickSound();
+  showScreen(state.previousScreen || 'homeScreen');
+}
+
+/* ============================================================
+   START LEVEL
+   ============================================================ */
+function startLevel() {
+  playClickSound();
+  const lv = LEVELS.find(l => l.id === state.currentLevel);
+  state.gameScore = 0;
+  state.gameCorrect = 0;
+  state.gameWrong = 0;
+  state.hintsLeft = 3;
+  state.currentQ = 0;
+  state.gameStartTime = Date.now();
+  state.answered = false;
+
+  // Prepare questions (shuffle)
+  state.questions = shuffle(lv.questions).map(q => {
+    if (q.type === 'quiz' || q.type === 'mistake') {
+      const opts = q.options.map((text, i) => ({ text, isCorrect: i === q.a }));
+      const shuffled = shuffle(opts);
+      return { ...q, options: shuffled.map(x => x.text), a: shuffled.findIndex(x => x.isCorrect) };
+    } else if (q.type === 'scramble') {
+      return { ...q, words: shuffle(q.words) };
+    }
+    return q;
+  });
+
+  document.getElementById('currentLevelTitle').textContent = `Level ${lv.id}: ${lv.name}`;
+  document.getElementById('guideText').textContent = getGuideMessage(lv.id);
+  document.getElementById('gameScore').textContent = '0';
+  document.getElementById('hintCount').textContent = state.hintsLeft;
+  document.getElementById('hintBtn').disabled = false;
+  document.getElementById('feedbackArea').innerHTML = '';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  clearTimers();
+  showScreen('gameScreen');
+  renderQuestion();
+}
+
+function getGuideMessage(levelId) {
+  const messages = {
+    1: "Let's identify parts of speech! Read carefully.",
+    2: "Choose the correct 'to be' for each sentence!",
+    3: "Use Simple Present Tense correctly!",
+    4: "Actions happening NOW — use Present Continuous!",
+    5: "Past events — use Simple Past Tense!",
+    6: "Choose the right pronoun for each situation!",
+    7: "A, An, The, Some, Any — pick correctly!",
+    8: "Where and when? Choose the right preposition!",
+    9: "Compare things — use comparative & superlative!",
+    10: "FINAL BOSS! Show your grammar mastery!"
+  };
+  return messages[levelId] || "Let's go!";
+}
+
+function clearTimers() {
+  if (state.timer) { clearInterval(state.timer); state.timer = null; }
+}
+
+function useHint() {
+  if (state.hintsLeft <= 0 || state.answered) return;
+  state.hintsLeft--;
+  document.getElementById('hintCount').textContent = state.hintsLeft;
+  if (state.hintsLeft === 0) document.getElementById('hintBtn').disabled = true;
+  playClickSound();
+
+  const q = state.questions[state.currentQ];
+  const hintArea = document.getElementById('feedbackArea');
+  const existing = document.getElementById('hintBox');
+  if (!existing) {
+    const div = document.createElement('div');
+    div.id = 'hintBox';
+    div.className = 'hint-box';
+    div.innerHTML = `💡 <b>Hint:</b> ${q.h || 'Think about the grammar rules!'}`;
+    hintArea.insertBefore(div, hintArea.firstChild);
+  }
+
+  // For quiz/mistake: remove 1 wrong option
+  if ((q.type === 'quiz' || q.type === 'mistake') && state.hintsLeft >= 0) {
+    const opts = document.querySelectorAll('.option');
+    let removed = 0;
+    opts.forEach((opt, i) => {
+      if (removed < 1 && i !== q.a && !opt.disabled) {
+        opt.disabled = true;
+        opt.style.opacity = '0.3';
+        removed++;
+      }
+    });
+  }
+}
+
+function renderQuestion() {
+  const q = state.questions[state.currentQ];
+  state.answered = false;
+  const lv = LEVELS.find(l => l.id === state.currentLevel);
+  const total = state.questions.length;
+
+  document.getElementById('progressFill').style.width = (state.currentQ / total * 100) + '%';
+  document.getElementById('feedbackArea').innerHTML = '';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  // Timer for battle mode (Final Boss)
+  const timerEl = document.getElementById('timer');
+  if (state.currentLevel === 10) {
+    state.timeLeft = 30;
+    timerEl.textContent = `⏱ ${state.timeLeft}s`;
+    timerEl.classList.remove('warning');
+    startTimer();
+  } else {
+    timerEl.textContent = `📝 ${state.currentQ + 1}/${total}`;
+    timerEl.classList.remove('warning');
+  }
+
+  const area = document.getElementById('questionArea');
+  const modeLabel = {
+    'quiz': '📝 Grammar Quiz',
+    'fill': '✍️ Fill in the Blank',
+    'scramble': '🔀 Sentence Scramble',
+    'mistake': '🔍 Find the Mistake'
+  }[q.type] || '📝 Question';
+
+  let html = `<div class="question-box">
+    <div class="q-meta">
+      <span>Question ${state.currentQ + 1} of ${total}</span>
+      <span class="q-mode-badge">${modeLabel}</span>
+    </div>
+    <div class="q-text">${q.q}</div>`;
+
+  if (q.sentence) {
+    html += `<div class="q-sentence">${q.sentence}</div>`;
+  }
+  html += `</div>`;
+
+  if (q.type === 'quiz' || q.type === 'mistake') {
+    html += `<div class="options" id="options"></div>`;
+  } else if (q.type === 'fill') {
+    html += `<input type="text" class="fill-input" id="fillInput" placeholder="Type your answer..." autocomplete="off">
+             <button class="btn btn-success btn-small" onclick="submitFill()">✓ Submit</button>`;
+  } else if (q.type === 'scramble') {
+    html += `<div style="font-size:12px; opacity:.8; margin-bottom:6px;">Click words to build the sentence:</div>
+             <div class="answer-area" id="answerArea"></div>
+             <div class="scramble-area" id="wordBank"></div>
+             <button class="btn btn-success btn-small" onclick="submitScramble()">✓ Check</button>
+             <button class="btn btn-danger btn-small" onclick="resetScramble()">🗑️ Reset</button>`;
+  }
+
+  area.innerHTML = html;
+
+  if (q.type === 'quiz' || q.type === 'mistake') {
+    const optsDiv = document.getElementById('options');
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.innerHTML = `<div class="option-letter">${String.fromCharCode(65 + i)}</div><div>${opt}</div>`;
+      btn.onclick = () => selectOption(i, btn);
+      optsDiv.appendChild(btn);
+    });
+  } else if (q.type === 'scramble') {
+    state.scrambleAnswer = [];
+    renderScramble();
+  } else if (q.type === 'fill') {
+    setTimeout(() => {
+      const inp = document.getElementById('fillInput');
+      if (inp) {
+        inp.focus();
+        inp.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') submitFill();
+        });
+      }
+    }, 100);
+  }
+}
+
+function startTimer() {
+  clearInterval(state.timer);
+  const timerEl = document.getElementById('timer');
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    timerEl.textContent = `⏱ ${state.timeLeft}s`;
+    if (state.timeLeft <= 5) timerEl.classList.add('warning');
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timer);
+      timeout();
+    }
+  }, 1000);
+}
+
+function timeout() {
+  if (state.answered) return;
+  state.answered = true;
+  playWrongSound();
+  state.gameWrong++;
+  const q = state.questions[state.currentQ];
+  const fb = document.getElementById('feedbackArea');
+  let correctAns = '';
+  if (q.type === 'quiz' || q.type === 'mistake') {
+    const opts = document.querySelectorAll('.option');
+    opts.forEach((o, i) => {
+      o.disabled = true;
+      if (i === q.a) o.classList.add('correct');
+    });
+    correctAns = q.options[q.a];
+  } else if (q.type === 'fill') {
+    correctAns = q.answer;
+  } else if (q.type === 'scramble') {
+    correctAns = q.answer;
+  }
+  fb.innerHTML = `<div class="feedback wrong">⏰ Time's up! Answer: <b>${correctAns}</b></div>
+                  <div class="explanation">💡 ${q.e}</div>`;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function selectOption(idx, btn) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timer);
+
+  const q = state.questions[state.currentQ];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.disabled = true);
+
+  const fb = document.getElementById('feedbackArea');
+  if (idx === q.a) {
+    btn.classList.add('correct');
+    playCorrectSound();
+    state.gameScore += 10;
+    state.gameCorrect++;
+    fb.innerHTML = `<div class="feedback correct">✅ Correct! +10 points</div>
+                    <div class="explanation">💡 ${q.e}</div>`;
+  } else {
+    btn.classList.add('wrong');
+    opts[q.a].classList.add('correct');
+    playWrongSound();
+    state.gameWrong++;
+    fb.innerHTML = `<div class="feedback wrong">❌ The correct answer is: <b>${q.options[q.a]}</b></div>
+                    <div class="explanation">💡 ${q.e}</div>`;
+  }
+  document.getElementById('gameScore').textContent = state.gameScore;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function submitFill() {
+  if (state.answered) return;
+  const inp = document.getElementById('fillInput');
+  if (!inp) return;
+  const answer = inp.value.trim().toLowerCase();
+  if (!answer) { alert("Please type your answer!"); return; }
+
+  state.answered = true;
+  clearInterval(state.timer);
+  inp.disabled = true;
+
+  const q = state.questions[state.currentQ];
+  const correctAnswers = [q.answer.toLowerCase(), ...(q.alt || []).map(a => a.toLowerCase())];
+  const fb = document.getElementById('feedbackArea');
+
+  if (correctAnswers.includes(answer)) {
+    playCorrectSound();
+    state.gameScore += 10;
+    state.gameCorrect++;
+    fb.innerHTML = `<div class="feedback correct">✅ Correct! +10 points</div>
+                    <div class="explanation">💡 ${q.e}</div>`;
+  } else {
+    playWrongSound();
+    state.gameWrong++;
+    fb.innerHTML = `<div class="feedback wrong">❌ The correct answer is: <b>${q.answer}</b></div>
+                    <div class="explanation">💡 ${q.e}</div>`;
+  }
+  document.getElementById('gameScore').textContent = state.gameScore;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function renderScramble() {
+  const q = state.questions[state.currentQ];
+  const bank = document.getElementById('wordBank');
+  const ansArea = document.getElementById('answerArea');
+  if (!bank || !ansArea) return;
+
+  bank.innerHTML = '';
+  q.words.forEach((w, i) => {
+    const used = state.scrambleAnswer.some(a => a.origIdx === i);
+    const el = document.createElement('div');
+    el.className = 'scramble-word' + (used ? ' used' : '');
+    el.textContent = w;
+    if (!used) el.onclick = () => {
+      playClickSound();
+      state.scrambleAnswer.push({ word: w, origIdx: i });
+      renderScramble();
+    };
+    bank.appendChild(el);
+  });
+
+  ansArea.innerHTML = '';
+  if (state.scrambleAnswer.length === 0) {
+    ansArea.innerHTML = '<span style="opacity:.5; font-size:13px;">Click words above to build your sentence...</span>';
+  } else {
+    state.scrambleAnswer.forEach((a, i) => {
+      const el = document.createElement('div');
+      el.className = 'answer-word';
+      el.textContent = a.word;
+      el.onclick = () => {
+        playClickSound();
+        state.scrambleAnswer.splice(i, 1);
+        renderScramble();
+      };
+      ansArea.appendChild(el);
+    });
+  }
+}
+
+function resetScramble() {
+  playClickSound();
+  state.scrambleAnswer = [];
+  renderScramble();
+}
+
+function submitScramble() {
+  if (state.answered) return;
+  if (state.scrambleAnswer.length === 0) { alert("Build the sentence first!"); return; }
+
+  state.answered = true;
+  clearInterval(state.timer);
+  const q = state.questions[state.currentQ];
+  const userAns = state.scrambleAnswer.map(a => a.word).join(' ').toLowerCase();
+  const correct = q.answer.toLowerCase();
+  const fb = document.getElementById('feedbackArea');
+
+  if (userAns === correct) {
+    playCorrectSound();
+    state.gameScore += 10;
+    state.gameCorrect++;
+    fb.innerHTML = `<div class="feedback correct">✅ Correct! +10 points</div>
+                    <div class="explanation">💡 ${q.e}</div>`;
+  } else {
+    playWrongSound();
+    state.gameWrong++;
+    fb.innerHTML = `<div class="feedback wrong">❌ Correct sentence: <b>"${q.answer}"</b></div>
+                    <div class="explanation">💡 ${q.e}</div>`;
+  }
+  document.getElementById('gameScore').textContent = state.gameScore;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+
+  // Disable further interaction
+  document.querySelectorAll('.scramble-word').forEach(el => el.onclick = null);
+  document.querySelectorAll('.answer-word').forEach(el => el.onclick = null);
+}
+
+function nextQuestion() {
+  playClickSound();
+  state.currentQ++;
+  if (state.currentQ >= state.questions.length) {
+    finishLevel();
+  } else {
+    renderQuestion();
+  }
+}
+
+function retryLevel() {
+  playClickSound();
+  startLevel();
+}
+
+function nextLevel() {
+  playClickSound();
+  if (state.currentLevel < 10) {
+    showMaterial(state.currentLevel + 1);
+  }
+}
+
+/* ============================================================
+   FINISH LEVEL
+   ============================================================ */
+function finishLevel() {
+  clearTimers();
+  const total = state.questions.length;
+  const percent = Math.round((state.gameCorrect / total) * 100);
+
+  // Bonuses
+  let bonus = 20; // completion
+  if (state.gameWrong === 0) bonus += 30; // perfect
+  state.gameScore += bonus;
+
+  // Stars
+  let stars = 0;
+  if (percent >= 90) stars = 3;
+  else if (percent >= 70) stars = 2;
+  else if (percent >= 50) stars = 1;
+
+  // Update progress
+  const prev = state.levelProgress[state.currentLevel] || { completed: false, bestScore: 0, stars: 0 };
+  state.levelProgress[state.currentLevel] = {
+    completed: stars > 0 || prev.completed,
+    bestScore: Math.max(prev.bestScore, state.gameScore),
+    stars: Math.max(prev.stars, stars)
+  };
+
+  // Recalculate totals
+  state.totalScore = 0; state.totalStars = 0;
+  Object.values(state.levelProgress).forEach(p => {
+    state.totalScore += p.bestScore;
+    state.totalStars += p.stars;
+  });
+
+  saveProgress();
+  saveLeaderboard(state.playerName, state.totalScore);
+
+  // Grade
+  let grade, gradeClass, icon;
+  if (percent >= 90) { grade = "GRAMMAR MASTER"; gradeClass = "grade-master"; icon = "👑"; }
+  else if (percent >= 80) { grade = "GRAMMAR EXPERT"; gradeClass = "grade-expert"; icon = "🏆"; }
+  else if (percent >= 70) { grade = "GRAMMAR CHAMPION"; gradeClass = "grade-champion"; icon = "🥉"; }
+  else if (percent >= 60) { grade = "GOOD LEARNER"; gradeClass = "grade-learner"; icon = "💪"; }
+  else { grade = "KEEP PRACTICING"; gradeClass = "grade-practice"; icon = "🔥"; }
+
+  document.getElementById('resultIcon').textContent = icon;
+  document.getElementById('resultTitle').textContent = stars > 0 ? "Great Job!" : "Try Again!";
+  const g = document.getElementById('resultGrade');
+  g.textContent = grade;
+  g.className = 'result-grade ' + gradeClass;
+  document.getElementById('rCorrect').textContent = state.gameCorrect;
+  document.getElementById('rWrong').textContent = state.gameWrong;
+  document.getElementById('rScore').textContent = state.gameScore;
+  document.getElementById('rPercent').textContent = percent + '%';
+
+  const nextBtn = document.getElementById('nextLevelBtn');
+  if (state.currentLevel < 10 && stars > 0) {
+    nextBtn.style.display = 'inline-block';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  if (stars === 3) { confetti(); playLevelUpSound(); }
+  else if (stars > 0) playLevelUpSound();
+
+  checkAchievements();
+  showScreen('resultScreen');
+}
+
+function checkAchievements() {
+  const completed = Object.values(state.levelProgress).filter(p => p.completed).length;
+  if (completed === 1 && !state.achievements.includes('first')) {
+    state.achievements.push('first');
+    showAchievement('🎖️', 'First Level Complete!');
+  }
+  if (completed === 5 && !state.achievements.includes('half')) {
+    state.achievements.push('half');
+    showAchievement('🏅', 'Halfway Hero!');
+  }
+  if (completed === 10 && !state.achievements.includes('master')) {
+    state.achievements.push('master');
+    showAchievement('👑', 'Grammar Master!');
+  }
+  if (state.gameWrong === 0 && state.questions.length >= 10 && !state.achievements.includes('perfect_' + state.currentLevel)) {
+    state.achievements.push('perfect_' + state.currentLevel);
+    showAchievement('💯', 'Perfect Score!');
+  }
+  saveProgress();
+}
+
+function showFinal() {
+  document.getElementById('certName').textContent = state.playerName;
+  document.getElementById('certScore').textContent = state.totalScore;
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+  document.getElementById('certStars').textContent = '⭐'.repeat(state.totalStars);
+
+  const percent = Math.round((state.totalStars / 30) * 100);
+  let grade;
+  if (percent >= 90) grade = "GRAMMAR MASTER";
+  else if (percent >= 80) grade = "GRAMMAR EXPERT";
+  else if (percent >= 70) grade = "GRAMMAR CHAMPION";
+  else if (percent >= 60) grade = "GOOD LEARNER";
+  else grade = "KEEP PRACTICING";
+  document.getElementById('certGrade').textContent = grade;
+
+  confetti();
+  playLevelUpSound();
+  showScreen('finalScreen');
+}
+
+function playAgain() {
+  playClickSound();
+  if (!confirm("Reset all progress and start over?")) return;
+  state.totalScore = 0;
+  state.totalStars = 0;
+  state.levelProgress = {};
+  state.achievements = [];
+  saveProgress();
+  showHome();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+createBgScene();
+loadProgress();
+if (state.playerName) document.getElementById('playerName').value = state.playerName;
+updateHomeStats();
+
+document.body.addEventListener('click', function initOnClick() {
+  initAudio();
+  if (musicOn && !musicInterval) startMusic();
+  document.body.removeEventListener('click', initOnClick);
+}, { once: true });
+</script>
+</body>
+</html>
