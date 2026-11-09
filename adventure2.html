@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Adventure: Explore the World of English!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Comic Sans MS', sans-serif; }
+  :root {
+    --blue: #3B82F6; --purple: #8B5CF6; --yellow: #FBBF24;
+    --green: #10B981; --pink: #EC4899; --dark: #1E293B;
+    --red: #EF4444; --orange: #F97316;
+  }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh; color: #fff; overflow-x: hidden;
+    background-attachment: fixed;
+  }
+  /* ===== Animated Background ===== */
+  .bg-scene { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .cloud {
+    position: absolute; background: rgba(255,255,255,.4);
+    border-radius: 50%; filter: blur(10px);
+    animation: drift linear infinite;
+  }
+  @keyframes drift {
+    0% { transform: translateX(-200px); }
+    100% { transform: translateX(110vw); }
+  }
+  .star-bg {
+    position: absolute; color: rgba(255,255,255,.6);
+    animation: twinkle 2s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+
+  .app { position: relative; z-index: 1; min-height: 100vh; padding: 20px; }
+
+  /* ===== Screens ===== */
+  .screen { display: none; animation: fadeIn .5s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== Top Bar ===== */
+  .top-bar {
+    position: fixed; top: 10px; right: 10px; z-index: 50;
+    display: flex; gap: 8px;
+  }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,0,0,.4); border: 2px solid rgba(255,255,255,.3);
+    color: #fff; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .3s; backdrop-filter: blur(10px);
+  }
+  .icon-btn:hover { transform: scale(1.1); background: rgba(0,0,0,.6); }
+  .icon-btn.muted { opacity: .5; }
+
+  /* ===== START SCREEN ===== */
+  .start-screen {
+    min-height: 90vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 20px;
+  }
+  .adventure-map {
+    position: relative; width: min(600px, 95vw); height: 280px;
+    background: linear-gradient(180deg, #87CEEB 0%, #4FC3F7 50%, #1E88E5 100%);
+    border-radius: 30px; margin-bottom: 25px; overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,.4);
+    border: 4px solid #FFD700;
+  }
+  .map-island {
+    position: absolute; bottom: 20px; width: 100px; height: 60px;
+    background: linear-gradient(180deg, #8BC34A 0%, #4CAF50 100%);
+    border-radius: 50% 50% 30% 30%;
+  }
+  .map-island.i1 { left: 10%; }
+  .map-island.i2 { left: 45%; width: 120px; }
+  .map-island.i3 { right: 10%; width: 90px; }
+  .map-castle {
+    position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+    font-size: 50px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.3));
+  }
+  .map-treasure {
+    position: absolute; bottom: 25px; right: 15%;
+    font-size: 35px; animation: bounce 1.5s ease-in-out infinite;
+  }
+  .map-palm {
+    position: absolute; bottom: 70px; font-size: 35px;
+  }
+  .map-palm.p1 { left: 15%; }
+  .map-palm.p2 { right: 20%; }
+  .map-ship {
+    position: absolute; bottom: 10px; left: 30%;
+    font-size: 30px; animation: sail 4s ease-in-out infinite;
+  }
+  @keyframes sail {
+    0%,100% { transform: translateX(0) rotate(-3deg); }
+    50% { transform: translateX(30px) rotate(3deg); }
+  }
+  .map-sun {
+    position: absolute; top: 15px; right: 20px;
+    font-size: 40px; animation: spin 10s linear infinite;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  .map-bird {
+    position: absolute; top: 30px; left: 20%;
+    font-size: 20px; animation: fly 6s linear infinite;
+  }
+  @keyframes fly {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(100px, -10px); }
+    100% { transform: translate(200px, 0); }
+  }
+
+  .game-title {
+    font-size: clamp(28px, 5vw, 56px); font-weight: 900;
+    background: linear-gradient(45deg, #FBBF24, #EC4899, #8B5CF6, #3B82F6);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 20px rgba(0,0,0,.3);
+    margin-bottom: 8px; animation: titlePulse 2s ease-in-out infinite;
+  }
+  @keyframes titlePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  .subtitle {
+    font-size: clamp(14px, 2.5vw, 20px); margin-bottom: 20px;
+    opacity: .95; font-style: italic;
+  }
+  .mascot {
+    font-size: clamp(70px, 12vw, 110px);
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+  }
+  .name-input {
+    padding: 14px 20px; font-size: 18px; border: 3px solid #fff;
+    border-radius: 30px; background: rgba(255,255,255,.2);
+    color: #fff; text-align: center; width: min(320px, 80vw);
+    margin: 20px 0; backdrop-filter: blur(10px);
+  }
+  .name-input::placeholder { color: rgba(255,255,255,.7); }
+  .name-input:focus { outline: none; background: rgba(255,255,255,.3); }
+
+  .btn {
+    padding: 14px 40px; font-size: 18px; font-weight: bold;
+    border: none; border-radius: 30px; cursor: pointer;
+    color: #fff; transition: all .3s;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,.4); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .btn-primary { background: linear-gradient(45deg, var(--yellow), #F59E0B); color: var(--dark); }
+  .btn-success { background: linear-gradient(45deg, var(--green), #059669); }
+  .btn-info { background: linear-gradient(45deg, var(--blue), var(--purple)); }
+  .btn-pink { background: linear-gradient(45deg, var(--pink), #DB2777); }
+  .btn-danger { background: linear-gradient(45deg, var(--red), #DC2626); }
+  .btn-small { padding: 10px 20px; font-size: 14px; }
+
+  .how-to-play {
+    max-width: 500px; background: rgba(0,0,0,.3);
+    padding: 15px 20px; border-radius: 15px;
+    margin-top: 20px; text-align: left; font-size: 14px;
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.2);
+  }
+  .how-to-play h3 { margin-bottom: 8px; text-align: center; }
+  .how-to-play ul { list-style: none; }
+  .how-to-play li { padding: 3px 0; }
+
+  /* ===== MAP SCREEN ===== */
+  .map-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,.3); padding: 12px 20px; border-radius: 20px;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+    backdrop-filter: blur(10px);
+  }
+  .player-info { display: flex; align-items: center; gap: 10px; }
+  .player-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(45deg, var(--yellow), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat-box {
+    background: rgba(255,255,255,.2); padding: 6px 14px;
+    border-radius: 15px; font-size: 14px; font-weight: bold;
+  }
+
+  .map-title { text-align: center; font-size: clamp(22px, 4vw, 32px); margin-bottom: 20px; }
+
+  .progress-wrap {
+    max-width: 800px; margin: 0 auto 25px;
+    background: rgba(0,0,0,.3); padding: 8px; border-radius: 20px;
+  }
+  .progress-bar {
+    height: 20px; background: rgba(255,255,255,.2);
+    border-radius: 15px; overflow: hidden; position: relative;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--green), var(--yellow));
+    width: 0%; transition: width .6s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: bold; color: var(--dark);
+  }
+
+  .level-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px; max-width: 1100px; margin: 0 auto;
+  }
+  .level-card {
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 20px;
+    padding: 20px; cursor: pointer; transition: all .3s;
+    position: relative; overflow: hidden;
+  }
+  .level-card:hover:not(.locked) {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 15px 40px rgba(0,0,0,.4);
+    border-color: var(--yellow);
+  }
+  .level-card.locked { opacity: .5; cursor: not-allowed; filter: grayscale(.5); }
+  .level-card.completed { border-color: var(--green); }
+  .level-icon {
+    font-size: 50px; text-align: center; margin-bottom: 10px;
+    animation: floaty 3s ease-in-out infinite;
+  }
+  @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .level-name { font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 6px; }
+  .level-desc { font-size: 13px; text-align: center; opacity: .9; margin-bottom: 10px; }
+  .level-stars { text-align: center; font-size: 22px; letter-spacing: 3px; }
+  .lock-icon { position: absolute; top: 10px; right: 10px; font-size: 24px; opacity: .7; }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,.3); padding: 12px 20px; border-radius: 20px;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+    backdrop-filter: blur(10px);
+  }
+  .level-title { font-size: 16px; font-weight: bold; }
+  .timer {
+    background: linear-gradient(45deg, var(--yellow), #F59E0B);
+    color: var(--dark); padding: 6px 14px; border-radius: 15px;
+    font-weight: bold; font-size: 16px; min-width: 80px; text-align: center;
+  }
+  .timer.warning { background: linear-gradient(45deg, #EF4444, #DC2626); color: #fff; animation: shake .5s infinite; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+  .game-container {
+    max-width: 900px; margin: 0 auto;
+    background: rgba(255,255,255,.1); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.2); border-radius: 25px;
+    padding: 25px;
+  }
+
+  .guide {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: rgba(255,255,255,.15); padding: 15px;
+    border-radius: 15px; margin-bottom: 20px;
+  }
+  .guide-avatar { font-size: 50px; flex-shrink: 0; }
+  .speech-bubble {
+    background: #fff; color: var(--dark); padding: 12px 16px;
+    border-radius: 15px; position: relative; font-size: 14px;
+    line-height: 1.5; flex: 1;
+  }
+  .speech-bubble::before {
+    content: ""; position: absolute; left: -10px; top: 15px;
+    border: 8px solid transparent; border-right-color: #fff;
+  }
+
+  .passage {
+    background: rgba(255,255,255,.95); color: var(--dark);
+    padding: 18px; border-radius: 15px; margin-bottom: 20px;
+    max-height: 250px; overflow-y: auto; font-size: 15px;
+    line-height: 1.7; border-left: 5px solid var(--yellow);
+  }
+  .passage h3 { margin-bottom: 10px; color: var(--purple); }
+
+  .question-box {
+    background: rgba(255,255,255,.15); padding: 18px;
+    border-radius: 15px; margin-bottom: 15px;
+  }
+  .q-progress { font-size: 13px; opacity: .9; margin-bottom: 8px; }
+  .q-text { font-size: 17px; font-weight: 600; line-height: 1.5; white-space: pre-wrap; }
+
+  .options { display: grid; gap: 10px; margin-bottom: 15px; }
+  .option {
+    padding: 14px 18px; background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 15px;
+    cursor: pointer; font-size: 15px; color: #fff; text-align: left;
+    transition: all .25s; display: flex; align-items: center; gap: 12px;
+  }
+  .option:hover:not(:disabled) {
+    background: rgba(255,255,255,.3); border-color: var(--yellow);
+    transform: translateX(5px);
+  }
+  .option:disabled { cursor: not-allowed; }
+  .option-letter {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.3); display: flex;
+    align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0;
+  }
+  .option.correct { background: var(--green); border-color: #059669; animation: pop .4s; }
+  .option.wrong { background: var(--red); border-color: #DC2626; animation: shake .4s; }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+  .feedback {
+    text-align: center; padding: 12px; border-radius: 12px;
+    margin-bottom: 10px; font-weight: bold; font-size: 15px;
+    animation: fadeIn .3s;
+  }
+  .feedback.correct { background: var(--green); }
+  .feedback.wrong { background: var(--red); }
+  .feedback.timeout { background: #F59E0B; color: var(--dark); }
+  .explanation {
+    background: rgba(0,0,0,.3); padding: 10px; border-radius: 10px;
+    margin-top: 8px; font-size: 13px; font-weight: normal;
+    text-align: left;
+  }
+
+  .hint-box {
+    background: rgba(251,191,36,.2); border: 2px dashed var(--yellow);
+    padding: 12px; border-radius: 12px; margin-bottom: 10px;
+    font-size: 14px; animation: fadeIn .3s;
+  }
+
+  .action-row { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+  /* ===== RESULT SCREEN ===== */
+  .result-card {
+    max-width: 650px; margin: 40px auto;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 25px;
+    padding: 30px; text-align: center;
+  }
+  .result-icon { font-size: 80px; margin-bottom: 10px; animation: bounce 2s infinite; }
+  .result-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+  .result-stars { font-size: 50px; letter-spacing: 10px; margin: 15px 0; }
+  .result-grade {
+    display: inline-block; padding: 8px 24px; border-radius: 20px;
+    font-size: 20px; font-weight: bold; margin-bottom: 20px;
+  }
+  .grade-excellent { background: var(--yellow); color: var(--dark); }
+  .grade-verygood { background: var(--green); }
+  .grade-good { background: var(--blue); }
+  .grade-practice { background: var(--purple); }
+  .grade-tryagain { background: var(--pink); }
+
+  .result-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px; margin: 20px 0;
+  }
+  .stat-item {
+    background: rgba(255,255,255,.15); padding: 15px;
+    border-radius: 15px;
+  }
+  .stat-value { font-size: 26px; font-weight: bold; color: var(--yellow); }
+  .stat-label { font-size: 12px; opacity: .9; }
+
+  .result-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+
+  /* ===== CERTIFICATE ===== */
+  .certificate {
+    max-width: 700px; margin: 30px auto;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    color: var(--dark);
+    border: 8px double #92400E;
+    border-radius: 15px; padding: 40px 30px;
+    text-align: center; position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .cert-corner {
+    position: absolute; width: 60px; height: 60px;
+    font-size: 30px;
+  }
+  .cert-corner.tl { top: 10px; left: 10px; }
+  .cert-corner.tr { top: 10px; right: 10px; }
+  .cert-corner.bl { bottom: 10px; left: 10px; }
+  .cert-corner.br { bottom: 10px; right: 10px; }
+  .cert-title {
+    font-size: 32px; font-weight: 900;
+    background: linear-gradient(45deg, #92400E, #DC2626);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+  .cert-subtitle { font-style: italic; margin-bottom: 20px; color: #78350F; }
+  .cert-awarded { font-size: 14px; margin-bottom: 5px; }
+  .cert-name {
+    font-size: 36px; font-weight: bold;
+    border-bottom: 2px solid #92400E;
+    display: inline-block; padding: 0 30px 5px;
+    margin: 10px 0; color: #7C2D12;
+    font-family: 'Georgia', serif;
+  }
+  .cert-body { font-size: 15px; line-height: 1.6; margin: 15px 0; }
+  .cert-achievement {
+    display: inline-block; padding: 8px 20px;
+    background: linear-gradient(45deg, #F59E0B, #DC2626);
+    color: #fff; border-radius: 20px; font-weight: bold;
+    margin: 10px 0; font-size: 18px;
+  }
+  .cert-stars { font-size: 40px; letter-spacing: 8px; margin: 10px 0; }
+  .cert-footer {
+    display: flex; justify-content: space-around;
+    margin-top: 30px; font-size: 13px;
+  }
+  .cert-sign {
+    border-top: 1px solid #92400E;
+    padding-top: 5px; min-width: 150px;
+  }
+
+  /* ===== LEADERBOARD ===== */
+  .leaderboard {
+    max-width: 600px; margin: 20px auto;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border-radius: 20px; padding: 20px;
+  }
+  .lb-title { text-align: center; font-size: 24px; margin-bottom: 15px; }
+  .lb-row {
+    display: flex; align-items: center; padding: 10px 15px;
+    background: rgba(255,255,255,.1); border-radius: 12px;
+    margin-bottom: 8px; gap: 12px;
+  }
+  .lb-rank {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--yellow); color: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0;
+  }
+  .lb-rank.gold { background: linear-gradient(45deg, #FFD700, #FFA500); }
+  .lb-rank.silver { background: linear-gradient(45deg, #C0C0C0, #A8A8A8); }
+  .lb-rank.bronze { background: linear-gradient(45deg, #CD7F32, #B87333); }
+  .lb-name { flex: 1; font-weight: bold; }
+  .lb-score { font-weight: bold; color: var(--yellow); }
+
+  /* ===== ACHIEVEMENT POPUP ===== */
+  .achievement-popup {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-200%);
+    background: linear-gradient(45deg, var(--yellow), #F59E0B);
+    color: var(--dark); padding: 15px 25px; border-radius: 50px;
+    font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    z-index: 100; transition: transform .5s cubic-bezier(.5,1.6,.4,1);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .achievement-popup.show { transform: translateX(-50%) translateY(0); }
+  .achievement-popup .badge { font-size: 30px; }
+
+  /* ===== CONFETTI ===== */
+  .confetti {
+    position: fixed; width: 10px; height: 10px;
+    pointer-events: none; z-index: 99;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .app { padding: 10px; }
+    .game-container, .result-card, .certificate { padding: 15px; }
+    .q-text { font-size: 15px; }
+    .option { font-size: 14px; padding: 10px 12px; }
+    .cert-name { font-size: 26px; }
+    .cert-title { font-size: 24px; }
+  }
+
+  @media print {
+    body > *:not(.certificate) { display: none !important; }
+    .certificate { box-shadow: none; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-scene" id="bgScene"></div>
+
+<div class="top-bar">
+  <button class="icon-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
+  <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+</div>
+
+<div class="achievement-popup" id="achievementPopup">
+  <span class="badge" id="achBadge">🏆</span>
+  <span id="achText">Achievement Unlocked!</span>
+</div>
+
+<div class="app">
+
+  <!-- ========== START SCREEN ========== -->
+  <div class="screen active" id="startScreen">
+    <div class="start-screen">
+      <div class="adventure-map">
+        <div class="map-sun">☀️</div>
+        <div class="map-bird">🕊️</div>
+        <div class="map-palm p1">🌴</div>
+        <div class="map-palm p2">🌴</div>
+        <div class="map-island i1"></div>
+        <div class="map-island i2"></div>
+        <div class="map-island i3"></div>
+        <div class="map-castle">🏰</div>
+        <div class="map-treasure">💎</div>
+        <div class="map-ship">⛵</div>
+      </div>
+      <div class="mascot">🧭</div>
+      <h1 class="game-title">ENGLISH ADVENTURE</h1>
+      <p class="subtitle">✨ Explore the World of English! ✨</p>
+      <input type="text" class="name-input" id="playerName" placeholder="Enter your name, Explorer..." maxlength="20">
+      <button class="btn btn-primary" onclick="startGame()">🚀 START ADVENTURE</button>
+      <div class="how-to-play">
+        <h3>📜 How to Play</h3>
+        <ul>
+          <li>🗺️ Complete 6 exciting levels to become a Language Champion!</li>
+          <li>⏱️ You have 30 seconds for each question.</li>
+          <li>💡 Use hints if you get stuck (3 per level).</li>
+          <li>⭐ Earn stars and points for correct answers.</li>
+          <li>🏆 Unlock the next level by earning at least 1 star.</li>
+          <li>🎓 Get your Certificate of Achievement at the end!</li>
+        </ul>
+      </div>
+      <button class="btn btn-info btn-small" style="margin-top:15px;" onclick="showLeaderboard()">🏆 Leaderboard</button>
+    </div>
+  </div>
+
+  <!-- ========== MAP SCREEN ========== -->
+  <div class="screen" id="mapScreen">
+    <div class="map-header">
+      <div class="player-info">
+        <div class="player-avatar">🧑‍🎓</div>
+        <div>
+          <div style="font-weight:bold;" id="displayName">Explorer</div>
+          <div style="font-size:12px; opacity:.8;">English Adventurer</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">⭐ <span id="totalStars">0</span>/18</div>
+        <div class="stat-box">💎 <span id="totalScore">0</span> pts</div>
+      </div>
+    </div>
+
+    <h2 class="map-title">🗺️ Your Adventure Map</h2>
+
+    <div class="progress-wrap">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill">0%</div>
+      </div>
+    </div>
+
+    <div class="level-grid" id="levelGrid"></div>
+
+    <div style="text-align:center; margin-top:25px;">
+      <button class="btn btn-info btn-small" onclick="showLeaderboard()">🏆 Leaderboard</button>
+      <button class="btn btn-pink btn-small" onclick="backToStart()">🏠 Home</button>
+    </div>
+  </div>
+
+  <!-- ========== GAME SCREEN ========== -->
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <div class="level-title" id="currentLevelTitle">Level 1</div>
+      <div class="timer" id="timer">⏱ 30s</div>
+      <div class="stat-box">💎 <span id="levelScore">0</span></div>
+    </div>
+
+    <div class="game-container">
+      <div class="guide">
+        <div class="guide-avatar" id="guideAvatar">🧙‍♂️</div>
+        <div class="speech-bubble" id="guideText">Welcome, adventurer! Let's begin!</div>
+      </div>
+
+      <div id="passageArea"></div>
+
+      <div class="question-box">
+        <div class="q-progress" id="qProgress">Question 1 of 10</div>
+        <div class="q-text" id="qText"></div>
+      </div>
+
+      <div class="options" id="options"></div>
+
+      <div id="hintArea"></div>
+      <div id="feedbackArea"></div>
+
+      <div class="action-row">
+        <button class="btn btn-info btn-small" id="hintBtn" onclick="useHint()">💡 Hint (<span id="hintCount">3</span>)</button>
+        <button class="btn btn-primary btn-small" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== RESULT SCREEN ========== -->
+  <div class="screen" id="resultScreen">
+    <div class="result-card">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <h2 class="result-title" id="resultTitle">Level Complete!</h2>
+      <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+      <div class="result-grade" id="resultGrade">Excellent!</div>
+      <div class="result-stats">
+        <div class="stat-item"><div class="stat-value" id="rCorrect">0</div><div class="stat-label">Correct</div></div>
+        <div class="stat-item"><div class="stat-value" id="rWrong">0</div><div class="stat-label">Wrong</div></div>
+        <div class="stat-item"><div class="stat-value" id="rScore">0</div><div class="stat-label">Points</div></div>
+        <div class="stat-item"><div class="stat-value" id="rPercent">0%</div><div class="stat-label">Accuracy</div></div>
+      </div>
+      <div class="result-buttons">
+        <button class="btn btn-success btn-small" onclick="retryLevel()">🔄 Retry</button>
+        <button class="btn btn-primary btn-small" onclick="showMap()">🗺️ Map</button>
+        <button class="btn btn-info btn-small" id="nextLevelBtn" onclick="nextLevel()">➡ Next Level</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FINAL / CERTIFICATE SCREEN ========== -->
+  <div class="screen" id="finalScreen">
+    <div class="certificate" id="certificate">
+      <div class="cert-corner tl">🌟</div>
+      <div class="cert-corner tr">🌟</div>
+      <div class="cert-corner bl">🌟</div>
+      <div class="cert-corner br">🌟</div>
+      <div class="cert-title">🏆 Certificate of Achievement 🏆</div>
+      <div class="cert-subtitle">English Adventure: Explore the World of English!</div>
+      <div class="cert-awarded">This certificate is proudly awarded to</div>
+      <div class="cert-name" id="certName">Hero</div>
+      <div class="cert-body">
+        for successfully completing all six levels of the English Adventure Quest
+        and demonstrating excellent mastery of English language skills.
+      </div>
+      <div class="cert-achievement" id="certGrade">EXCELLENT!</div>
+      <div class="cert-stars" id="certStars">⭐⭐⭐⭐⭐⭐</div>
+      <div class="cert-body">
+        <strong>Total Score:</strong> <span id="certScore">0</span> points<br>
+        <strong>Date:</strong> <span id="certDate"></span>
+      </div>
+      <div class="cert-footer">
+        <div class="cert-sign">Wizard Lex<br><em>Game Master</em></div>
+        <div class="cert-sign">Phase E<br><em>Kurikulum Merdeka</em></div>
+      </div>
+    </div>
+    <div style="text-align:center; margin: 20px 0;">
+      <button class="btn btn-info btn-small" onclick="window.print()">🖨️ Print Certificate</button>
+      <button class="btn btn-primary" onclick="playAgain()">🔄 Play Again</button>
+    </div>
+  </div>
+
+  <!-- ========== LEADERBOARD SCREEN ========== -->
+  <div class="screen" id="leaderboardScreen">
+    <div class="leaderboard">
+      <h2 class="lb-title">🏆 Hall of Champions</h2>
+      <div id="lbList"></div>
+      <div style="text-align:center; margin-top:20px;">
+        <button class="btn btn-info btn-small" onclick="closeLeaderboard()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   AUDIO: Web Audio API untuk musik & efek suara
+   ============================================================ */
+let audioCtx = null;
+let musicOn = true;
+let soundOn = true;
+let musicInterval = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { console.log('Audio not supported'); }
+  }
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.1) {
+  if (!soundOn || !audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playCorrectSound() {
+  playTone(523.25, 0.15, 'sine', 0.15); // C5
+  setTimeout(() => playTone(659.25, 0.15, 'sine', 0.15), 100); // E5
+  setTimeout(() => playTone(783.99, 0.25, 'sine', 0.15), 200); // G5
+}
+
+function playWrongSound() {
+  playTone(200, 0.2, 'sawtooth', 0.1);
+  setTimeout(() => playTone(150, 0.3, 'sawtooth', 0.1), 150);
+}
+
+function playClickSound() {
+  playTone(800, 0.05, 'square', 0.05);
+}
+
+function playLevelUpSound() {
+  const notes = [523.25, 659.25, 783.99, 1046.50];
+  notes.forEach((n, i) => setTimeout(() => playTone(n, 0.2, 'sine', 0.15), i * 120));
+}
+
+// Background music - simple melody loop
+const melody = [
+  { f: 523.25, d: 0.3 }, { f: 587.33, d: 0.3 }, { f: 659.25, d: 0.3 }, { f: 523.25, d: 0.3 },
+  { f: 659.25, d: 0.3 }, { f: 698.46, d: 0.3 }, { f: 783.99, d: 0.6 },
+  { f: 783.99, d: 0.2 }, { f: 880.00, d: 0.2 }, { f: 783.99, d: 0.2 }, { f: 698.46, d: 0.2 },
+  { f: 659.25, d: 0.4 }, { f: 523.25, d: 0.4 }
+];
+function startMusic() {
+  if (!musicOn || !audioCtx) return;
+  stopMusic();
+  let i = 0;
+  const playNext = () => {
+    if (!musicOn) return;
+    const note = melody[i % melody.length];
+    playTone(note.f, note.d, 'triangle', 0.04);
+    i++;
+  };
+  playNext();
+  musicInterval = setInterval(() => {
+    if (!musicOn) { stopMusic(); return; }
+    const note = melody[i % melody.length];
+    playTone(note.f, note.d, 'triangle', 0.04);
+    i++;
+  }, 350);
+}
+function stopMusic() {
+  if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+}
+function toggleMusic() {
+  initAudio();
+  musicOn = !musicOn;
+  document.getElementById('musicBtn').classList.toggle('muted', !musicOn);
+  document.getElementById('musicBtn').textContent = musicOn ? '🎵' : '🔇';
+  if (musicOn) startMusic(); else stopMusic();
+}
+function toggleSound() {
+  initAudio();
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').classList.toggle('muted', !soundOn);
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔈';
+}
+
+/* ============================================================
+   LEVEL DATA: 6 LEVELS × 10 QUESTIONS
+   ============================================================ */
+const LEVELS = [
+  {
+    id: 1, name: "Vocabulary Challenge", icon: "🔤", guide: "📚",
+    desc: "Master English words and meanings",
+    passage: null,
+    intro: "Welcome to Level 1! Let's test your vocabulary. Choose the correct meaning!",
+    questions: [
+      { q: "What is the meaning of 'Magnificent'?", o: ["Very small and boring", "Extremely beautiful or impressive", "Very ordinary", "Extremely loud"], a: 1, e: "'Magnificent' means grand, splendid, or extremely impressive.", h: "Think of a grand palace or a beautiful sunset." },
+      { q: "'Curious' means...", o: ["Feeling bored", "Eager to know or learn something", "Feeling angry", "Feeling tired"], a: 1, e: "'Curious' describes someone who wants to learn or know more.", h: "A child asking 'why?' many times." },
+      { q: "The synonym of 'Brave' is...", o: ["Cowardly", "Courageous", "Shy", "Lazy"], a: 1, e: "Synonym = same meaning. 'Courageous' means having courage.", h: "A hero facing danger without fear." },
+      { q: "'Enormous' is closest in meaning to...", o: ["Tiny", "Huge", "Average", "Narrow"], a: 1, e: "'Enormous' means extremely large in size.", h: "Think of an elephant compared to a mouse." },
+      { q: "What does 'Delicious' mean?", o: ["Very tasty", "Very ugly", "Very sad", "Very cold"], a: 0, e: "'Delicious' describes food that tastes very good.", h: "How does your favorite food taste?" },
+      { q: "The antonym of 'Ancient' is...", o: ["Old", "Modern", "Historical", "Traditional"], a: 1, e: "Antonym = opposite. 'Modern' is the opposite of 'ancient'.", h: "The opposite of something very old." },
+      { q: "'Generous' describes someone who...", o: ["Is selfish", "Likes to give and share", "Is always angry", "Never speaks"], a: 1, e: "'Generous' means willing to give or share with others.", h: "A person who donates to charity." },
+      { q: "What is a 'Library'?", o: ["A place to swim", "A place to borrow books", "A place to eat", "A place to sleep"], a: 1, e: "A library is a place where books are kept for reading or borrowing.", h: "A quiet building full of books." },
+      { q: "'Persevere' means to...", o: ["Give up quickly", "Continue despite difficulties", "Run away", "Sleep longer"], a: 1, e: "'Persevere' means to keep trying even when things are hard.", h: "Never giving up, even when things are hard." },
+      { q: "The word 'Furious' means...", o: ["Very happy", "Very calm", "Extremely angry", "Very sleepy"], a: 2, e: "'Furious' means extremely angry, stronger than just 'angry'.", h: "Stronger than just 'angry'." }
+    ]
+  },
+  {
+    id: 2, name: "Descriptive Text", icon: "🏝️", guide: "🗺️",
+    desc: "Describe people, places, and things",
+    passage: {
+      title: "🏛️ Borobudur Temple",
+      text: "Borobudur Temple is one of the most famous historical sites in Indonesia. It is located in Magelang, Central Java. Built in the 9th century during the Sailendra Dynasty, Borobudur is the largest Buddhist temple in the world. The temple has ten levels, representing the Buddhist cosmology. It has 2,672 relief panels and 504 Buddha statues. Every year, thousands of tourists from all over the world visit this magnificent temple, especially during sunrise when the view is breathtaking."
+    },
+    intro: "Read the descriptive text about Borobudur Temple, then answer the questions!",
+    questions: [
+      { q: "Where is Borobudur Temple located?", o: ["Jakarta", "Yogyakarta", "Magelang, Central Java", "Surabaya"], a: 2, e: "The text states: 'It is located in Magelang, Central Java.'", h: "Look for the location mentioned in the second sentence." },
+      { q: "When was Borobudur built?", o: ["8th century", "9th century", "10th century", "11th century"], a: 1, e: "The text mentions 'Built in the 9th century'.", h: "Find the century in the text." },
+      { q: "Which dynasty built Borobudur?", o: ["Majapahit", "Mataram", "Sailendra", "Singasari"], a: 2, e: "It was built during the Sailendra Dynasty.", h: "Look for 'Dynasty' in the text." },
+      { q: "What religion is associated with Borobudur?", o: ["Hindu", "Islam", "Christian", "Buddhist"], a: 3, e: "The text says it is 'the largest Buddhist temple in the world'.", h: "The text mentions 'the largest ... temple in the world'." },
+      { q: "How many Buddha statues are there?", o: ["2,672", "504", "1,000", "200"], a: 1, e: "The text states there are '504 Buddha statues'.", h: "Look for 'Buddha statues'." },
+      { q: "How many relief panels does it have?", o: ["504", "2,672", "1,000", "100"], a: 1, e: "The text says '2,672 relief panels'.", h: "Look for 'relief panels'." },
+      { q: "How many levels does the temple have?", o: ["5", "8", "10", "12"], a: 2, e: "The temple has 'ten levels'.", h: "Look for 'levels'." },
+      { q: "What does 'magnificent' mean in the text?", o: ["Small and ordinary", "Grand and beautiful", "Old and dirty", "Dark and scary"], a: 1, e: "'Magnificent' is a positive adjective meaning grand and impressive.", h: "A positive adjective describing something impressive." },
+      { q: "When is the best time to enjoy the view according to the text?", o: ["Noon", "Sunset", "Sunrise", "Midnight"], a: 2, e: "The text says 'especially during sunrise'.", h: "Look at the last sentence." },
+      { q: "What is the social function of this text?", o: ["To argue an opinion", "To describe a specific place", "To tell an imaginary story", "To explain how to do something"], a: 1, e: "Descriptive text aims to describe a particular person, place, or thing.", h: "Descriptive texts describe something specific." }
+    ]
+  },
+  {
+    id: 3, name: "Recount Text", icon: "📖", guide: "📝",
+    desc: "Share past experiences",
+    passage: {
+      title: "🌴 My Holiday in Bali",
+      text: "Last summer, my family and I went to Bali for a week. We stayed at a hotel near Kuta Beach. On the first day, we swam in the sea and built sandcastles. The next day, we visited the Uluwatu Temple and watched the beautiful Kecak dance at sunset. On the third day, we went snorkeling in Nusa Dua. The water was so clear, and we saw many colorful fish. On the fourth day, we shopped for souvenirs in Sukawati Market. Finally, on the last day, we flew back home. It was an unforgettable holiday, and I hope we can go back again someday."
+    },
+    intro: "Read this recount text about a holiday, then answer the questions!",
+    questions: [
+      { q: "When did the writer go to Bali?", o: ["Last winter", "Last summer", "Last spring", "Last autumn"], a: 1, e: "The first sentence says 'Last summer'.", h: "Look at the first sentence." },
+      { q: "How long did they stay in Bali?", o: ["3 days", "5 days", "A week", "A month"], a: 2, e: "The text says 'for a week'.", h: "Look for the duration in the first sentence." },
+      { q: "Where did they stay?", o: ["Near Ubud", "Near Kuta Beach", "Near Denpasar", "Near Nusa Dua"], a: 1, e: "They stayed 'at a hotel near Kuta Beach'.", h: "Look for 'hotel near...'." },
+      { q: "What did they do on the first day?", o: ["Visited temple", "Went snorkeling", "Swam and built sandcastles", "Shopped"], a: 2, e: "On the first day they 'swam in the sea and built sandcastles'.", h: "Look for 'On the first day'." },
+      { q: "What dance did they watch?", o: ["Barong", "Kecak", "Legong", "Pendet"], a: 1, e: "They watched the 'Kecak dance'.", h: "Look for 'dance' in the text." },
+      { q: "Where did they go snorkeling?", o: ["Kuta Beach", "Uluwatu", "Nusa Dua", "Sanur"], a: 2, e: "They went snorkeling 'in Nusa Dua'.", h: "Look for 'snorkeling'." },
+      { q: "Where did they shop for souvenirs?", o: ["Kuta Market", "Sukawati Market", "Badung Market", "Ubud Market"], a: 1, e: "They shopped 'in Sukawati Market'.", h: "Look for 'Market'." },
+      { q: "What tense is mainly used in the text?", o: ["Simple Present Tense", "Simple Past Tense", "Present Continuous Tense", "Future Tense"], a: 1, e: "Recount text uses Simple Past Tense (went, swam, visited).", h: "Verbs like 'went', 'swam', 'visited'." },
+      { q: "The generic structure of a recount text is...", o: ["Orientation - Complication - Resolution", "Goal - Materials - Steps", "Orientation - Events - Reorientation", "Identification - Description"], a: 2, e: "Recount text structure: Orientation (intro), Events (in order), Reorientation (closing).", h: "Recount tells past events in order." },
+      { q: "How did the writer feel about the holiday?", o: ["Bored and tired", "Unforgettable and happy", "Sad and disappointed", "Angry and frustrated"], a: 1, e: "The writer says 'It was an unforgettable holiday'.", h: "Look at the last two sentences." }
+    ]
+  },
+  {
+    id: 4, name: "Narrative Text", icon: "🐉", guide: "📜",
+    desc: "Explore stories and legends",
+    passage: {
+      title: "🗿 The Legend of Malin Kundang",
+      text: "Long ago, in a small village in West Sumatra, lived a poor widow and her son, Malin Kundang. Malin was a naughty boy who often made his mother cry. One day, he decided to sail away to seek his fortune. Years passed, and Malin became a wealthy merchant. He married a beautiful princess. One day, he returned to his village with his wife. His old mother ran to hug him, but Malin was ashamed of her poor appearance. He pushed her away and said, 'I don't know you!' Heartbroken, his mother prayed to God. Suddenly, a storm came, and Malin's ship was destroyed. Malin was turned into a stone. To this day, a stone shaped like a man kneeling can be seen on Air Manis Beach, Padang."
+    },
+    intro: "Read the legend of Malin Kundang and answer the questions!",
+    questions: [
+      { q: "Where did Malin Kundang live?", o: ["East Java", "West Sumatra", "Bali", "Central Java"], a: 1, e: "The story begins 'in a small village in West Sumatra'.", h: "Look at the first sentence." },
+      { q: "What was Malin like when he was young?", o: ["Obedient", "Naughty", "Shy", "Lazy"], a: 1, e: "The text says 'Malin was a naughty boy'.", h: "Look for 'naughty boy'." },
+      { q: "Why did Malin sail away?", o: ["To study abroad", "To seek his fortune", "To escape from home", "To visit relatives"], a: 1, e: "He sailed away 'to seek his fortune'.", h: "Look for 'decided to sail away'." },
+      { q: "What did Malin become after many years?", o: ["A king", "A wealthy merchant", "A fisherman", "A teacher"], a: 1, e: "Malin 'became a wealthy merchant'.", h: "Look for 'became a...'." },
+      { q: "Why did Malin reject his mother?", o: ["He didn't remember her", "He was ashamed of her poor appearance", "His wife forced him", "He was angry at her"], a: 1, e: "Malin 'was ashamed of her poor appearance'.", h: "Look for 'ashamed'." },
+      { q: "What did the mother do after being rejected?", o: ["Cried silently", "Prayed to God", "Fought him", "Left the village"], a: 1, e: "His mother 'prayed to God'.", h: "Look for 'prayed'." },
+      { q: "What happened to Malin in the end?", o: ["He became richer", "He apologized", "He turned into stone", "He sailed again"], a: 2, e: "Malin 'was turned into a stone'.", h: "Look at the end of the story." },
+      { q: "What is the moral value of the story?", o: ["Be rich and powerful", "Respect and honor your parents", "Sail the sea to find fortune", "Marry a princess"], a: 1, e: "The story teaches us to respect our parents no matter what.", h: "Think about what Malin did wrong." },
+      { q: "What type of text is this?", o: ["Descriptive", "Recount", "Narrative", "Procedure"], a: 2, e: "It is a Narrative Text because it tells a story with conflict and moral.", h: "It tells a story with a moral." },
+      { q: "Where can the stone be seen today?", o: ["Parangtritis Beach", "Air Manis Beach", "Kuta Beach", "Lombok Beach"], a: 1, e: "The stone can be seen 'on Air Manis Beach, Padang'.", h: "Look at the last sentence." }
+    ]
+  },
+  {
+    id: 5, name: "Grammar Battle", icon: "⚔️", guide: "🛡️",
+    desc: "Master English grammar rules",
+    passage: null,
+    intro: "Battle the grammar monsters! Choose the correct grammatical form.",
+    questions: [
+      { q: "She ___ to school every day.", o: ["go", "goes", "going", "gone"], a: 1, e: "Simple Present + third person singular (she/he/it) → verb + s/es.", h: "Simple Present + third person singular (she)." },
+      { q: "They ___ football yesterday.", o: ["play", "plays", "played", "playing"], a: 2, e: "'Yesterday' indicates past time → Simple Past (V2).", h: "'Yesterday' = past time → Simple Past." },
+      { q: "Look! The baby ___ now.", o: ["cry", "cries", "is crying", "cried"], a: 2, e: "'Look!' and 'now' indicate action happening now → Present Continuous (am/is/are + V-ing).", h: "'Look!' and 'now' → Present Continuous." },
+      { q: "My mother ___ a cake every Sunday.", o: ["bake", "bakes", "baking", "baked"], a: 1, e: "'Every Sunday' = routine → Simple Present. Subject 'mother' (she) → bakes.", h: "'Every Sunday' = routine → Simple Present + s/es." },
+      { q: "I ___ my homework two hours ago.", o: ["finish", "finishes", "finished", "finishing"], a: 2, e: "'Two hours ago' = past → Simple Past (finished).", h: "'Two hours ago' = past." },
+      { q: "We ___ watching TV right now.", o: ["is", "am", "are", "be"], a: 2, e: "Subject 'We' uses 'are' in Present Continuous.", h: "Subject 'We' → are." },
+      { q: "Neither the teacher nor the students ___ in the classroom.", o: ["is", "are", "was", "has"], a: 1, e: "With 'neither...nor', the verb agrees with the closer subject ('students' → plural → are).", h: "With 'neither...nor', verb agrees with the closer subject (students → plural)." },
+      { q: "This book is ___.", o: ["my", "mine", "I", "me"], a: 1, e: "'Mine' is a possessive pronoun standing alone (no noun after it).", h: "Possessive pronoun standing alone → mine." },
+      { q: "She is ___ than her sister.", o: ["tall", "taller", "tallest", "more tall"], a: 1, e: "Comparing two people → comparative form (-er for short adjectives).", h: "Comparing two → comparative (-er)." },
+      { q: "If it rains, I ___ at home.", o: ["stay", "stays", "will stay", "stayed"], a: 2, e: "First Conditional: If + Simple Present, Subject + will + V1.", h: "First conditional: If + present, will + verb." }
+    ]
+  },
+  {
+    id: 6, name: "Speaking & Writing", icon: "🎤", guide: "✍️",
+    desc: "Build sentences and dialogues",
+    passage: null,
+    intro: "Put words in order and complete conversations like a pro!",
+    questions: [
+      { q: "Arrange: 'often / to / goes / she / the / library'", o: ["She goes to the library often.", "She often goes to the library.", "Often she goes to the library.", "To the library she often goes."], a: 1, e: "Correct order: Subject + frequency adverb + verb + place.", h: "Subject + frequency adverb + verb + place." },
+      { q: "Arrange: 'yesterday / park / the / played / we / in'", o: ["We played in the park yesterday.", "Yesterday we in the park played.", "We in the park played yesterday.", "Played we yesterday the park in."], a: 0, e: "Correct order: S + V + place + time.", h: "S + V + place + time." },
+      { q: "A: 'How are you?'\nB: '___'", o: ["I'm fine, thanks.", "I am 12 years old.", "My name is Andi.", "I like pizza."], a: 0, e: "The polite response to 'How are you?' is 'I'm fine, thanks.'", h: "A common polite response to 'How are you?'." },
+      { q: "A: 'What did you do last night?'\nB: '___'", o: ["I watch TV.", "I watched a movie.", "I am watching TV.", "I will watch TV."], a: 1, e: "'Last night' = past → Simple Past (watched).", h: "'Last night' → Simple Past." },
+      { q: "Complete: 'I have two ___. (cat)'", o: ["cat", "cats", "cates", "cates'"], a: 1, e: "'Two' requires a plural noun → cats.", h: "'Two' → plural noun." },
+      { q: "Complete: 'She is ___ intelligent student.'", o: ["a", "an", "the", "— (no article)"], a: 1, e: "'Intelligent' starts with a vowel sound → use 'an'.", h: "'Intelligent' starts with vowel sound → an." },
+      { q: "Which is the correct expression of apology?", o: ["Thank you very much.", "I'm sorry I'm late.", "Congratulations!", "See you later!"], a: 1, e: "Apology = expressing regret. 'I'm sorry...' is the correct form.", h: "Apology = expressing regret." },
+      { q: "Arrange: 'delicious / the / is / cake / very'", o: ["The cake is very delicious.", "Very delicious is the cake.", "The very cake is delicious.", "Is the cake very delicious."], a: 0, e: "Correct order: S + be + adverb + adjective.", h: "S + be + adverb + adjective." },
+      { q: "A: 'May I borrow your pen?'\nB: '___'", o: ["No, I don't.", "Sure, here you are.", "I don't know.", "Yes, I may."], a: 1, e: "Polite way to agree to a request: 'Sure, here you are.'", h: "Polite way to agree to a request." },
+      { q: "Choose the best topic sentence for a paragraph about your hobby:", o: ["I have a hobby that I really enjoy.", "My house is big.", "Yesterday was Monday.", "Cats are animals."], a: 0, e: "A topic sentence introduces the main idea of the paragraph.", h: "Topic sentence introduces the main idea." }
+    ]
+  }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  playerName: "",
+  currentLevel: 0,
+  currentQ: 0,
+  levelScore: 0,
+  levelCorrect: 0,
+  hintsLeft: 3,
+  totalScore: 0,
+  totalStars: 0,
+  levelProgress: {},
+  shuffledQuestions: [],
+  timer: null,
+  timeLeft: 30,
+  answered: false,
+  previousScreen: "mapScreen",
+  achievements: []
+};
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function saveProgress() {
+  localStorage.setItem('ea_progress', JSON.stringify({
+    playerName: state.playerName,
+    totalScore: state.totalScore,
+    totalStars: state.totalStars,
+    levelProgress: state.levelProgress,
+    achievements: state.achievements
+  }));
+}
+
+function loadProgress() {
+  const data = localStorage.getItem('ea_progress');
+  if (data) {
+    const p = JSON.parse(data);
+    state.playerName = p.playerName || "";
+    state.totalScore = p.totalScore || 0;
+    state.totalStars = p.totalStars || 0;
+    state.levelProgress = p.levelProgress || {};
+    state.achievements = p.achievements || [];
+  }
+}
+
+function saveLeaderboard(name, score, stars) {
+  const lb = JSON.parse(localStorage.getItem('ea_leaderboard') || '[]');
+  lb.push({ name, score, stars, date: new Date().toLocaleDateString() });
+  lb.sort((a, b) => b.score - a.score || b.stars - a.stars);
+  localStorage.setItem('ea_leaderboard', JSON.stringify(lb.slice(0, 10)));
+}
+
+function getLeaderboard() {
+  return JSON.parse(localStorage.getItem('ea_leaderboard') || '[]');
+}
+
+function isLevelUnlocked(levelId) {
+  if (levelId === 1) return true;
+  return state.levelProgress[levelId - 1] && state.levelProgress[levelId - 1].stars > 0;
+}
+
+function confetti() {
+  const colors = ['#FBBF24', '#EC4899', '#8B5CF6', '#3B82F6', '#10B981'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function showAchievement(badge, text) {
+  const popup = document.getElementById('achievementPopup');
+  document.getElementById('achBadge').textContent = badge;
+  document.getElementById('achText').textContent = text;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 3000);
+}
+
+/* ============================================================
+   BACKGROUND SCENE
+   ============================================================ */
+function createBgScene() {
+  const scene = document.getElementById('bgScene');
+  // Clouds
+  for (let i = 0; i < 6; i++) {
+    const c = document.createElement('div');
+    c.className = 'cloud';
+    const size = 60 + Math.random() * 100;
+    c.style.width = size + 'px';
+    c.style.height = (size * 0.5) + 'px';
+    c.style.top = Math.random() * 60 + '%';
+    c.style.animationDuration = (30 + Math.random() * 30) + 's';
+    c.style.animationDelay = -Math.random() * 30 + 's';
+    scene.appendChild(c);
+  }
+  // Stars
+  for (let i = 0; i < 20; i++) {
+    const s = document.createElement('div');
+    s.className = 'star-bg';
+    s.textContent = '✦';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.fontSize = (10 + Math.random() * 15) + 'px';
+    s.style.animationDelay = Math.random() * 2 + 's';
+    scene.appendChild(s);
+  }
+}
+
+/* ============================================================
+   START / MAP
+   ============================================================ */
+function startGame() {
+  initAudio();
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) { alert("Please enter your name, Explorer!"); return; }
+  state.playerName = name;
+  loadProgress();
+  if (!state.playerName) state.playerName = name;
+  document.getElementById('displayName').textContent = state.playerName;
+  playClickSound();
+  if (musicOn) startMusic();
+  renderMap();
+  showScreen('mapScreen');
+}
+
+function renderMap() {
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  document.getElementById('totalStars').textContent = state.totalStars;
+  document.getElementById('totalScore').textContent = state.totalScore;
+
+  // Progress
+  const completedLevels = Object.values(state.levelProgress).filter(p => p.stars > 0).length;
+  const percent = Math.round((completedLevels / 6) * 100);
+  const fill = document.getElementById('progressFill');
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+
+  LEVELS.forEach((lv) => {
+    const unlocked = isLevelUnlocked(lv.id);
+    const prog = state.levelProgress[lv.id] || { stars: 0, score: 0 };
+    const stars = '⭐'.repeat(prog.stars) + '☆'.repeat(3 - prog.stars);
+
+    const card = document.createElement('div');
+    card.className = 'level-card' + (!unlocked ? ' locked' : '') + (prog.stars > 0 ? ' completed' : '');
+    card.innerHTML = `
+      ${!unlocked ? '<div class="lock-icon">🔒</div>' : ''}
+      <div class="level-icon">${lv.icon}</div>
+      <div class="level-name">Level ${lv.id}: ${lv.name}</div>
+      <div class="level-desc">${lv.desc}</div>
+      <div class="level-stars">${stars}</div>
+      <div style="text-align:center; font-size:12px; margin-top:6px; opacity:.8;">Best: ${prog.score} pts</div>
+    `;
+    if (unlocked) card.onclick = () => { playClickSound(); startLevel(lv.id); };
+    grid.appendChild(card);
+  });
+}
+
+function backToStart() {
+  playClickSound();
+  showScreen('startScreen');
+}
+
+/* ============================================================
+   GAME LOGIC
+   ============================================================ */
+function startLevel(levelId) {
+  const lv = LEVELS.find(l => l.id === levelId);
+  state.currentLevel = levelId;
+  state.currentQ = 0;
+  state.levelScore = 0;
+  state.levelCorrect = 0;
+  state.hintsLeft = 3;
+  state.answered = false;
+
+  // Shuffle questions and options
+  state.shuffledQuestions = shuffle(lv.questions).map(q => {
+    const opts = q.o.map((text, i) => ({ text, isCorrect: i === q.a }));
+    const shuffled = shuffle(opts);
+    return {
+      q: q.q,
+      o: shuffled.map(x => x.text),
+      a: shuffled.findIndex(x => x.isCorrect),
+      e: q.e,
+      h: q.h
+    };
+  });
+
+  document.getElementById('currentLevelTitle').textContent = `Level ${lv.id}: ${lv.name}`;
+  document.getElementById('guideAvatar').textContent = lv.guide;
+  document.getElementById('guideText').textContent = lv.intro;
+  document.getElementById('hintCount').textContent = state.hintsLeft;
+  document.getElementById('hintBtn').disabled = false;
+
+  const pa = document.getElementById('passageArea');
+  if (lv.passage) {
+    pa.innerHTML = `<div class="passage"><h3>${lv.passage.title}</h3><p>${lv.passage.text}</p></div>`;
+  } else {
+    pa.innerHTML = '';
+  }
+
+  showScreen('gameScreen');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.shuffledQuestions[state.currentQ];
+  state.answered = false;
+  state.timeLeft = 30;
+
+  document.getElementById('qProgress').textContent = `Question ${state.currentQ + 1} of ${state.shuffledQuestions.length}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('levelScore').textContent = state.levelScore;
+  document.getElementById('hintArea').innerHTML = '';
+  document.getElementById('feedbackArea').innerHTML = '';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('hintBtn').disabled = state.hintsLeft <= 0;
+
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<div class="option-letter">${String.fromCharCode(65 + i)}</div><div>${opt}</div>`;
+    btn.onclick = () => selectAnswer(i, btn);
+    optsDiv.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(state.timer);
+  const timerEl = document.getElementById('timer');
+  timerEl.classList.remove('warning');
+  timerEl.textContent = `⏱ ${state.timeLeft}s`;
+
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    timerEl.textContent = `⏱ ${state.timeLeft}s`;
+    if (state.timeLeft <= 5) timerEl.classList.add('warning');
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timer);
+      timeout();
+    }
+  }, 1000);
+}
+
+function timeout() {
+  if (state.answered) return;
+  state.answered = true;
+  playWrongSound();
+  const q = state.shuffledQuestions[state.currentQ];
+  const btns = document.querySelectorAll('.option');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.a) b.classList.add('correct');
+  });
+  document.getElementById('feedbackArea').innerHTML =
+    `<div class="feedback timeout">⏰ Time's up! The correct answer was highlighted.</div>
+     <div class="explanation">💡 <b>Explanation:</b> ${q.e}</div>`;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  document.getElementById('hintBtn').disabled = true;
+}
+
+function selectAnswer(idx, btn) {
+  if (state.answered) return;
+  state.answered = true;
+  clearInterval(state.timer);
+
+  const q = state.shuffledQuestions[state.currentQ];
+  const btns = document.querySelectorAll('.option');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedbackArea');
+  if (idx === q.a) {
+    btn.classList.add('correct');
+    state.levelScore += 10;
+    state.levelCorrect++;
+    playCorrectSound();
+    fb.innerHTML = `<div class="feedback correct">✅ Correct! +10 points</div>
+                    <div class="explanation">💡 <b>Explanation:</b> ${q.e}</div>`;
+  } else {
+    btn.classList.add('wrong');
+    btns[q.a].classList.add('correct');
+    playWrongSound();
+    fb.innerHTML = `<div class="feedback wrong">❌ Not quite. The correct answer was highlighted.</div>
+                    <div class="explanation">💡 <b>Explanation:</b> ${q.e}</div>`;
+  }
+  document.getElementById('levelScore').textContent = state.levelScore;
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  document.getElementById('hintBtn').disabled = true;
+}
+
+function useHint() {
+  if (state.hintsLeft <= 0 || state.answered) return;
+  state.hintsLeft--;
+  document.getElementById('hintCount').textContent = state.hintsLeft;
+  if (state.hintsLeft === 0) document.getElementById('hintBtn').disabled = true;
+  playClickSound();
+
+  const q = state.shuffledQuestions[state.currentQ];
+  document.getElementById('hintArea').innerHTML =
+    `<div class="hint-box">💡 <b>Hint:</b> ${q.h}</div>`;
+}
+
+function nextQuestion() {
+  playClickSound();
+  state.currentQ++;
+  if (state.currentQ >= state.shuffledQuestions.length) {
+    finishLevel();
+  } else {
+    renderQuestion();
+  }
+}
+
+/* ============================================================
+   LEVEL RESULTS
+   ============================================================ */
+function finishLevel() {
+  clearInterval(state.timer);
+  const total = state.shuffledQuestions.length;
+  const wrong = total - state.levelCorrect;
+  const percent = Math.round((state.levelCorrect / total) * 100);
+  let stars = 0;
+  if (percent >= 90) stars = 3;
+  else if (percent >= 70) stars = 2;
+  else if (percent >= 50) stars = 1;
+
+  const prev = state.levelProgress[state.currentLevel] || { stars: 0, score: 0 };
+  const newStars = Math.max(stars, prev.stars);
+  const newScore = Math.max(state.levelScore, prev.score);
+  state.levelProgress[state.currentLevel] = { stars: newStars, score: newScore };
+
+  // Recalculate totals
+  state.totalScore = 0; state.totalStars = 0;
+  Object.values(state.levelProgress).forEach(p => {
+    state.totalScore += p.score;
+    state.totalStars += p.stars;
+  });
+
+  saveProgress();
+  saveLeaderboard(state.playerName, state.totalScore, state.totalStars);
+
+  // Check achievements
+  checkAchievements();
+
+  let grade, gradeClass, icon;
+  if (percent >= 90) { grade = "EXCELLENT!"; gradeClass = "grade-excellent"; icon = "🏆"; }
+  else if (percent >= 80) { grade = "VERY GOOD!"; gradeClass = "grade-verygood"; icon = "🥈"; }
+  else if (percent >= 70) { grade = "GOOD!"; gradeClass = "grade-good"; icon = "🥉"; }
+  else if (percent >= 60) { grade = "KEEP PRACTICING!"; gradeClass = "grade-practice"; icon = "💪"; }
+  else { grade = "TRY AGAIN!"; gradeClass = "grade-tryagain"; icon = "🔥"; }
+
+  document.getElementById('resultIcon').textContent = icon;
+  document.getElementById('resultTitle').textContent = stars > 0 ? "Level Complete!" : "Level Failed";
+  document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+  const gradeEl = document.getElementById('resultGrade');
+  gradeEl.textContent = grade;
+  gradeEl.className = 'result-grade ' + gradeClass;
+  document.getElementById('rCorrect').textContent = state.levelCorrect;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rScore').textContent = state.levelScore;
+  document.getElementById('rPercent').textContent = percent + '%';
+
+  const nextBtn = document.getElementById('nextLevelBtn');
+  if (state.currentLevel < 6 && stars > 0) {
+    nextBtn.style.display = 'inline-block';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+
+  if (stars === 3) { confetti(); playLevelUpSound(); }
+  else if (stars > 0) playLevelUpSound();
+
+  showScreen('resultScreen');
+}
+
+function checkAchievements() {
+  const completedLevels = Object.values(state.levelProgress).filter(p => p.stars > 0).length;
+
+  if (completedLevels === 1 && !state.achievements.includes('first_level')) {
+    state.achievements.push('first_level');
+    showAchievement('🎖️', 'First Level Completed!');
+  }
+  if (completedLevels === 3 && !state.achievements.includes('three_levels')) {
+    state.achievements.push('three_levels');
+    showAchievement('🏅', 'Halfway Hero! 3 Levels Done!');
+  }
+  if (completedLevels === 6 && !state.achievements.includes('all_levels')) {
+    state.achievements.push('all_levels');
+    showAchievement('👑', 'Language Champion!');
+  }
+  if (state.totalStars >= 18 && !state.achievements.includes('perfect')) {
+    state.achievements.push('perfect');
+    showAchievement('💎', 'Perfect Stars Collector!');
+  }
+  saveProgress();
+}
+
+function retryLevel() {
+  playClickSound();
+  startLevel(state.currentLevel);
+}
+
+function nextLevel() {
+  playClickSound();
+  if (state.currentLevel < 6) {
+    startLevel(state.currentLevel + 1);
+  }
+}
+
+function showMap() {
+  playClickSound();
+  renderMap();
+  showScreen('mapScreen');
+  const allDone = [1,2,3,4,5,6].every(id => state.levelProgress[id] && state.levelProgress[id].stars > 0);
+  if (allDone) setTimeout(showFinal, 500);
+}
+
+function showFinal() {
+  document.getElementById('certName').textContent = state.playerName;
+  document.getElementById('certScore').textContent = state.totalScore;
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
+  document.getElementById('certStars').textContent = '⭐'.repeat(state.totalStars);
+
+  const percent = Math.round((state.totalStars / 18) * 100);
+  let grade;
+  if (percent >= 90) grade = "EXCELLENT!";
+  else if (percent >= 80) grade = "VERY GOOD!";
+  else if (percent >= 70) grade = "GOOD!";
+  else if (percent >= 60) grade = "KEEP PRACTICING!";
+  else grade = "TRY AGAIN!";
+  document.getElementById('certGrade').textContent = grade;
+
+  confetti();
+  playLevelUpSound();
+  showScreen('finalScreen');
+}
+
+function playAgain() {
+  playClickSound();
+  if (!confirm("Reset all progress and start over?")) return;
+  state.totalScore = 0;
+  state.totalStars = 0;
+  state.levelProgress = {};
+  state.achievements = [];
+  saveProgress();
+  showScreen('startScreen');
+}
+
+/* ============================================================
+   LEADERBOARD
+   ============================================================ */
+function showLeaderboard() {
+  playClickSound();
+  state.previousScreen = document.querySelector('.screen.active').id;
+  const lb = getLeaderboard();
+  const list = document.getElementById('lbList');
+  if (lb.length === 0) {
+    list.innerHTML = '<p style="text-align:center; opacity:.8; padding:20px;">No champions yet. Be the first!</p>';
+  } else {
+    list.innerHTML = lb.map((p, i) => {
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+      return `<div class="lb-row">
+        <div class="lb-rank ${rankClass}">${medal}</div>
+        <div class="lb-name">${p.name}</div>
+        <div style="font-size:13px; opacity:.8;">⭐${p.stars}</div>
+        <div class="lb-score">💎 ${p.score}</div>
+      </div>`;
+    }).join('');
+  }
+  showScreen('leaderboardScreen');
+}
+
+function closeLeaderboard() {
+  playClickSound();
+  showScreen(state.previousScreen || 'startScreen');
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+createBgScene();
+loadProgress();
+if (state.playerName) {
+  document.getElementById('playerName').value = state.playerName;
+}
+
+// Start audio on first user interaction
+document.body.addEventListener('click', function initOnClick() {
+  initAudio();
+  if (musicOn && !musicInterval) startMusic();
+  document.body.removeEventListener('click', initOnClick);
+}, { once: true });
+</script>
+</body>
+</html>
