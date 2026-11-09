@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>ENGLISH CHALLENGE: THE ULTIMATE QUIZ</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+  body {
+    min-height:100vh;
+    background: linear-gradient(135deg, #1a0033 0%, #4a0080 50%, #0066cc 100%);
+    background-size: 400% 400%;
+    animation: bgShift 15s ease infinite;
+    overflow-x:hidden;
+    color:#fff;
+    padding:20px;
+  }
+  @keyframes bgShift {
+    0%,100% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+  }
+  .container {
+    max-width:1000px;
+    margin:0 auto;
+  }
+  .screen { display:none; animation: fadeIn 0.6s ease; }
+  .screen.active { display:block; }
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* START SCREEN */
+  .title-box {
+    text-align:center;
+    padding:40px 20px;
+    background: linear-gradient(135deg, rgba(255,0,150,0.3), rgba(0,200,255,0.3));
+    border-radius:25px;
+    border:3px solid #fff;
+    box-shadow: 0 0 40px rgba(255,255,255,0.3);
+    margin-bottom:30px;
+    position:relative;
+    overflow:hidden;
+  }
+  .title-box::before {
+    content:'';
+    position:absolute;
+    top:-50%; left:-50%;
+    width:200%; height:200%;
+    background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: rotate 8s linear infinite;
+  }
+  @keyframes rotate { to { transform:rotate(360deg); } }
+  h1 {
+    font-size:3em;
+    background: linear-gradient(90deg, #ffeb3b, #ff00aa, #00ffff);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow: 0 0 30px rgba(255,255,255,0.3);
+    animation: glow 2s ease-in-out infinite alternate;
+    position:relative;
+    z-index:1;
+  }
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 10px #ff00aa); }
+    to { filter: drop-shadow(0 0 25px #00ffff); }
+  }
+  .subtitle {
+    font-size:1.3em;
+    margin-top:10px;
+    color:#ffeb3b;
+    position:relative;
+    z-index:1;
+  }
+  .info-cards {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
+    gap:15px;
+    margin:30px 0;
+  }
+  .info-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border:2px solid rgba(255,255,255,0.3);
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    transition: transform 0.3s;
+  }
+  .info-card:hover { transform:translateY(-5px) scale(1.05); }
+  .info-card .icon { font-size:2.5em; margin-bottom:10px; }
+  .info-card h3 { color:#ffeb3b; margin-bottom:5px; }
+
+  .input-group {
+    text-align:center;
+    margin:30px 0;
+  }
+  .input-group input {
+    padding:15px 25px;
+    font-size:1.2em;
+    border-radius:50px;
+    border:3px solid #00ffff;
+    background: rgba(255,255,255,0.1);
+    color:#fff;
+    width:80%;
+    max-width:400px;
+    text-align:center;
+    outline:none;
+    transition: all 0.3s;
+  }
+  .input-group input::placeholder { color:rgba(255,255,255,0.6); }
+  .input-group input:focus {
+    border-color:#ff00aa;
+    box-shadow: 0 0 20px #ff00aa;
+  }
+
+  .btn {
+    padding:15px 40px;
+    font-size:1.2em;
+    font-weight:bold;
+    border:none;
+    border-radius:50px;
+    cursor:pointer;
+    background: linear-gradient(135deg, #ff00aa, #ffeb3b);
+    color:#1a0033;
+    box-shadow: 0 5px 20px rgba(255,0,170,0.5);
+    transition: all 0.3s;
+    text-transform:uppercase;
+    letter-spacing:2px;
+  }
+  .btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(255,0,170,0.8);
+  }
+  .btn:active { transform: translateY(0) scale(0.98); }
+  .btn.secondary {
+    background: linear-gradient(135deg, #00ffff, #0066cc);
+    color:#fff;
+  }
+
+  /* QUIZ SCREEN */
+  .quiz-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background: rgba(0,0,0,0.4);
+    padding:15px 25px;
+    border-radius:20px;
+    margin-bottom:20px;
+    border:2px solid rgba(255,255,255,0.2);
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .stat {
+    text-align:center;
+    padding:5px 15px;
+  }
+  .stat .label { font-size:0.8em; color:#00ffff; text-transform:uppercase; }
+  .stat .value { font-size:1.5em; font-weight:bold; color:#ffeb3b; }
+
+  .timer-bar {
+    height:10px;
+    background: rgba(255,255,255,0.2);
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .timer-fill {
+    height:100%;
+    background: linear-gradient(90deg, #00ff00, #ffeb3b, #ff00aa);
+    width:100%;
+    transition: width 1s linear;
+  }
+  .timer-fill.danger { background: linear-gradient(90deg, #ff0000, #ff6600); }
+
+  .question-box {
+    background: linear-gradient(135deg, rgba(255,0,150,0.2), rgba(0,200,255,0.2));
+    border:3px solid #fff;
+    border-radius:20px;
+    padding:30px;
+    margin-bottom:20px;
+    box-shadow: 0 0 30px rgba(255,255,255,0.2);
+  }
+  .q-meta {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .badge {
+    padding:5px 15px;
+    border-radius:20px;
+    font-size:0.85em;
+    font-weight:bold;
+    text-transform:uppercase;
+  }
+  .badge.easy { background:#00cc66; color:#fff; }
+  .badge.medium { background:#ff9900; color:#fff; }
+  .badge.hard { background:#ff0055; color:#fff; }
+  .badge.topic { background:rgba(255,255,255,0.2); color:#fff; border:1px solid #fff; }
+
+  .question-text {
+    font-size:1.3em;
+    line-height:1.6;
+    margin-top:10px;
+  }
+  .question-text pre {
+    background: rgba(0,0,0,0.4);
+    padding:15px;
+    border-radius:10px;
+    margin-top:10px;
+    font-family: 'Courier New', monospace;
+    font-size:0.9em;
+    white-space: pre-wrap;
+    border-left: 4px solid #ffeb3b;
+  }
+
+  .options {
+    display:grid;
+    gap:15px;
+  }
+  .option {
+    padding:18px 25px;
+    background: rgba(255,255,255,0.1);
+    border:2px solid rgba(255,255,255,0.3);
+    border-radius:15px;
+    cursor:pointer;
+    font-size:1.1em;
+    transition: all 0.3s;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    backdrop-filter: blur(5px);
+  }
+  .option:hover:not(.disabled) {
+    background: rgba(255,255,255,0.25);
+    border-color:#ffeb3b;
+    transform: translateX(10px);
+    box-shadow: 0 0 20px rgba(255,235,59,0.5);
+  }
+  .option .letter {
+    width:40px; height:40px;
+    background: linear-gradient(135deg, #ff00aa, #00ffff);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:#fff;
+    flex-shrink:0;
+  }
+  .option.correct {
+    background: rgba(0,204,102,0.5) !important;
+    border-color:#00ff66 !important;
+    animation: pulse 0.5s;
+  }
+  .option.wrong {
+    background: rgba(255,0,0,0.5) !important;
+    border-color:#ff0000 !important;
+    animation: shake 0.5s;
+  }
+  .option.disabled { cursor:not-allowed; }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    25% { transform:translateX(-10px); }
+    75% { transform:translateX(10px); }
+  }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top:20px;
+    padding:20px;
+    border-radius:15px;
+    display:none;
+    animation: slideIn 0.5s;
+  }
+  .feedback.show { display:block; }
+  .feedback.correct {
+    background: linear-gradient(135deg, rgba(0,204,102,0.3), rgba(0,255,100,0.2));
+    border:2px solid #00ff66;
+  }
+  .feedback.wrong {
+    background: linear-gradient(135deg, rgba(255,0,0,0.3), rgba(255,100,0,0.2));
+    border:2px solid #ff6666;
+  }
+  .feedback.timeout {
+    background: linear-gradient(135deg, rgba(255,150,0,0.3), rgba(255,200,0,0.2));
+    border:2px solid #ffaa00;
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .feedback h3 { margin-bottom:10px; font-size:1.3em; }
+  .feedback p { line-height:1.6; }
+
+  /* RESULT SCREEN */
+  .result-box {
+    text-align:center;
+    padding:40px;
+    background: linear-gradient(135deg, rgba(255,0,150,0.3), rgba(0,200,255,0.3));
+    border-radius:25px;
+    border:3px solid #ffeb3b;
+    margin-bottom:30px;
+    box-shadow: 0 0 50px rgba(255,235,59,0.4);
+  }
+  .score-circle {
+    width:200px; height:200px;
+    margin:20px auto;
+    border-radius:50%;
+    background: conic-gradient(#00ff66 0deg, #00ff66 var(--score-deg), rgba(255,255,255,0.1) var(--score-deg));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    animation: spin 2s ease-out;
+  }
+  @keyframes spin {
+    from { transform: rotate(-360deg); }
+    to { transform: rotate(0deg); }
+  }
+  .score-inner {
+    width:170px; height:170px;
+    background: #1a0033;
+    border-radius:50%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  .score-inner .num {
+    font-size:3em;
+    font-weight:bold;
+    color:#ffeb3b;
+  }
+  .score-inner .label { color:#00ffff; font-size:0.9em; }
+  .grade {
+    font-size:2em;
+    margin:20px 0;
+    font-weight:bold;
+  }
+
+  /* LEADERBOARD */
+  .leaderboard {
+    background: rgba(0,0,0,0.4);
+    border-radius:20px;
+    padding:25px;
+    border:2px solid rgba(255,255,255,0.2);
+  }
+  .leaderboard h2 {
+    text-align:center;
+    color:#ffeb3b;
+    margin-bottom:20px;
+    font-size:1.8em;
+  }
+  .lb-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius:10px;
+    margin-bottom:8px;
+    border-left:4px solid;
+    transition: all 0.3s;
+  }
+  .lb-row:hover { background: rgba(255,255,255,0.15); transform:translateX(5px); }
+  .lb-row.gold { border-color:#ffd700; background: rgba(255,215,0,0.15); }
+  .lb-row.silver { border-color:#c0c0c0; background: rgba(192,192,192,0.1); }
+  .lb-row.bronze { border-color:#cd7f32; background: rgba(205,127,50,0.1); }
+  .lb-rank {
+    font-size:1.5em;
+    font-weight:bold;
+    width:50px;
+  }
+  .lb-name { flex:1; font-size:1.1em; }
+  .lb-score {
+    background: linear-gradient(135deg, #ff00aa, #ffeb3b);
+    padding:5px 15px;
+    border-radius:20px;
+    color:#1a0033;
+    font-weight:bold;
+  }
+
+  /* CONFETTI */
+  .confetti {
+    position:fixed;
+    width:10px; height:10px;
+    pointer-events:none;
+    z-index:9999;
+  }
+
+  .btn-group {
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:20px;
+  }
+
+  @media (max-width:600px) {
+    h1 { font-size:2em; }
+    .question-text { font-size:1.1em; }
+    .stat .value { font-size:1.2em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen active">
+    <div class="title-box">
+      <h1>🏆 ENGLISH CHALLENGE 🏆</h1>
+      <div class="subtitle">THE ULTIMATE QUIZ</div>
+      <p style="margin-top:15px; position:relative; z-index:1;">Untuk Siswa Kelas X SMA/SMK (Fase E)</p>
+    </div>
+
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="icon">📝</div>
+        <h3>15 Soal</h3>
+        <p>Pilihan Ganda</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">⏱️</div>
+        <h3>15 Detik</h3>
+        <p>Per Soal</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">🎯</div>
+        <h3>3 Level</h3>
+        <p>Easy, Medium, Hard</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">📚</div>
+        <h3>8 Materi</h3>
+        <p>Bahasa Inggris</p>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="playerName" placeholder="Masukkan nama kamu..." maxlength="20">
+    </div>
+
+    <div class="btn-group">
+      <button class="btn" onclick="startGame()">🚀 MULAI KUIS</button>
+      <button class="btn secondary" onclick="showLeaderboard()">🏆 LEADERBOARD</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" class="screen">
+    <div class="quiz-header">
+      <div class="stat">
+        <div class="label">Soal</div>
+        <div class="value"><span id="qNum">1</span>/15</div>
+      </div>
+      <div class="stat">
+        <div class="label">Skor</div>
+        <div class="value" id="scoreDisplay">0</div>
+      </div>
+      <div class="stat">
+        <div class="label">Waktu</div>
+        <div class="value" id="timeDisplay">15</div>
+      </div>
+      <div class="stat">
+        <div class="label">Pemain</div>
+        <div class="value" id="playerDisplay" style="font-size:1em;">-</div>
+      </div>
+    </div>
+
+    <div class="timer-bar">
+      <div class="timer-fill" id="timerFill"></div>
+    </div>
+
+    <div class="question-box">
+      <div class="q-meta">
+        <span class="badge topic" id="topicBadge">Topic</span>
+        <span class="badge" id="diffBadge">Easy</span>
+      </div>
+      <div class="question-text" id="questionText">Question</div>
+    </div>
+
+    <div class="options" id="optionsContainer"></div>
+
+    <div class="feedback" id="feedback">
+      <h3 id="feedbackTitle">Feedback</h3>
+      <p id="feedbackText">Explanation</p>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="resultScreen" class="screen">
+    <div class="result-box">
+      <h1 style="font-size:2em;">🎉 KUIS SELESAI! 🎉</h1>
+      <div class="score-circle" id="scoreCircle" style="--score-deg:0deg;">
+        <div class="score-inner">
+          <div class="num" id="finalScore">0</div>
+          <div class="label">POIN</div>
+        </div>
+      </div>
+      <div class="grade" id="gradeDisplay">GRADE</div>
+      <p id="resultMessage" style="font-size:1.1em; line-height:1.6;"></p>
+    </div>
+
+    <div class="leaderboard">
+      <h2>🏆 TOP 10 LEADERBOARD 🏆</h2>
+      <div id="leaderboardList"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn" onclick="restartGame()">🔄 MAIN LAGI</button>
+      <button class="btn secondary" onclick="goHome()">🏠 BERANDA</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="leaderboardScreen" class="screen">
+    <div class="title-box">
+      <h1 style="font-size:2.5em;">🏆 LEADERBOARD 🏆</h1>
+      <div class="subtitle">Hall of Fame</div>
+    </div>
+    <div class="leaderboard">
+      <h2>TOP 10 PLAYERS</h2>
+      <div id="leaderboardListFull"></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn" onclick="goHome()">🏠 KEMBALI</button>
+      <button class="btn secondary" onclick="clearLeaderboard()">🗑️ HAPUS SEMUA</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ QUESTIONS DATABASE ============
+const questions = [
+  {
+    topic: "Self Introduction",
+    difficulty: "easy",
+    question: "Complete the sentence: 'Hello, my name is Rina. I ___ from Jakarta.'",
+    options: ["am", "is", "are", "be"],
+    answer: 0,
+    explanation: "Kita menggunakan 'am' untuk subjek 'I' dalam simple present tense. Kalimat lengkapnya: 'I am from Jakarta.'"
+  },
+  {
+    topic: "Self Introduction",
+    difficulty: "easy",
+    question: "Which expression is used to introduce yourself?",
+    options: [
+      "How are you?",
+      "Let me introduce myself.",
+      "Nice to meet you too.",
+      "Where do you live?"
+    ],
+    answer: 1,
+    explanation: "'Let me introduce myself' adalah ungkapan formal untuk memperkenalkan diri sendiri dalam bahasa Inggris."
+  },
+  {
+    topic: "Descriptive Text",
+    difficulty: "easy",
+    question: "What is the main purpose of a descriptive text?",
+    options: [
+      "To tell past events",
+      "To describe a particular person, place, or thing",
+      "To entertain the reader with a story",
+      "To explain how to make something"
+    ],
+    answer: 1,
+    explanation: "Descriptive text bertujuan untuk mendeskripsikan orang, tempat, atau benda tertentu secara detail agar pembaca dapat membayangkannya."
+  },
+  {
+    topic: "Descriptive Text",
+    difficulty: "medium",
+    question: `<pre>My cat, Snowy, has soft white fur and bright blue eyes. She loves to play with yarn balls and sleeps on my bed every night.</pre>What is the social function of the text above?`,
+    options: [
+      "To entertain readers with a funny story",
+      "To describe the writer's cat specifically",
+      "To explain how to take care of a cat",
+      "To retell a past experience with a cat"
+    ],
+    answer: 1,
+    explanation: "Teks tersebut adalah descriptive text karena mendeskripsikan kucing milik penulis secara spesifik (Snowy), bukan kucing secara umum."
+  },
+  {
+    topic: "Recount Text",
+    difficulty: "medium",
+    question: "Which of the following is the generic structure of a recount text?",
+    options: [
+      "Orientation - Complication - Resolution",
+      "Orientation - Events - Reorientation",
+      "Identification - Description",
+      "Goal - Materials - Steps"
+    ],
+    answer: 1,
+    explanation: "Struktur recount text adalah: Orientation (pengenalan), Events (rangkaian kejadian), dan Reorientation (penutup/kesimpulan)."
+  },
+  {
+    topic: "Recount Text",
+    difficulty: "medium",
+    question: `<pre>Last holiday, my family and I went to Bali. We visited Kuta Beach, enjoyed the sunset, and took many photos.</pre>What tense is mostly used in the text above?`,
+    options: [
+      "Simple Present Tense",
+      "Simple Past Tense",
+      "Present Continuous Tense",
+      "Future Tense"
+    ],
+    answer: 1,
+    explanation: "Recount text menggunakan Simple Past Tense karena menceritakan kejadian yang sudah terjadi di masa lalu (went, visited, enjoyed, took)."
+  },
+  {
+    topic: "Narrative Text",
+    difficulty: "medium",
+    question: "What is the purpose of a narrative text?",
+    options: [
+      "To describe a particular object",
+      "To explain a process",
+      "To amuse or entertain readers with a story",
+      "To persuade readers to do something"
+    ],
+    answer: 2,
+    explanation: "Narrative text bertujuan untuk menghibur (amuse/entertain) pembaca melalui cerita fiktif atau legenda yang memiliki konflik."
+  },
+  {
+    topic: "Narrative Text",
+    difficulty: "hard",
+    question: "In a narrative text, the part where the problem is solved is called...",
+    options: [
+      "Orientation",
+      "Complication",
+      "Resolution",
+      "Evaluation"
+    ],
+    answer: 2,
+    explanation: "Resolution adalah bagian dalam narrative text di mana konflik atau masalah dalam cerita berhasil diselesaikan. Orientation = pengenalan, Complication = muncul masalah."
+  },
+  {
+    topic: "Simple Present Tense",
+    difficulty: "easy",
+    question: "She ___ to school every day.",
+    options: ["go", "goes", "going", "gone"],
+    answer: 1,
+    explanation: "Untuk subjek 'She' (orang ketiga tunggal), kata kerja dalam Simple Present Tense ditambah -es/-s. Jadi: 'She goes to school.'"
+  },
+  {
+    topic: "Simple Present Tense",
+    difficulty: "medium",
+    question: "Which sentence is correct in Simple Present Tense?",
+    options: [
+      "They is playing football now.",
+      "He don't like coffee.",
+      "We study English every Monday.",
+      "She going to market yesterday."
+    ],
+    answer: 2,
+    explanation: "'We study English every Monday' benar karena subjek 'We' menggunakan kata kerja dasar 'study'. Kata 'every Monday' menunjukkan kebiasaan (routine)."
+  },
+  {
+    topic: "Simple Past Tense",
+    difficulty: "easy",
+    question: "I ___ a delicious cake yesterday.",
+    options: ["eat", "eats", "ate", "eating"],
+    answer: 2,
+    explanation: "'Ate' adalah bentuk Verb 2 (past tense) dari 'eat'. Kata 'yesterday' menunjukkan kejadian di masa lampau, sehingga menggunakan Simple Past Tense."
+  },
+  {
+    topic: "Simple Past Tense",
+    difficulty: "medium",
+    question: "They ___ football in the field last Sunday.",
+    options: ["play", "plays", "played", "playing"],
+    answer: 2,
+    explanation: "'Played' adalah bentuk Verb 2 (regular verb + ed). 'Last Sunday' menunjukkan kejadian di masa lalu, sehingga menggunakan Simple Past Tense."
+  },
+  {
+    topic: "Vocabulary",
+    difficulty: "medium",
+    question: "What is the synonym of the word 'beautiful'?",
+    options: ["ugly", "gorgeous", "terrible", "boring"],
+    answer: 1,
+    explanation: "'Gorgeous' memiliki arti yang sama dengan 'beautiful' yaitu cantik/indah. Ugly = jelek, terrible = mengerikan, boring = membosankan."
+  },
+  {
+    topic: "Vocabulary",
+    difficulty: "hard",
+    question: "The word 'enormous' in the sentence 'They saw an enormous elephant' means...",
+    options: ["tiny", "very large", "colorful", "dangerous"],
+    answer: 1,
+    explanation: "'Enormous' berarti sangat besar (very large/huge). Sinonimnya: gigantic, massive, immense. Antonimnya: tiny, small."
+  },
+  {
+    topic: "Expressions",
+    difficulty: "hard",
+    question: "Your friend won the first prize in an English speech competition. What is the best expression to say?",
+    options: [
+      "I'm sorry to hear that.",
+      "Congratulations on your achievement!",
+      "That's too bad.",
+      "You should try harder."
+    ],
+    answer: 1,
+    explanation: "'Congratulations on your achievement!' adalah ungkapan congratulating (memberi selamat) yang tepat ketika seseorang meraih prestasi. Ungkapan ini juga termasuk compliment (pujian)."
+  }
+];
+
+// ============ GAME STATE ============
+let currentQuestion = 0;
+let score = 0;
+let timeLeft = 15;
+let timerInterval = null;
+let playerName = "";
+let answered = false;
+let audioCtx = null;
+
+// ============ AUDIO EFFECTS ============
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playSound(type) {
+  try {
+    initAudio();
+    const now = audioCtx.currentTime;
+    if (type === 'correct') {
+      // Happy ascending tones
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.1);
+        gain.gain.linearRampToValueAtTime(0.3, now + i*0.1 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.1 + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + i*0.1);
+        osc.stop(now + i*0.1 + 0.2);
+      });
+    } else if (type === 'wrong') {
+      // Descending sad tone
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.linearRampToValueAtTime(100, now + 0.4);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.4);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (type === 'tick') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = 800;
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } else if (type === 'timeout') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(150, now + 0.6);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.6);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.6);
+    } else if (type === 'win') {
+      // Victory fanfare
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + i*0.15);
+        gain.gain.linearRampToValueAtTime(0.3, now + i*0.15 + 0.02);
+        gain.gain.linearRampToValueAtTime(0, now + i*0.15 + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + i*0.15);
+        osc.stop(now + i*0.15 + 0.3);
+      });
+    } else if (type === 'click') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 600;
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    }
+  } catch(e) { console.log('Audio error:', e); }
+}
+
+// ============ CONFETTI ============
+function createConfetti() {
+  const colors = ['#ff00aa', '#ffeb3b', '#00ffff', '#00ff66', '#ff6600', '#ffffff'];
+  for (let i = 0; i < 60; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.background = colors[Math.floor(Math.random()*colors.length)];
+    confetti.style.left = Math.random()*100 + 'vw';
+    confetti.style.top = '-10px';
+    confetti.style.transform = `rotate(${Math.random()*360}deg)`;
+    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    document.body.appendChild(confetti);
+    const duration = 2 + Math.random()*2;
+    const drift = (Math.random()-0.5)*200;
+    confetti.animate([
+      { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+      { transform: `translate(${drift}px, 100vh) rotate(${Math.random()*720}deg)`, opacity: 0 }
+    ], { duration: duration*1000, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' });
+    setTimeout(() => confetti.remove(), duration*1000);
+  }
+}
+
+// ============ SCREEN NAVIGATION ============
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  playSound('click');
+  showScreen('startScreen');
+}
+
+// ============ GAME LOGIC ============
+function startGame() {
+  const nameInput = document.getElementById('playerName').value.trim();
+  if (!nameInput) {
+    alert('Silakan masukkan nama kamu terlebih dahulu! 📝');
+    return;
+  }
+  playerName = nameInput;
+  currentQuestion = 0;
+  score = 0;
+  document.getElementById('playerDisplay').textContent = playerName;
+  showScreen('quizScreen');
+  playSound('click');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[currentQuestion];
+  document.getElementById('qNum').textContent = currentQuestion + 1;
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('topicBadge').textContent = q.topic;
+  const diffBadge = document.getElementById('diffBadge');
+  diffBadge.textContent = q.difficulty.toUpperCase();
+  diffBadge.className = 'badge ' + q.difficulty;
+  document.getElementById('questionText').innerHTML = q.question;
+
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    div.onclick = () => selectAnswer(i, div);
+    optionsContainer.appendChild(div);
+  });
+
+  document.getElementById('feedback').classList.remove('show');
+  document.getElementById('feedback').className = 'feedback';
+
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = 15;
+  document.getElementById('timeDisplay').textContent = timeLeft;
+  const fill = document.getElementById('timerFill');
+  fill.style.width = '100%';
+  fill.classList.remove('danger');
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timeDisplay').textContent = timeLeft;
+    fill.style.width = (timeLeft/15*100) + '%';
+    if (timeLeft <= 5) {
+      fill.classList.add('danger');
+      playSound('tick');
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      handleTimeout();
+    }
+  }, 1000);
+}
+
+function selectAnswer(index, element) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+  playSound('click');
+
+  const q = questions[currentQuestion];
+  const options = document.querySelectorAll('.option');
+  options.forEach(o => o.classList.add('disabled'));
+
+  if (index === q.answer) {
+    element.classList.add('correct');
+    let points = 100;
+    if (q.difficulty === 'medium') points = 150;
+    if (q.difficulty === 'hard') points = 200;
+    const timeBonus = timeLeft * 5;
+    const totalPoints = points + timeBonus;
+    score += totalPoints;
+    document.getElementById('scoreDisplay').textContent = score;
+    playSound('correct');
+    createConfetti();
+    showFeedback('correct', `✅ BENAR! +${totalPoints} poin`, q.explanation);
+  } else {
+    element.classList.add('wrong');
+    options[q.answer].classList.add('correct');
+    playSound('wrong');
+    showFeedback('wrong', `❌ SALAH! Jawaban yang benar: ${q.options[q.answer]}`, q.explanation);
+  }
+
+  setTimeout(nextQuestion, 4000);
+}
+
+function handleTimeout() {
+  if (answered) return;
+  answered = true;
+  playSound('timeout');
+  const q = questions[currentQuestion];
+  const options = document.querySelectorAll('.option');
+  options.forEach(o => o.classList.add('disabled'));
+  options[q.answer].classList.add('correct');
+  showFeedback('timeout', `⏰ WAKTU HABIS! Jawaban: ${q.options[q.answer]}`, q.explanation);
+  setTimeout(nextQuestion, 4000);
+}
+
+function showFeedback(type, title, text) {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + type;
+  document.getElementById('feedbackTitle').textContent = title;
+  document.getElementById('feedbackText').textContent = text;
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  if (currentQuestion >= questions.length) {
+    endGame();
+  } else {
+    loadQuestion();
+  }
+}
+
+function endGame() {
+  showScreen('resultScreen');
+  playSound('win');
+  createConfetti();
+  setTimeout(createConfetti, 500);
+
+  const maxScore = questions.reduce((sum, q) => {
+    let p = 100;
+    if (q.difficulty === 'medium') p = 150;
+    if (q.difficulty === 'hard') p = 200;
+    return sum + p + 15*5;
+  }, 0);
+
+  const percentage = Math.round((score / maxScore) * 100);
+  const deg = (percentage / 100) * 360;
+
+  setTimeout(() => {
+    document.getElementById('scoreCircle').style.setProperty('--score-deg', deg + 'deg');
+  }, 100);
+  document.getElementById('finalScore').textContent = score;
+
+  let grade = '', message = '';
+  if (percentage >= 90) { grade = '🌟 EXCELLENT! 🌟'; message = 'Luar biasa! Kamu menguasai materi bahasa Inggris dengan sangat baik!'; }
+  else if (percentage >= 75) { grade = '✨ GREAT JOB! ✨'; message = 'Hebat! Terus tingkatkan kemampuan bahasa Inggrismu!'; }
+  else if (percentage >= 60) { grade = '👍 GOOD! 👍'; message = 'Bagus! Masih ada ruang untuk berkembang, semangat belajar!'; }
+  else if (percentage >= 40) { grade = '💪 KEEP TRYING! 💪'; message = 'Jangan menyerah! Pelajari kembali materinya dan coba lagi!'; }
+  else { grade = '📚 NEED PRACTICE 📚'; message = 'Ayo belajar lebih giat! Kamu pasti bisa melakukannya lebih baik!'; }
+
+  document.getElementById('gradeDisplay').textContent = grade;
+  document.getElementById('resultMessage').textContent = message;
+
+  // Save to leaderboard
+  saveScore(playerName, score);
+  renderLeaderboard('leaderboardList');
+}
+
+// ============ LEADERBOARD ============
+function saveScore(name, score) {
+  let lb = JSON.parse(localStorage.getItem('englishQuizLB') || '[]');
+  lb.push({ name, score, date: new Date().toLocaleDateString('id-ID') });
+  lb.sort((a,b) => b.score - a.score);
+  lb = lb.slice(0, 20); // keep top 20
+  localStorage.setItem('englishQuizLB', JSON.stringify(lb));
+}
+
+function renderLeaderboard(containerId) {
+  const lb = JSON.parse(localStorage.getItem('englishQuizLB') || '[]');
+  const container = document.getElementById(containerId);
+  if (lb.length === 0) {
+    container.innerHTML = '<p style="text-align:center; padding:20px; color:#aaa;">Belum ada data. Jadilah yang pertama! 🚀</p>';
+    return;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  const rowClasses = ['gold', 'silver', 'bronze'];
+  container.innerHTML = lb.slice(0, 10).map((entry, i) => `
+    <div class="lb-row ${rowClasses[i] || ''}">
+      <div class="lb-rank">${medals[i] || (i+1)}</div>
+      <div class="lb-name">${escapeHtml(entry.name)} <small style="color:#aaa; font-size:0.8em;">(${entry.date})</small></div>
+      <div class="lb-score">${entry.score} pts</div>
+    </div>
+  `).join('');
+}
+
+function showLeaderboard() {
+  playSound('click');
+  showScreen('leaderboardScreen');
+  renderLeaderboard('leaderboardListFull');
+}
+
+function clearLeaderboard() {
+  if (confirm('Yakin ingin menghapus semua data leaderboard?')) {
+    localStorage.removeItem('englishQuizLB');
+    renderLeaderboard('leaderboardListFull');
+    playSound('click');
+  }
+}
+
+function restartGame() {
+  playSound('click');
+  currentQuestion = 0;
+  score = 0;
+  showScreen('quizScreen');
+  loadQuestion();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Enter key to start
+document.getElementById('playerName').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') startGame();
+});
+</script>
+</body>
+</html>
