@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEMORIZE VOCABULARY: The Word Master Challenge</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Comic Sans MS', sans-serif; }
+  :root {
+    --blue: #3B82F6; --purple: #8B5CF6; --yellow: #FBBF24;
+    --green: #10B981; --pink: #EC4899; --dark: #1E293B;
+    --red: #EF4444; --orange: #F97316;
+  }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh; color: #fff; overflow-x: hidden;
+    background-attachment: fixed;
+  }
+  .bg-scene { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .float-letter {
+    position: absolute; font-size: 40px; font-weight: 900;
+    color: rgba(255,255,255,.15); animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0); }
+    100% { transform: translateY(-20vh) rotate(360deg); }
+  }
+
+  .app { position: relative; z-index: 1; min-height: 100vh; padding: 20px; }
+  .screen { display: none; animation: fadeIn .5s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Top Bar */
+  .top-bar {
+    position: fixed; top: 10px; right: 10px; z-index: 50;
+    display: flex; gap: 8px;
+  }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,0,0,.4); border: 2px solid rgba(255,255,255,.3);
+    color: #fff; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .3s; backdrop-filter: blur(10px);
+  }
+  .icon-btn:hover { transform: scale(1.1); background: rgba(0,0,0,.6); }
+  .icon-btn.muted { opacity: .5; }
+
+  /* Buttons */
+  .btn {
+    padding: 14px 32px; font-size: 16px; font-weight: bold;
+    border: none; border-radius: 30px; cursor: pointer;
+    color: #fff; transition: all .3s;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.05); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(45deg, var(--yellow), #F59E0B); color: var(--dark); }
+  .btn-success { background: linear-gradient(45deg, var(--green), #059669); }
+  .btn-info { background: linear-gradient(45deg, var(--blue), var(--purple)); }
+  .btn-pink { background: linear-gradient(45deg, var(--pink), #DB2777); }
+  .btn-danger { background: linear-gradient(45deg, var(--red), #DC2626); }
+  .btn-small { padding: 10px 20px; font-size: 14px; }
+
+  /* ===== HOME SCREEN ===== */
+  .home-screen {
+    min-height: 90vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 20px;
+  }
+  .home-illustration {
+    position: relative; width: min(500px, 95vw); height: 220px;
+    margin-bottom: 20px;
+  }
+  .book {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    font-size: 100px; filter: drop-shadow(0 10px 20px rgba(0,0,0,.3));
+    animation: bookBounce 2s ease-in-out infinite;
+  }
+  @keyframes bookBounce {
+    0%,100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
+    50% { transform: translateX(-50%) translateY(-15px) rotate(3deg); }
+  }
+  .letter-float {
+    position: absolute; font-size: 40px; font-weight: 900;
+    animation: letterFloat 3s ease-in-out infinite;
+  }
+  .letter-float.l1 { top: 10px; left: 10%; color: var(--yellow); animation-delay: 0s; }
+  .letter-float.l2 { top: 30px; right: 15%; color: var(--pink); animation-delay: .5s; }
+  .letter-float.l3 { top: 60px; left: 20%; color: var(--green); animation-delay: 1s; }
+  .letter-float.l4 { top: 50px; right: 25%; color: var(--blue); animation-delay: 1.5s; }
+  @keyframes letterFloat {
+    0%,100% { transform: translateY(0) rotate(-10deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+  }
+  .mascot-home {
+    position: absolute; bottom: 10px; right: 10%;
+    font-size: 60px; animation: mascotWave 2s ease-in-out infinite;
+  }
+  @keyframes mascotWave {
+    0%,100% { transform: rotate(-5deg); }
+    50% { transform: rotate(10deg); }
+  }
+
+  .game-title {
+    font-size: clamp(28px, 5vw, 52px); font-weight: 900;
+    background: linear-gradient(45deg, #FBBF24, #EC4899, #8B5CF6, #3B82F6);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px; animation: titlePulse 2s ease-in-out infinite;
+  }
+  @keyframes titlePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  .subtitle {
+    font-size: clamp(14px, 2.5vw, 18px); margin-bottom: 25px;
+    font-style: italic; opacity: .95;
+  }
+  .name-input {
+    padding: 14px 20px; font-size: 18px; border: 3px solid #fff;
+    border-radius: 30px; background: rgba(255,255,255,.2);
+    color: #fff; text-align: center; width: min(320px, 80vw);
+    margin: 15px 0; backdrop-filter: blur(10px);
+  }
+  .name-input::placeholder { color: rgba(255,255,255,.7); }
+  .name-input:focus { outline: none; background: rgba(255,255,255,.3); }
+
+  .home-buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+  .high-score-box {
+    margin-top: 20px; background: rgba(0,0,0,.3);
+    padding: 12px 20px; border-radius: 20px;
+    backdrop-filter: blur(10px);
+  }
+  .high-score-box .label { font-size: 12px; opacity: .8; }
+  .high-score-box .value { font-size: 24px; font-weight: bold; color: var(--yellow); }
+
+  /* ===== LEVEL / MODE SELECT ===== */
+  .page-header {
+    background: rgba(0,0,0,.3); padding: 12px 20px; border-radius: 20px;
+    margin-bottom: 20px; backdrop-filter: blur(10px);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .player-info { display: flex; align-items: center; gap: 10px; }
+  .player-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(45deg, var(--yellow), var(--pink));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat-box {
+    background: rgba(255,255,255,.2); padding: 6px 14px;
+    border-radius: 15px; font-size: 14px; font-weight: bold;
+  }
+
+  .page-title { text-align: center; font-size: clamp(22px, 4vw, 32px); margin-bottom: 20px; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px; max-width: 1100px; margin: 0 auto;
+  }
+  .card {
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 20px;
+    padding: 20px; cursor: pointer; transition: all .3s;
+    position: relative; overflow: hidden;
+  }
+  .card:hover:not(.locked) {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 15px 40px rgba(0,0,0,.4);
+    border-color: var(--yellow);
+  }
+  .card.locked { opacity: .5; cursor: not-allowed; filter: grayscale(.5); }
+  .card.completed { border-color: var(--green); }
+  .card-icon {
+    font-size: 50px; text-align: center; margin-bottom: 10px;
+    animation: floaty 3s ease-in-out infinite;
+  }
+  @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .card-name { font-size: 17px; font-weight: bold; text-align: center; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; text-align: center; opacity: .9; margin-bottom: 10px; }
+  .card-badge {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 20px; opacity: .8;
+  }
+  .card-stars { text-align: center; font-size: 18px; letter-spacing: 2px; }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,.3); padding: 12px 20px; border-radius: 20px;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+    backdrop-filter: blur(10px);
+  }
+  .level-title { font-size: 16px; font-weight: bold; }
+  .timer {
+    background: linear-gradient(45deg, var(--yellow), #F59E0B);
+    color: var(--dark); padding: 6px 14px; border-radius: 15px;
+    font-weight: bold; font-size: 16px; min-width: 80px; text-align: center;
+  }
+  .timer.warning { background: linear-gradient(45deg, #EF4444, #DC2626); color: #fff; animation: shake .5s infinite; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+  .game-container {
+    max-width: 900px; margin: 0 auto;
+    background: rgba(255,255,255,.1); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.2); border-radius: 25px;
+    padding: 25px;
+  }
+  .guide {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: rgba(255,255,255,.15); padding: 15px;
+    border-radius: 15px; margin-bottom: 20px;
+  }
+  .guide-avatar { font-size: 45px; flex-shrink: 0; }
+  .speech-bubble {
+    background: #fff; color: var(--dark); padding: 12px 16px;
+    border-radius: 15px; position: relative; font-size: 14px;
+    line-height: 1.5; flex: 1;
+  }
+  .speech-bubble::before {
+    content: ""; position: absolute; left: -10px; top: 15px;
+    border: 8px solid transparent; border-right-color: #fff;
+  }
+
+  .progress-wrap {
+    background: rgba(0,0,0,.3); padding: 6px; border-radius: 15px;
+    margin-bottom: 15px;
+  }
+  .progress-bar {
+    height: 14px; background: rgba(255,255,255,.2);
+    border-radius: 10px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--green), var(--yellow));
+    width: 0%; transition: width .4s;
+  }
+
+  /* ===== MODE 1: MEMORY CARDS ===== */
+  .memory-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 15px;
+  }
+  .memory-card {
+    aspect-ratio: 3/4; perspective: 1000px; cursor: pointer;
+  }
+  .memory-card-inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform .6s; transform-style: preserve-3d;
+  }
+  .memory-card.flipped .memory-card-inner { transform: rotateY(180deg); }
+  .memory-card.matched .memory-card-inner { animation: matchPulse .6s; }
+  @keyframes matchPulse {
+    0%,100% { transform: rotateY(180deg) scale(1); }
+    50% { transform: rotateY(180deg) scale(1.1); }
+  }
+  .memory-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px; text-align: center; font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+  }
+  .memory-front {
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: #fff; font-size: 30px;
+  }
+  .memory-back {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    color: var(--dark); transform: rotateY(180deg);
+    font-size: 13px; word-break: break-word;
+  }
+  .memory-back.en { border: 3px solid var(--blue); }
+  .memory-back.id { border: 3px solid var(--green); }
+  .memory-card.matched .memory-back { background: linear-gradient(135deg, #BBF7D0, #86EFAC); }
+
+  .memory-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 15px;
+  }
+  .memory-stat {
+    background: rgba(255,255,255,.15); padding: 10px;
+    border-radius: 12px; text-align: center;
+  }
+  .memory-stat .val { font-size: 22px; font-weight: bold; color: var(--yellow); }
+  .memory-stat .lbl { font-size: 12px; opacity: .9; }
+
+  /* ===== MODE 2: WORD MATCHING ===== */
+  .matching-container {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; margin-bottom: 15px;
+  }
+  .matching-col { display: flex; flex-direction: column; gap: 8px; }
+  .matching-col h4 {
+    text-align: center; padding: 8px; border-radius: 10px;
+    background: rgba(255,255,255,.2); margin-bottom: 4px;
+  }
+  .match-item {
+    padding: 12px 14px; background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 12px;
+    cursor: pointer; font-size: 14px; transition: all .25s;
+    text-align: center;
+  }
+  .match-item:hover:not(.matched):not(.disabled) {
+    background: rgba(255,255,255,.3); border-color: var(--yellow);
+    transform: scale(1.03);
+  }
+  .match-item.selected {
+    background: var(--yellow); color: var(--dark);
+    border-color: #F59E0B; transform: scale(1.05);
+  }
+  .match-item.matched {
+    background: var(--green); border-color: #059669;
+    cursor: not-allowed; opacity: .8;
+  }
+  .match-item.wrong { animation: shake .4s; background: var(--red); }
+
+  /* ===== MODE 3: GUESS THE WORD ===== */
+  .guess-clue {
+    background: rgba(255,255,255,.15); padding: 20px;
+    border-radius: 15px; text-align: center; margin-bottom: 15px;
+  }
+  .guess-clue .label { font-size: 13px; opacity: .8; margin-bottom: 8px; }
+  .guess-clue .meaning {
+    font-size: 28px; font-weight: bold; color: var(--yellow);
+    margin-bottom: 10px;
+  }
+  .guess-clue .example {
+    font-style: italic; font-size: 14px; opacity: .9;
+    background: rgba(0,0,0,.2); padding: 10px; border-radius: 10px;
+  }
+  .guess-clue .example b { color: var(--yellow); font-style: normal; }
+  .guess-options { display: grid; gap: 10px; margin-bottom: 15px; }
+  .guess-option {
+    padding: 14px 18px; background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 15px;
+    cursor: pointer; font-size: 16px; color: #fff; text-align: left;
+    transition: all .25s; display: flex; align-items: center; gap: 12px;
+  }
+  .guess-option:hover:not(:disabled) {
+    background: rgba(255,255,255,.3); border-color: var(--yellow);
+    transform: translateX(5px);
+  }
+  .guess-option:disabled { cursor: not-allowed; }
+  .guess-option .letter {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.3); display: flex;
+    align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0;
+  }
+  .guess-option.correct { background: var(--green); border-color: #059669; animation: pop .4s; }
+  .guess-option.wrong { background: var(--red); border-color: #DC2626; animation: shake .4s; }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+  /* ===== MODE 4: MISSING LETTERS ===== */
+  .missing-word {
+    background: rgba(255,255,255,.15); padding: 25px;
+    border-radius: 15px; text-align: center; margin-bottom: 15px;
+  }
+  .missing-word .label { font-size: 13px; opacity: .8; margin-bottom: 8px; }
+  .missing-word .meaning {
+    font-size: 22px; font-weight: bold; color: var(--yellow);
+    margin-bottom: 15px;
+  }
+  .word-display {
+    display: flex; justify-content: center; gap: 6px;
+    flex-wrap: wrap; margin-bottom: 15px;
+  }
+  .word-letter {
+    width: 40px; height: 50px; border-radius: 8px;
+    background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: bold; text-transform: uppercase;
+  }
+  .word-letter.blank {
+    background: var(--yellow); color: var(--dark);
+    border-color: #F59E0B; cursor: pointer;
+    animation: pulseBlank 1.5s ease-in-out infinite;
+  }
+  @keyframes pulseBlank {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .word-letter.blank.filled {
+    background: var(--green); color: #fff;
+    border-color: #059669; animation: none;
+  }
+  .word-letter.blank.wrong-letter {
+    background: var(--red); color: #fff;
+    border-color: #DC2626;
+  }
+  .letter-keyboard {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 6px; max-width: 500px; margin: 0 auto;
+  }
+  .key-btn {
+    padding: 10px; background: rgba(255,255,255,.2);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 8px;
+    color: #fff; font-size: 16px; font-weight: bold;
+    cursor: pointer; transition: all .2s; text-transform: uppercase;
+  }
+  .key-btn:hover:not(:disabled) {
+    background: var(--yellow); color: var(--dark);
+    border-color: #F59E0B; transform: scale(1.1);
+  }
+  .key-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+  /* ===== MODE 5: SPEED ===== */
+  .speed-question {
+    background: rgba(255,255,255,.15); padding: 20px;
+    border-radius: 15px; text-align: center; margin-bottom: 15px;
+  }
+  .speed-question .meaning {
+    font-size: 26px; font-weight: bold; color: var(--yellow);
+  }
+
+  /* Feedback */
+  .feedback {
+    text-align: center; padding: 12px; border-radius: 12px;
+    margin: 10px 0; font-weight: bold; font-size: 15px;
+    animation: fadeIn .3s;
+  }
+  .feedback.correct { background: var(--green); }
+  .feedback.wrong { background: var(--red); }
+  .feedback.info { background: var(--blue); }
+  .explanation {
+    background: rgba(0,0,0,.3); padding: 10px; border-radius: 10px;
+    margin-top: 8px; font-size: 13px; font-weight: normal;
+    text-align: left;
+  }
+  .hint-box {
+    background: rgba(251,191,36,.2); border: 2px dashed var(--yellow);
+    padding: 12px; border-radius: 12px; margin-bottom: 10px;
+    font-size: 14px; animation: fadeIn .3s;
+  }
+
+  .action-row {
+    display: flex; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap; margin-top: 15px;
+  }
+
+  /* ===== RESULT ===== */
+  .result-card {
+    max-width: 650px; margin: 30px auto;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 25px;
+    padding: 30px; text-align: center;
+  }
+  .result-icon { font-size: 80px; margin-bottom: 10px; animation: floaty 2s ease-in-out infinite; }
+  .result-title { font-size: 28px; font-weight: 900; margin-bottom: 10px; }
+  .result-grade {
+    display: inline-block; padding: 8px 24px; border-radius: 20px;
+    font-size: 18px; font-weight: bold; margin-bottom: 15px;
+  }
+  .grade-master { background: var(--yellow); color: var(--dark); }
+  .grade-expert { background: var(--green); }
+  .grade-explorer { background: var(--blue); }
+  .grade-learner { background: var(--purple); }
+  .grade-practice { background: var(--pink); }
+
+  .result-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px; margin: 20px 0;
+  }
+  .stat-item {
+    background: rgba(255,255,255,.15); padding: 15px;
+    border-radius: 15px;
+  }
+  .stat-value { font-size: 26px; font-weight: bold; color: var(--yellow); }
+  .stat-label { font-size: 12px; opacity: .9; }
+
+  .result-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+    padding: 20px; animation: fadeIn .3s;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: 2px solid rgba(255,255,255,.3); border-radius: 20px;
+    padding: 25px; max-width: 500px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+  }
+  .modal h2 { margin-bottom: 15px; text-align: center; }
+  .modal p, .modal li { font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+  .modal ul { padding-left: 20px; }
+
+  /* ===== LEADERBOARD ===== */
+  .leaderboard {
+    max-width: 600px; margin: 20px auto;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(15px);
+    border-radius: 20px; padding: 20px;
+  }
+  .lb-title { text-align: center; font-size: 24px; margin-bottom: 15px; }
+  .lb-row {
+    display: flex; align-items: center; padding: 10px 15px;
+    background: rgba(255,255,255,.1); border-radius: 12px;
+    margin-bottom: 8px; gap: 12px;
+  }
+  .lb-rank {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--yellow); color: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0;
+  }
+  .lb-rank.gold { background: linear-gradient(45deg, #FFD700, #FFA500); }
+  .lb-rank.silver { background: linear-gradient(45deg, #C0C0C0, #A8A8A8); }
+  .lb-rank.bronze { background: linear-gradient(45deg, #CD7F32, #B87333); }
+  .lb-name { flex: 1; font-weight: bold; font-size: 14px; }
+  .lb-score { font-weight: bold; color: var(--yellow); }
+
+  /* Achievement Popup */
+  .achievement-popup {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-200%);
+    background: linear-gradient(45deg, var(--yellow), #F59E0B);
+    color: var(--dark); padding: 15px 25px; border-radius: 50px;
+    font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    z-index: 100; transition: transform .5s cubic-bezier(.5,1.6,.4,1);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .achievement-popup.show { transform: translateX(-50%) translateY(0); }
+
+  /* Confetti */
+  .confetti {
+    position: fixed; width: 10px; height: 10px;
+    pointer-events: none; z-index: 99;
+    animation: confettiFall 3s linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .app { padding: 10px; }
+    .game-container, .result-card { padding: 15px; }
+    .memory-grid { grid-template-columns: repeat(3, 1fr); }
+    .matching-container { grid-template-columns: 1fr; }
+    .word-letter { width: 32px; height: 42px; font-size: 20px; }
+    .key-btn { padding: 8px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-scene" id="bgScene"></div>
+
+<div class="top-bar">
+  <button class="icon-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
+  <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="Toggle Sound">🔊</button>
+</div>
+
+<div class="achievement-popup" id="achievementPopup">
+  <span id="achBadge" style="font-size:30px;">🏆</span>
+  <span id="achText">Achievement Unlocked!</span>
+</div>
+
+<div class="app">
+
+  <!-- ========== HOME ========== -->
+  <div class="screen active" id="homeScreen">
+    <div class="home-screen">
+      <div class="home-illustration">
+        <div class="letter-float l1">A</div>
+        <div class="letter-float l2">B</div>
+        <div class="letter-float l3">C</div>
+        <div class="letter-float l4">Z</div>
+        <div class="book">📖</div>
+        <div class="mascot-home">🦉</div>
+      </div>
+      <h1 class="game-title">MEMORIZE VOCABULARY</h1>
+      <p class="subtitle">✨ The Word Master Challenge ✨</p>
+      <p style="max-width:500px; margin-bottom:15px; padding: 0 15px; font-size:14px;">
+        Train your memory, master your English! Match words, solve puzzles, and become a Vocabulary Master!
+      </p>
+      <input type="text" class="name-input" id="playerName" placeholder="Enter your name..." maxlength="20">
+      <div class="home-buttons">
+        <button class="btn btn-primary" onclick="startGame()">🚀 START GAME</button>
+        <button class="btn btn-info btn-small" onclick="showHowToPlay()">📖 HOW TO PLAY</button>
+        <button class="btn btn-pink btn-small" onclick="showLeaderboard()">🏆 LEADERBOARD</button>
+      </div>
+      <div class="high-score-box">
+        <div class="label">🏆 HIGH SCORE</div>
+        <div class="value" id="highScoreValue">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== LEVEL SELECT ========== -->
+  <div class="screen" id="levelScreen">
+    <div class="page-header">
+      <div class="player-info">
+        <div class="player-avatar">🧑‍🎓</div>
+        <div>
+          <div style="font-weight:bold;" id="displayName">Player</div>
+          <div style="font-size:12px; opacity:.8;">Word Explorer</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">💎 <span id="totalScore">0</span> pts</div>
+        <div class="stat-box">🏅 <span id="totalBadges">0</span></div>
+      </div>
+    </div>
+    <h2 class="page-title">📚 Choose Your Level</h2>
+    <div class="grid" id="levelGrid"></div>
+    <div style="text-align:center; margin-top:25px;">
+      <button class="btn btn-pink btn-small" onclick="showHome()">🏠 Home</button>
+      <button class="btn btn-info btn-small" onclick="showLeaderboard()">🏆 Leaderboard</button>
+    </div>
+  </div>
+
+  <!-- ========== MODE SELECT ========== -->
+  <div class="screen" id="modeScreen">
+    <div class="page-header">
+      <div class="player-info">
+        <div class="player-avatar">🧑‍🎓</div>
+        <div>
+          <div style="font-weight:bold;" id="displayName2">Player</div>
+          <div style="font-size:12px; opacity:.8;" id="currentLevelLabel">Level 1</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">💎 <span id="totalScore2">0</span> pts</div>
+      </div>
+    </div>
+    <h2 class="page-title" id="modeScreenTitle">Choose Game Mode</h2>
+    <div class="grid" id="modeGrid"></div>
+    <div style="text-align:center; margin-top:25px;">
+      <button class="btn btn-pink btn-small" onclick="showLevels()">← Back to Levels</button>
+    </div>
+  </div>
+
+  <!-- ========== GAME SCREEN ========== -->
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <div class="level-title" id="currentModeTitle">Mode</div>
+      <div class="timer" id="timer">⏱ 0s</div>
+      <div class="stat-box">💎 <span id="gameScore">0</span></div>
+    </div>
+    <div class="game-container">
+      <div class="guide">
+        <div class="guide-avatar">🦉</div>
+        <div class="speech-bubble" id="guideText">Let's play!</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div id="gameArea"></div>
+      <div id="feedbackArea"></div>
+      <div class="action-row">
+        <button class="btn btn-info btn-small" id="hintBtn" onclick="useHint()">💡 Hint (<span id="hintCount">3</span>)</button>
+        <button class="btn btn-danger btn-small" onclick="quitGame()">🏳️ Quit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== RESULT ========== -->
+  <div class="screen" id="resultScreen">
+    <div class="result-card">
+      <div class="result-icon" id="resultIcon">🏆</div>
+      <h2 class="result-title" id="resultTitle">Great Job!</h2>
+      <div class="result-grade" id="resultGrade">Word Expert</div>
+      <div class="result-stats">
+        <div class="stat-item"><div class="stat-value" id="rCorrect">0</div><div class="stat-label">Correct</div></div>
+        <div class="stat-item"><div class="stat-value" id="rWrong">0</div><div class="stat-label">Wrong</div></div>
+        <div class="stat-item"><div class="stat-value" id="rScore">0</div><div class="stat-label">Points</div></div>
+        <div class="stat-item"><div class="stat-value" id="rTime">0s</div><div class="stat-label">Time</div></div>
+      </div>
+      <div class="result-buttons">
+        <button class="btn btn-success btn-small" onclick="retryMode()">🔄 Retry</button>
+        <button class="btn btn-primary btn-small" onclick="showModes()">🎮 Modes</button>
+        <button class="btn btn-info btn-small" onclick="showLevels()">📚 Levels</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== LEADERBOARD ========== -->
+  <div class="screen" id="leaderboardScreen">
+    <div class="leaderboard">
+      <h2 class="lb-title">🏆 Hall of Word Masters</h2>
+      <div id="lbList"></div>
+      <div style="text-align:center; margin-top:20px;">
+        <button class="btn btn-info btn-small" onclick="closeLB()">← Back</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- How to Play Modal -->
+<div class="modal-overlay" id="howToPlayModal">
+  <div class="modal">
+    <h2>📖 How to Play</h2>
+    <p><b>🎯 Goal:</b> Master English vocabulary through 5 fun game modes!</p>
+    <p><b>🎮 Game Modes:</b></p>
+    <ul>
+      <li><b>🃏 Memory Cards:</b> Flip cards to find matching pairs (English ↔ Indonesian).</li>
+      <li><b>🔗 Word Matching:</b> Connect English words with their Indonesian meanings.</li>
+      <li><b>🎯 Guess The Word:</b> See the Indonesian meaning, pick the correct English word.</li>
+      <li><b>✍️ Missing Letters:</b> Fill in the missing letters of English words.</li>
+      <li><b>⚡ Speed Challenge:</b> Answer as many as you can in 60 seconds!</li>
+    </ul>
+    <p><b>⭐ Scoring:</b></p>
+    <ul>
+      <li>✅ Correct answer: +10 points</li>
+      <li>🎁 Completion bonus: +20 points</li>
+      <li>⚡ Speed bonus: +10 points (finish quickly)</li>
+    </ul>
+    <p><b>🏆 Levels:</b> Complete a level to unlock the next one!</p>
+    <p><b>💡 Tips:</b> Use hints wisely (3 per game). Practice makes perfect!</p>
+    <div style="text-align:center; margin-top:15px;">
+      <button class="btn btn-primary btn-small" onclick="closeHowToPlay()">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   VOCABULARY DATABASE - 120 words across 10 categories & 5 levels
+   ============================================================ */
+const VOCAB = [
+  // ===== DAILY ACTIVITIES =====
+  { en: "wake up", id: "bangun tidur", ex: "I wake up at 6 AM every day.", pron: "weik up", cat: "daily", level: 1 },
+  { en: "sleep", id: "tidur", ex: "I sleep eight hours every night.", pron: "sliip", cat: "daily", level: 1 },
+  { en: "eat", id: "makan", ex: "We eat breakfast in the morning.", pron: "iit", cat: "daily", level: 1 },
+  { en: "drink", id: "minum", ex: "Please drink more water.", pron: "drink", cat: "daily", level: 1 },
+  { en: "study", id: "belajar", ex: "She studies English every day.", pron: "stad-i", cat: "daily", level: 1 },
+  { en: "cook", id: "memasak", ex: "My mother cooks delicious food.", pron: "kuk", cat: "daily", level: 2 },
+  { en: "clean", id: "membersihkan", ex: "I clean my room every Saturday.", pron: "kliin", cat: "daily", level: 2 },
+  { en: "exercise", id: "berolahraga", ex: "He exercises in the park.", pron: "ek-ser-saiz", cat: "daily", level: 3 },
+
+  // ===== SCHOOL & EDUCATION =====
+  { en: "book", id: "buku", ex: "I read a book every week.", pron: "buk", cat: "school", level: 1 },
+  { en: "teacher", id: "guru", ex: "My teacher is very kind.", pron: "tii-cherr", cat: "school", level: 1 },
+  { en: "student", id: "siswa", ex: "The students are in the classroom.", pron: "stu-dent", cat: "school", level: 1 },
+  { en: "school", id: "sekolah", ex: "I go to school by bus.", pron: "skul", cat: "school", level: 1 },
+  { en: "homework", id: "pekerjaan rumah", ex: "I finish my homework after dinner.", pron: "hom-werk", cat: "school", level: 2 },
+  { en: "exam", id: "ujian", ex: "We have an English exam tomorrow.", pron: "eg-zam", cat: "school", level: 2 },
+  { en: "library", id: "perpustakaan", ex: "The library has many books.", pron: "lai-brer-i", cat: "school", level: 2 },
+  { en: "knowledge", id: "pengetahuan", ex: "Knowledge is power.", pron: "no-lej", cat: "school", level: 4 },
+  { en: "curriculum", id: "kurikulum", ex: "The new curriculum is interesting.", pron: "ke-ri-kiu-lum", cat: "school", level: 5 },
+
+  // ===== FOOD & DRINKS =====
+  { en: "rice", id: "nasi", ex: "I eat rice every day.", pron: "rais", cat: "food", level: 1 },
+  { en: "water", id: "air", ex: "Water is essential for life.", pron: "wo-ter", cat: "food", level: 1 },
+  { en: "bread", id: "roti", ex: "I have bread for breakfast.", pron: "bred", cat: "food", level: 1 },
+  { en: "milk", id: "susu", ex: "Children should drink milk.", pron: "milk", cat: "food", level: 1 },
+  { en: "fruit", id: "buah", ex: "Fruits are healthy.", pron: "frut", cat: "food", level: 2 },
+  { en: "vegetable", id: "sayur", ex: "Eat more vegetables.", pron: "vej-te-bol", cat: "food", level: 2 },
+  { en: "chicken", id: "ayam", ex: "I like fried chicken.", pron: "chi-ken", cat: "food", level: 2 },
+  { en: "delicious", id: "lezat", ex: "This cake is delicious.", pron: "di-li-shes", cat: "food", level: 3 },
+  { en: "recipe", id: "resep", ex: "She shared her secret recipe.", pron: "re-si-pi", cat: "food", level: 4 },
+
+  // ===== ANIMALS =====
+  { en: "cat", id: "kucing", ex: "The cat is sleeping.", pron: "kat", cat: "animal", level: 1 },
+  { en: "dog", id: "anjing", ex: "My dog is very friendly.", pron: "dog", cat: "animal", level: 1 },
+  { en: "bird", id: "burung", ex: "The bird is singing.", pron: "berd", cat: "animal", level: 1 },
+  { en: "fish", id: "ikan", ex: "Fish live in water.", pron: "fish", cat: "animal", level: 1 },
+  { en: "elephant", id: "gajah", ex: "Elephants are big animals.", pron: "e-le-fent", cat: "animal", level: 2 },
+  { en: "lion", id: "singa", ex: "The lion is the king of the jungle.", pron: "lai-on", cat: "animal", level: 2 },
+  { en: "butterfly", id: "kupu-kupu", ex: "Butterflies are beautiful.", pron: "ba-ter-flai", cat: "animal", level: 3 },
+  { en: "dolphin", id: "lumba-lumba", ex: "Dolphins are intelligent.", pron: "dol-fin", cat: "animal", level: 3 },
+  { en: "endangered", id: "terancam punah", ex: "Tigers are endangered animals.", pron: "en-dein-jerd", cat: "animal", level: 5 },
+
+  // ===== PLACES & BUILDINGS =====
+  { en: "house", id: "rumah", ex: "My house is small but cozy.", pron: "haus", cat: "place", level: 1 },
+  { en: "hospital", id: "rumah sakit", ex: "She works at the hospital.", pron: "hos-pi-tol", cat: "place", level: 2 },
+  { en: "market", id: "pasar", ex: "Mother goes to the market.", pron: "mar-ket", cat: "place", level: 2 },
+  { en: "restaurant", id: "restoran", ex: "Let's eat at the restaurant.", pron: "res-to-rant", cat: "place", level: 2 },
+  { en: "museum", id: "museum", ex: "The museum is very interesting.", pron: "mu-zi-um", cat: "place", level: 3 },
+  { en: "airport", id: "bandara", ex: "We arrived at the airport.", pron: "er-port", cat: "place", level: 3 },
+  { en: "stadium", id: "stadion", ex: "The stadium is full of fans.", pron: "ste-di-um", cat: "place", level: 3 },
+  { en: "skyscraper", id: "gedung pencakar langit", ex: "Jakarta has many skyscrapers.", pron: "skai-skre-per", cat: "place", level: 5 },
+
+  // ===== FEELINGS & EMOTIONS =====
+  { en: "happy", id: "senang", ex: "I am happy today.", pron: "he-pi", cat: "feeling", level: 1 },
+  { en: "sad", id: "sedih", ex: "She feels sad.", pron: "sad", cat: "feeling", level: 1 },
+  { en: "angry", id: "marah", ex: "Don't be angry.", pron: "ang-gri", cat: "feeling", level: 1 },
+  { en: "tired", id: "lelah", ex: "I am tired after work.", pron: "tai-erd", cat: "feeling", level: 2 },
+  { en: "excited", id: "bersemangat", ex: "I'm excited about the trip.", pron: "ek-sai-ted", cat: "feeling", level: 2 },
+  { en: "bored", id: "bosan", ex: "The movie was boring, I felt bored.", pron: "bord", cat: "feeling", level: 2 },
+  { en: "confident", id: "percaya diri", ex: "She is confident in her abilities.", pron: "kon-fi-dent", cat: "feeling", level: 4 },
+  { en: "grateful", id: "bersyukur", ex: "I am grateful for your help.", pron: "greit-ful", cat: "feeling", level: 4 },
+  { en: "melancholy", id: "melankolis", ex: "The song has a melancholy tone.", pron: "me-lan-ko-li", cat: "feeling", level: 5 },
+
+  // ===== ADJECTIVES =====
+  { en: "big", id: "besar", ex: "The elephant is big.", pron: "big", cat: "adjective", level: 1 },
+  { en: "small", id: "kecil", ex: "The mouse is small.", pron: "smol", cat: "adjective", level: 1 },
+  { en: "beautiful", id: "indah", ex: "The sunset is beautiful.", pron: "biu-ti-ful", cat: "adjective", level: 2 },
+  { en: "handsome", id: "ganteng", ex: "He is a handsome man.", pron: "hen-som", cat: "adjective", level: 2 },
+  { en: "clever", id: "pintar", ex: "She is a clever student.", pron: "kle-ver", cat: "adjective", level: 3 },
+  { en: "generous", id: "dermawan", ex: "He is generous to everyone.", pron: "je-ne-res", cat: "adjective", level: 4 },
+  { en: "magnificent", id: "megah", ex: "The palace is magnificent.", pron: "mag-ni-fi-sent", cat: "adjective", level: 4 },
+  { en: "mysterious", id: "misterius", ex: "The forest is mysterious.", pron: "mis-ti-ri-us", cat: "adjective", level: 5 },
+
+  // ===== VERBS =====
+  { en: "run", id: "berlari", ex: "I run every morning.", pron: "ran", cat: "verb", level: 1 },
+  { en: "walk", id: "berjalan", ex: "We walk to school.", pron: "wok", cat: "verb", level: 1 },
+  { en: "read", id: "membaca", ex: "She reads books.", pron: "riid", cat: "verb", level: 1 },
+  { en: "write", id: "menulis", ex: "I write a letter.", pron: "rait", cat: "verb", level: 2 },
+  { en: "speak", id: "berbicara", ex: "He speaks English fluently.", pron: "spiik", cat: "verb", level: 2 },
+  { en: "listen", id: "mendengarkan", ex: "Listen to the teacher.", pron: "li-sen", cat: "verb", level: 2 },
+  { en: "achieve", id: "mencapai", ex: "You can achieve your dreams.", pron: "a-chiiv", cat: "verb", level: 4 },
+  { en: "contribute", id: "berkontribusi", ex: "We contribute to society.", pron: "kon-tri-biut", cat: "verb", level: 5 },
+  { en: "collaborate", id: "berkolaborasi", ex: "Let's collaborate on this project.", pron: "ko-la-bo-reit", cat: "verb", level: 5 },
+
+  // ===== NOUNS =====
+  { en: "friend", id: "teman", ex: "She is my best friend.", pron: "frend", cat: "noun", level: 1 },
+  { en: "family", id: "keluarga", ex: "I love my family.", pron: "fe-mi-li", cat: "noun", level: 1 },
+  { en: "money", id: "uang", ex: "Money is important.", pron: "ma-ni", cat: "noun", level: 2 },
+  { en: "time", id: "waktu", ex: "Time is precious.", pron: "taim", cat: "noun", level: 2 },
+  { en: "opportunity", id: "kesempatan", ex: "This is a great opportunity.", pron: "o-por-tu-ni-ti", cat: "noun", level: 4 },
+  { en: "environment", id: "lingkungan", ex: "We must protect the environment.", pron: "en-vai-ron-ment", cat: "noun", level: 4 },
+  { en: "achievement", id: "prestasi", ex: "Her achievement is remarkable.", pron: "a-chiiv-ment", cat: "noun", level: 5 },
+
+  // ===== TECHNOLOGY & ENVIRONMENT =====
+  { en: "phone", id: "telepon", ex: "I use my phone a lot.", pron: "fon", cat: "tech", level: 1 },
+  { en: "computer", id: "komputer", ex: "The computer is fast.", pron: "kom-piu-ter", cat: "tech", level: 2 },
+  { en: "internet", id: "internet", ex: "The internet is useful.", pron: "in-ter-net", cat: "tech", level: 2 },
+  { en: "website", id: "situs web", ex: "Visit our website.", pron: "web-sait", cat: "tech", level: 3 },
+  { en: "application", id: "aplikasi", ex: "Download the application.", pron: "e-pli-kei-syon", cat: "tech", level: 3 },
+  { en: "software", id: "perangkat lunak", ex: "The software needs updating.", pron: "soft-wer", cat: "tech", level: 4 },
+  { en: "tree", id: "pohon", ex: "Plant a tree.", pron: "tri", cat: "env", level: 1 },
+  { en: "forest", id: "hutan", ex: "The forest is green.", pron: "fo-rest", cat: "env", level: 2 },
+  { en: "pollution", id: "polusi", ex: "Air pollution is dangerous.", pron: "po-lu-syon", cat: "env", level: 3 },
+  { en: "recycle", id: "mendaur ulang", ex: "We should recycle plastic.", pron: "ri-sai-kel", cat: "env", level: 3 },
+  { en: "sustainable", id: "berkelanjutan", ex: "We need sustainable energy.", pron: "sas-tei-ne-bol", cat: "env", level: 5 },
+  { en: "biodiversity", id: "keanekaragaman hayati", ex: "Biodiversity must be protected.", pron: "bai-o-dai-ver-si-ti", cat: "env", level: 5 }
+];
+
+const LEVELS = [
+  { id: 1, name: "Beginner", icon: "🌱", desc: "Easy daily vocabulary", color: "#10B981" },
+  { id: 2, name: "Elementary", icon: "📗", desc: "Daily life vocabulary", color: "#3B82F6" },
+  { id: 3, name: "Intermediate", icon: "📘", desc: "School & environment", color: "#8B5CF6" },
+  { id: 4, name: "Advanced", icon: "📕", desc: "Adjectives & verbs", color: "#F97316" },
+  { id: 5, name: "Vocabulary Master", icon: "👑", desc: "Mixed advanced vocabulary", color: "#EC4899" }
+];
+
+const MODES = [
+  { id: "memory", name: "Memory Cards", icon: "🃏", desc: "Flip cards to find matching pairs" },
+  { id: "matching", name: "Word Matching", icon: "🔗", desc: "Connect words with meanings" },
+  { id: "guess", name: "Guess The Word", icon: "🎯", desc: "Pick the correct English word" },
+  { id: "missing", name: "Missing Letters", icon: "✍️", desc: "Fill in the missing letters" },
+  { id: "speed", name: "Speed Challenge", icon: "⚡", desc: "Answer as many as you can in 60s!" }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  playerName: "",
+  currentLevel: 1,
+  currentMode: null,
+  totalScore: 0,
+  levelProgress: {}, // {levelId: {completed, bestScore, stars}}
+  achievements: [],
+  // Game state
+  gameScore: 0,
+  gameCorrect: 0,
+  gameWrong: 0,
+  gameStartTime: 0,
+  hintsLeft: 3,
+  timer: null,
+  timeLeft: 0,
+  // Mode-specific
+  memoryState: null,
+  matchingState: null,
+  guessState: null,
+  missingState: null,
+  speedState: null,
+  previousScreen: "homeScreen"
+};
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+let audioCtx = null;
+let musicOn = true;
+let soundOn = true;
+let musicInterval = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) {}
+  }
+}
+function playTone(freq, duration, type = 'sine', volume = 0.1) {
+  if (!soundOn || !audioCtx) return;
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+function playCorrectSound() {
+  playTone(523.25, 0.12, 'sine', 0.15);
+  setTimeout(() => playTone(659.25, 0.12, 'sine', 0.15), 80);
+  setTimeout(() => playTone(783.99, 0.2, 'sine', 0.15), 160);
+}
+function playWrongSound() {
+  playTone(200, 0.2, 'sawtooth', 0.1);
+  setTimeout(() => playTone(150, 0.3, 'sawtooth', 0.1), 150);
+}
+function playClickSound() { playTone(800, 0.05, 'square', 0.05); }
+function playFlipSound() { playTone(600, 0.08, 'sine', 0.08); }
+function playMatchSound() {
+  playTone(523.25, 0.1, 'sine', 0.12);
+  setTimeout(() => playTone(783.99, 0.2, 'sine', 0.12), 80);
+}
+function playLevelUpSound() {
+  [523.25, 659.25, 783.99, 1046.50].forEach((n, i) =>
+    setTimeout(() => playTone(n, 0.2, 'sine', 0.15), i * 120));
+}
+const melody = [
+  { f: 523.25, d: 0.3 }, { f: 587.33, d: 0.3 }, { f: 659.25, d: 0.3 }, { f: 523.25, d: 0.3 },
+  { f: 659.25, d: 0.3 }, { f: 698.46, d: 0.3 }, { f: 783.99, d: 0.6 },
+  { f: 783.99, d: 0.2 }, { f: 880.00, d: 0.2 }, { f: 783.99, d: 0.2 }, { f: 698.46, d: 0.2 },
+  { f: 659.25, d: 0.4 }, { f: 523.25, d: 0.4 }
+];
+function startMusic() {
+  if (!musicOn || !audioCtx) return;
+  stopMusic();
+  let i = 0;
+  const playNext = () => {
+    if (!musicOn) return;
+    const note = melody[i % melody.length];
+    playTone(note.f, note.d, 'triangle', 0.04);
+    i++;
+  };
+  playNext();
+  musicInterval = setInterval(() => {
+    if (!musicOn) { stopMusic(); return; }
+    const note = melody[i % melody.length];
+    playTone(note.f, note.d, 'triangle', 0.04);
+    i++;
+  }, 350);
+}
+function stopMusic() {
+  if (musicInterval) { clearInterval(musicInterval); musicInterval = null; }
+}
+function toggleMusic() {
+  initAudio();
+  musicOn = !musicOn;
+  document.getElementById('musicBtn').classList.toggle('muted', !musicOn);
+  document.getElementById('musicBtn').textContent = musicOn ? '🎵' : '🔇';
+  if (musicOn) startMusic(); else stopMusic();
+}
+function toggleSound() {
+  initAudio();
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').classList.toggle('muted', !soundOn);
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔈';
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function saveProgress() {
+  localStorage.setItem('mv_progress', JSON.stringify({
+    playerName: state.playerName,
+    totalScore: state.totalScore,
+    levelProgress: state.levelProgress,
+    achievements: state.achievements
+  }));
+}
+function loadProgress() {
+  const data = localStorage.getItem('mv_progress');
+  if (data) {
+    const p = JSON.parse(data);
+    state.playerName = p.playerName || "";
+    state.totalScore = p.totalScore || 0;
+    state.levelProgress = p.levelProgress || {};
+    state.achievements = p.achievements || [];
+  }
+}
+function saveLeaderboard(name, score) {
+  const lb = JSON.parse(localStorage.getItem('mv_leaderboard') || '[]');
+  lb.push({ name, score, date: new Date().toLocaleDateString() });
+  lb.sort((a, b) => b.score - a.score);
+  localStorage.setItem('mv_leaderboard', JSON.stringify(lb.slice(0, 10)));
+}
+function getLeaderboard() {
+  return JSON.parse(localStorage.getItem('mv_leaderboard') || '[]');
+}
+function getHighScore() {
+  const lb = getLeaderboard();
+  return lb.length > 0 ? lb[0].score : 0;
+}
+function isLevelUnlocked(levelId) {
+  if (levelId === 1) return true;
+  return state.levelProgress[levelId - 1] && state.levelProgress[levelId - 1].completed;
+}
+function getVocabForLevel(levelId) {
+  if (levelId === 5) return VOCAB; // Master = all
+  return VOCAB.filter(v => v.level <= levelId);
+}
+function confetti() {
+  const colors = ['#FBBF24', '#EC4899', '#8B5CF6', '#3B82F6', '#10B981'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+function showAchievement(badge, text) {
+  const popup = document.getElementById('achievementPopup');
+  document.getElementById('achBadge').textContent = badge;
+  document.getElementById('achText').textContent = text;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 3000);
+}
+function createBgScene() {
+  const scene = document.getElementById('bgScene');
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+  for (let i = 0; i < 15; i++) {
+    const l = document.createElement('div');
+    l.className = 'float-letter';
+    l.textContent = letters[Math.floor(Math.random() * letters.length)];
+    l.style.left = Math.random() * 100 + '%';
+    l.style.fontSize = (30 + Math.random() * 40) + 'px';
+    l.style.animationDuration = (15 + Math.random() * 20) + 's';
+    l.style.animationDelay = -Math.random() * 20 + 's';
+    scene.appendChild(l);
+  }
+}
+
+/* ============================================================
+   HOME / LEVEL / MODE NAVIGATION
+   ============================================================ */
+function startGame() {
+  initAudio();
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) { alert("Please enter your name!"); return; }
+  state.playerName = name;
+  loadProgress();
+  if (!state.playerName) state.playerName = name;
+  playClickSound();
+  if (musicOn) startMusic();
+  renderLevels();
+  showScreen('levelScreen');
+}
+function showHome() {
+  playClickSound();
+  document.getElementById('highScoreValue').textContent = getHighScore();
+  showScreen('homeScreen');
+}
+function renderLevels() {
+  document.getElementById('displayName').textContent = state.playerName;
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('totalBadges').textContent = state.achievements.length;
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  LEVELS.forEach(lv => {
+    const unlocked = isLevelUnlocked(lv.id);
+    const prog = state.levelProgress[lv.id] || { completed: false, bestScore: 0, stars: 0 };
+    const card = document.createElement('div');
+    card.className = 'card' + (!unlocked ? ' locked' : '') + (prog.completed ? ' completed' : '');
+    card.innerHTML = `
+      ${!unlocked ? '<div class="card-badge">🔒</div>' : (prog.completed ? '<div class="card-badge">✅</div>' : '')}
+      <div class="card-icon">${lv.icon}</div>
+      <div class="card-name">Level ${lv.id}: ${lv.name}</div>
+      <div class="card-desc">${lv.desc}</div>
+      <div class="card-stars">${'⭐'.repeat(prog.stars)}${'☆'.repeat(3 - prog.stars)}</div>
+      <div style="text-align:center; font-size:12px; margin-top:6px; opacity:.8;">Best: ${prog.bestScore} pts</div>
+    `;
+    if (unlocked) card.onclick = () => { playClickSound(); selectLevel(lv.id); };
+    grid.appendChild(card);
+  });
+}
+function selectLevel(levelId) {
+  state.currentLevel = levelId;
+  renderModes();
+  showScreen('modeScreen');
+}
+function renderModes() {
+  document.getElementById('displayName2').textContent = state.playerName;
+  document.getElementById('totalScore2').textContent = state.totalScore;
+  const lv = LEVELS.find(l => l.id === state.currentLevel);
+  document.getElementById('currentLevelLabel').textContent = `Level ${lv.id}: ${lv.name}`;
+  document.getElementById('modeScreenTitle').textContent = `${lv.icon} Level ${lv.id} — Choose Game Mode`;
+  const grid = document.getElementById('modeGrid');
+  grid.innerHTML = '';
+  MODES.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-icon">${m.icon}</div>
+      <div class="card-name">${m.name}</div>
+      <div class="card-desc">${m.desc}</div>
+    `;
+    card.onclick = () => { playClickSound(); startMode(m.id); };
+    grid.appendChild(card);
+  });
+}
+function showLevels() {
+  playClickSound();
+  clearTimers();
+  renderLevels();
+  showScreen('levelScreen');
+}
+function showModes() {
+  playClickSound();
+  clearTimers();
+  renderModes();
+  showScreen('modeScreen');
+}
+function showHowToPlay() {
+  playClickSound();
+  document.getElementById('howToPlayModal').classList.add('show');
+}
+function closeHowToPlay() {
+  playClickSound();
+  document.getElementById('howToPlayModal').classList.remove('show');
+}
+function showLeaderboard() {
+  playClickSound();
+  state.previousScreen = document.querySelector('.screen.active').id;
+  const lb = getLeaderboard();
+  const list = document.getElementById('lbList');
+  if (lb.length === 0) {
+    list.innerHTML = '<p style="text-align:center; opacity:.8; padding:20px;">No champions yet. Be the first!</p>';
+  } else {
+    list.innerHTML = lb.map((p, i) => {
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+      return `<div class="lb-row">
+        <div class="lb-rank ${rankClass}">${medal}</div>
+        <div class="lb-name">${p.name}</div>
+        <div class="lb-score">💎 ${p.score}</div>
+      </div>`;
+    }).join('');
+  }
+  showScreen('leaderboardScreen');
+}
+function closeLB() {
+  playClickSound();
+  showScreen(state.previousScreen || 'homeScreen');
+}
+
+/* ============================================================
+   START MODE
+   ============================================================ */
+function startMode(modeId) {
+  state.currentMode = modeId;
+  state.gameScore = 0;
+  state.gameCorrect = 0;
+  state.gameWrong = 0;
+  state.hintsLeft = 3;
+  state.gameStartTime = Date.now();
+
+  const mode = MODES.find(m => m.id === modeId);
+  const lv = LEVELS.find(l => l.id === state.currentLevel);
+  document.getElementById('currentModeTitle').textContent = `${mode.icon} ${mode.name}`;
+  document.getElementById('guideText').textContent = getModeIntro(modeId);
+  document.getElementById('gameScore').textContent = '0';
+  document.getElementById('hintCount').textContent = state.hintsLeft;
+  document.getElementById('hintBtn').disabled = false;
+  document.getElementById('feedbackArea').innerHTML = '';
+
+  clearTimers();
+
+  if (modeId === 'memory') initMemory();
+  else if (modeId === 'matching') initMatching();
+  else if (modeId === 'guess') initGuess();
+  else if (modeId === 'missing') initMissing();
+  else if (modeId === 'speed') initSpeed();
+
+  showScreen('gameScreen');
+}
+
+function getModeIntro(modeId) {
+  switch(modeId) {
+    case 'memory': return "Flip the cards and find matching pairs! English word ↔ Indonesian meaning.";
+    case 'matching': return "Connect each English word with its Indonesian meaning. Click one word, then one meaning!";
+    case 'guess': return "Read the Indonesian meaning, then pick the correct English word!";
+    case 'missing': return "Fill in the missing letters to complete the English word!";
+    case 'speed': return "You have 60 seconds! Answer as many as you can. Let's go!";
+  }
+}
+
+function clearTimers() {
+  if (state.timer) { clearInterval(state.timer); state.timer = null; }
+}
+
+function useHint() {
+  if (state.hintsLeft <= 0) return;
+  state.hintsLeft--;
+  document.getElementById('hintCount').textContent = state.hintsLeft;
+  if (state.hintsLeft === 0) document.getElementById('hintBtn').disabled = true;
+  playClickSound();
+
+  if (state.currentMode === 'memory' && state.memoryState) {
+    // Reveal one unmatched pair briefly
+    const unmatched = state.memoryState.cards.filter(c => !c.matched);
+    if (unmatched.length >= 2) {
+      const pairId = unmatched[0].pairId;
+      const pair = unmatched.filter(c => c.pairId === pairId);
+      pair.forEach(c => {
+        const el = document.querySelector(`[data-idx="${c.idx}"]`);
+        if (el) el.classList.add('flipped');
+      });
+      setTimeout(() => {
+        pair.forEach(c => {
+          if (!c.matched) {
+            const el = document.querySelector(`[data-idx="${c.idx}"]`);
+            if (el) el.classList.remove('flipped');
+          }
+        });
+      }, 1200);
+    }
+  } else if (state.currentMode === 'guess' && state.guessState) {
+    // Remove 2 wrong options
+    const opts = document.querySelectorAll('.guess-option');
+    let removed = 0;
+    opts.forEach((opt, i) => {
+      if (removed < 2 && i !== state.guessState.correctIdx && !opt.disabled) {
+        opt.disabled = true;
+        opt.style.opacity = '0.3';
+        removed++;
+      }
+    });
+  } else if (state.currentMode === 'missing' && state.missingState) {
+    // Reveal one missing letter
+    const blanks = state.missingState.word.split('').map((c, i) => ({ c, i }))
+      .filter(x => state.missingState.revealed[x.i] === undefined);
+    if (blanks.length > 0) {
+      const pick = blanks[Math.floor(Math.random() * blanks.length)];
+      state.missingState.revealed[pick.i] = pick.c;
+      renderMissingWord();
+    }
+  } else if (state.currentMode === 'speed' && state.speedState) {
+    // Show first letter
+    const word = state.speedState.currentWord.en;
+    document.getElementById('speedHint').textContent = `💡 Starts with: "${word[0].toUpperCase()}"`;
+  } else if (state.currentMode === 'matching' && state.matchingState) {
+    // Flash one correct pair
+    const first = state.matchingState.words[0];
+    const match = state.matchingState.meanings.find(m => m.pairId === first.pairId);
+    if (match && !first.matched) {
+      const wEl = document.querySelector(`[data-wid="${first.idx}"]`);
+      const mEl = document.querySelector(`[data-mid="${match.idx}"]`);
+      if (wEl) { wEl.style.background = 'var(--yellow)'; wEl.style.color = 'var(--dark)'; }
+      if (mEl) { mEl.style.background = 'var(--yellow)'; mEl.style.color = 'var(--dark)'; }
+      setTimeout(() => {
+        if (wEl && !first.matched) { wEl.style.background = ''; wEl.style.color = ''; }
+        if (mEl && !match.matched) { mEl.style.background = ''; mEl.style.color = ''; }
+      }, 1000);
+    }
+  }
+}
+
+function quitGame() {
+  if (!confirm("Quit this game?")) return;
+  clearTimers();
+  showModes();
+}
+
+function retryMode() {
+  playClickSound();
+  startMode(state.currentMode);
+}
+
+/* ============================================================
+   MODE 1: MEMORY CARDS
+   ============================================================ */
+function initMemory() {
+  const vocab = shuffle(getVocabForLevel(state.currentLevel)).slice(0, 6);
+  const cards = [];
+  vocab.forEach((v, i) => {
+    cards.push({ idx: cards.length, pairId: i, type: 'en', text: v.en, matched: false });
+    cards.push({ idx: cards.length, pairId: i, type: 'id', text: v.id, matched: false });
+  });
+  state.memoryState = {
+    cards: shuffle(cards),
+    flipped: [],
+    matchedCount: 0,
+    attempts: 0,
+    locked: false
+  };
+
+  document.getElementById('timer').textContent = '⏱ 0s';
+  document.getElementById('timer').classList.remove('warning');
+
+  renderMemory();
+  startMemoryTimer();
+}
+
+function renderMemory() {
+  const ms = state.memoryState;
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="memory-stats">
+      <div class="memory-stat"><div class="val" id="memPairs">${ms.matchedCount}/6</div><div class="lbl">Pairs Found</div></div>
+      <div class="memory-stat"><div class="val" id="memAttempts">${ms.attempts}</div><div class="lbl">Attempts</div></div>
+      <div class="memory-stat"><div class="val" id="memTime">0s</div><div class="lbl">Time</div></div>
+    </div>
+    <div class="memory-grid" id="memoryGrid"></div>
+  `;
+  const grid = document.getElementById('memoryGrid');
+  ms.cards.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'memory-card' + (c.matched ? ' matched flipped' : '');
+    card.dataset.idx = c.idx;
+    card.innerHTML = `
+      <div class="memory-card-inner">
+        <div class="memory-face memory-front">?</div>
+        <div class="memory-face memory-back ${c.type}">${c.text}</div>
+      </div>
+    `;
+    if (!c.matched) card.onclick = () => flipCard(c.idx);
+    grid.appendChild(card);
+  });
+}
+
+function flipCard(idx) {
+  const ms = state.memoryState;
+  if (ms.locked) return;
+  const card = ms.cards[idx];
+  if (card.matched || ms.flipped.includes(idx)) return;
+
+  playFlipSound();
+  ms.flipped.push(idx);
+  document.querySelector(`[data-idx="${idx}"]`).classList.add('flipped');
+
+  if (ms.flipped.length === 2) {
+    ms.attempts++;
+    ms.locked = true;
+    const [i1, i2] = ms.flipped;
+    const c1 = ms.cards[i1], c2 = ms.cards[i2];
+    if (c1.pairId === c2.pairId && c1.type !== c2.type) {
+      // Match!
+      setTimeout(() => {
+        c1.matched = c2.matched = true;
+        ms.matchedCount++;
+        ms.flipped = [];
+        ms.locked = false;
+        playMatchSound();
+        document.querySelector(`[data-idx="${i1}"]`).classList.add('matched');
+        document.querySelector(`[data-idx="${i2}"]`).classList.add('matched');
+        document.getElementById('memPairs').textContent = `${ms.matchedCount}/6`;
+        document.getElementById('memAttempts').textContent = ms.attempts;
+        if (ms.matchedCount === 6) finishMemory();
+      }, 500);
+    } else {
+      setTimeout(() => {
+        document.querySelector(`[data-idx="${i1}"]`).classList.remove('flipped');
+        document.querySelector(`[data-idx="${i2}"]`).classList.remove('flipped');
+        ms.flipped = [];
+        ms.locked = false;
+      }, 1000);
+    }
+    document.getElementById('memAttempts').textContent = ms.attempts;
+  }
+}
+
+function startMemoryTimer() {
+  const start = Date.now();
+  state.timer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - start) / 1000);
+    const el = document.getElementById('memTime');
+    if (el) el.textContent = elapsed + 's';
+    const t = document.getElementById('timer');
+    if (t) t.textContent = `⏱ ${elapsed}s`;
+  }, 1000);
+}
+
+function finishMemory() {
+  clearTimers();
+  const elapsed = Math.floor((Date.now() - state.gameStartTime) / 1000);
+  // Score: base 60 (6 pairs × 10) + completion bonus 20 - penalty for attempts
+  const baseScore = 60;
+  const bonus = 20;
+  const penalty = Math.max(0, (state.memoryState.attempts - 6) * 2);
+  const speedBonus = elapsed < 60 ? 10 : 0;
+  state.gameScore = Math.max(0, baseScore + bonus + speedBonus - penalty);
+  state.gameCorrect = 6;
+  state.gameWrong = Math.max(0, state.memoryState.attempts - 6);
+  finishGame();
+}
+
+/* ============================================================
+   MODE 2: WORD MATCHING
+   ============================================================ */
+function initMatching() {
+  const vocab = shuffle(getVocabForLevel(state.currentLevel)).slice(0, 6);
+  const words = shuffle(vocab.map((v, i) => ({ idx: i, pairId: i, text: v.en, matched: false })));
+  const meanings = shuffle(vocab.map((v, i) => ({ idx: i, pairId: i, text: v.id, matched: false })));
+  state.matchingState = {
+    words, meanings,
+    selectedWord: null, selectedMeaning: null,
+    matchedCount: 0, total: 6
+  };
+  document.getElementById('progressFill').style.width = '0%';
+  renderMatching();
+}
+
+function renderMatching() {
+  const ms = state.matchingState;
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="matching-container">
+      <div class="matching-col">
+        <h4>🔤 English</h4>
+        <div id="wordsCol"></div>
+      </div>
+      <div class="matching-col">
+        <h4>🇮🇩 Indonesian</h4>
+        <div id="meaningsCol"></div>
+      </div>
+    </div>
+  `;
+  const wc = document.getElementById('wordsCol');
+  ms.words.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'match-item' + (w.matched ? ' matched' : '');
+    el.textContent = w.text;
+    el.dataset.wid = w.idx;
+    if (!w.matched) el.onclick = () => selectWord(w.idx);
+    wc.appendChild(el);
+  });
+  const mc = document.getElementById('meaningsCol');
+  ms.meanings.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'match-item' + (m.matched ? ' matched' : '');
+    el.textContent = m.text;
+    el.dataset.mid = m.idx;
+    if (!m.matched) el.onclick = () => selectMeaning(m.idx);
+    mc.appendChild(el);
+  });
+}
+
+function selectWord(idx) {
+  const ms = state.matchingState;
+  ms.selectedWord = idx;
+  document.querySelectorAll('[data-wid]').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`[data-wid="${idx}"]`).classList.add('selected');
+  playClickSound();
+  checkMatch();
+}
+function selectMeaning(idx) {
+  const ms = state.matchingState;
+  ms.selectedMeaning = idx;
+  document.querySelectorAll('[data-mid]').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`[data-mid="${idx}"]`).classList.add('selected');
+  playClickSound();
+  checkMatch();
+}
+function checkMatch() {
+  const ms = state.matchingState;
+  if (ms.selectedWord === null || ms.selectedMeaning === null) return;
+  const w = ms.words[ms.selectedWord];
+  const m = ms.meanings[ms.selectedMeaning];
+  const wEl = document.querySelector(`[data-wid="${w.idx}"]`);
+  const mEl = document.querySelector(`[data-mid="${m.idx}"]`);
+
+  if (w.pairId === m.pairId) {
+    // Correct
+    playCorrectSound();
+    w.matched = m.matched = true;
+    ms.matchedCount++;
+    state.gameScore += 10;
+    state.gameCorrect++;
+    document.getElementById('gameScore').textContent = state.gameScore;
+    document.getElementById('progressFill').style.width = (ms.matchedCount / ms.total * 100) + '%';
+    setTimeout(() => {
+      renderMatching();
+      ms.selectedWord = null; ms.selectedMeaning = null;
+      if (ms.matchedCount === ms.total) finishMatching();
+    }, 400);
+  } else {
+    // Wrong
+    playWrongSound();
+    state.gameWrong++;
+    wEl.classList.add('wrong');
+    mEl.classList.add('wrong');
+    setTimeout(() => {
+      wEl.classList.remove('wrong', 'selected');
+      mEl.classList.remove('wrong', 'selected');
+      ms.selectedWord = null; ms.selectedMeaning = null;
+    }, 600);
+  }
+}
+function finishMatching() {
+  const elapsed = Math.floor((Date.now() - state.gameStartTime) / 1000);
+  const bonus = 20;
+  const speedBonus = elapsed < 45 ? 10 : 0;
+  state.gameScore += bonus + speedBonus;
+  finishGame();
+}
+
+/* ============================================================
+   MODE 3: GUESS THE WORD
+   ============================================================ */
+function initGuess() {
+  const vocab = shuffle(getVocabForLevel(state.currentLevel)).slice(0, 8);
+  state.guessState = {
+    questions: vocab,
+    current: 0,
+    correctIdx: 0
+  };
+  document.getElementById('progressFill').style.width = '0%';
+  renderGuess();
+}
+
+function renderGuess() {
+  const gs = state.guessState;
+  if (gs.current >= gs.questions.length) { finishGuess(); return; }
+  const q = gs.questions[gs.current];
+  const allVocab = getVocabForLevel(state.currentLevel);
+  const distractors = shuffle(allVocab.filter(v => v.en !== q.en)).slice(0, 3);
+  const options = shuffle([q, ...distractors]);
+  gs.correctIdx = options.findIndex(o => o.en === q.en);
+  gs.currentOptions = options;
+
+  document.getElementById('progressFill').style.width = (gs.current / gs.questions.length * 100) + '%';
+
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="guess-clue">
+      <div class="label">🇮🇩 Indonesian Meaning:</div>
+      <div class="meaning">${q.id}</div>
+      <div class="example">Example: "${q.ex.replace(q.en, '<b>___</b>')}"</div>
+      <div style="font-size:12px; margin-top:8px; opacity:.8;">🔊 Pronunciation: /${q.pron}/</div>
+    </div>
+    <div class="guess-options" id="guessOptions"></div>
+  `;
+  const optsDiv = document.getElementById('guessOptions');
+  options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'guess-option';
+    btn.innerHTML = `<div class="letter">${String.fromCharCode(65 + i)}</div><div>${opt.en}</div>`;
+    btn.onclick = () => selectGuess(i, btn);
+    optsDiv.appendChild(btn);
+  });
+  document.getElementById('feedbackArea').innerHTML = '';
+}
+
+function selectGuess(idx, btn) {
+  const gs = state.guessState;
+  const opts = document.querySelectorAll('.guess-option');
+  opts.forEach(o => o.disabled = true);
+  const correct = gs.currentOptions[gs.correctIdx];
+
+  if (idx === gs.correctIdx) {
+    btn.classList.add('correct');
+    playCorrectSound();
+    state.gameScore += 10;
+    state.gameCorrect++;
+    document.getElementById('gameScore').textContent = state.gameScore;
+    document.getElementById('feedbackArea').innerHTML =
+      `<div class="feedback correct">✅ Correct! +10 points</div>
+       <div class="explanation">💡 "${correct.ex}"</div>`;
+  } else {
+    btn.classList.add('wrong');
+    opts[gs.correctIdx].classList.add('correct');
+    playWrongSound();
+    state.gameWrong++;
+    document.getElementById('feedbackArea').innerHTML =
+      `<div class="feedback wrong">❌ The correct answer is: <b>${correct.en}</b></div>
+       <div class="explanation">💡 "${correct.ex}"</div>`;
+  }
+
+  setTimeout(() => {
+    gs.current++;
+    renderGuess();
+  }, 1800);
+}
+
+function finishGuess() {
+  const bonus = 20;
+  const elapsed = Math.floor((Date.now() - state.gameStartTime) / 1000);
+  const speedBonus = elapsed < 60 ? 10 : 0;
+  state.gameScore += bonus + speedBonus;
+  finishGame();
+}
+
+/* ============================================================
+   MODE 4: MISSING LETTERS
+   ============================================================ */
+function initMissing() {
+  const vocab = shuffle(getVocabForLevel(state.currentLevel)).slice(0, 8);
+  state.missingState = {
+    questions: vocab,
+    current: 0,
+    word: '',
+    revealed: {},
+    filled: {},
+    currentBlank: 0,
+    blanks: []
+  };
+  document.getElementById('progressFill').style.width = '0%';
+  renderMissing();
+}
+
+function renderMissing() {
+  const ms = state.missingState;
+  if (ms.current >= ms.questions.length) { finishMissing(); return; }
+  const q = ms.questions[ms.current];
+  ms.word = q.en;
+  ms.revealed = {};
+  ms.filled = {};
+  ms.currentBlank = 0;
+  // Remove 2-3 random letters (not spaces)
+  const letters = ms.word.split('').map((c, i) => ({ c, i })).filter(x => /[a-zA-Z]/.test(x.c));
+  const removeCount = Math.min(3, Math.max(2, Math.floor(ms.word.length / 4)));
+  const toRemove = shuffle(letters).slice(0, removeCount);
+  ms.blanks = toRemove.map(x => x.i);
+
+  document.getElementById('progressFill').style.width = (ms.current / ms.questions.length * 100) + '%';
+  renderMissingWord();
+  document.getElementById('feedbackArea').innerHTML = '';
+}
+
+function renderMissingWord() {
+  const ms = state.missingState;
+  const q = ms.questions[ms.current];
+  const area = document.getElementById('gameArea');
+
+  let wordHtml = '';
+  ms.word.split('').forEach((c, i) => {
+    if (ms.blanks.includes(i) && ms.revealed[i] === undefined && ms.filled[i] === undefined) {
+      wordHtml += `<div class="word-letter blank" data-pos="${i}">_</div>`;
+    } else if (ms.filled[i] !== undefined) {
+      wordHtml += `<div class="word-letter blank filled" data-pos="${i}">${ms.filled[i]}</div>`;
+    } else if (ms.revealed[i] !== undefined) {
+      wordHtml += `<div class="word-letter blank filled" data-pos="${i}">${ms.revealed[i]}</div>`;
+    } else {
+      wordHtml += `<div class="word-letter">${c === ' ' ? '&nbsp;' : c}</div>`;
+    }
+  });
+
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  let kbHtml = alphabet.map(l => `<button class="key-btn" onclick="pressKey('${l}')">${l}</button>`).join('');
+
+  area.innerHTML = `
+    <div class="missing-word">
+      <div class="label">🇮🇩 Indonesian Meaning:</div>
+      <div class="meaning">${q.id}</div>
+      <div style="font-size:12px; opacity:.8; margin-bottom:10px;">🔊 /${q.pron}/</div>
+      <div class="word-display">${wordHtml}</div>
+      <div style="font-size:12px; opacity:.8; margin-bottom:10px;">Click a letter to fill the blank</div>
+      <div class="letter-keyboard">${kbHtml}</div>
+      <button class="btn btn-danger btn-small" style="margin-top:10px;" onclick="clearMissing()">🗑️ Clear</button>
+    </div>
+  `;
+}
+
+function pressKey(letter) {
+  const ms = state.missingState;
+  const unfilled = ms.blanks.filter(i => ms.filled[i] === undefined && ms.revealed[i] === undefined);
+  if (unfilled.length === 0) return;
+  const pos = unfilled[0];
+  ms.filled[pos] = letter.toLowerCase();
+  playClickSound();
+  renderMissingWord();
+  checkMissingComplete();
+}
+
+function clearMissing() {
+  const ms = state.missingState;
+  ms.filled = {};
+  renderMissingWord();
+}
+
+function checkMissingComplete() {
+  const ms = state.missingState;
+  const allFilled = ms.blanks.every(i => ms.filled[i] !== undefined || ms.revealed[i] !== undefined);
+  if (!allFilled) return;
+
+  // Check correctness
+  let correct = true;
+  ms.blanks.forEach(i => {
+    const expected = ms.word[i].toLowerCase();
+    const given = ms.filled[i] || ms.revealed[i];
+    if (given !== expected) correct = false;
+  });
+
+  const q = ms.questions[ms.current];
+  if (correct) {
+    playCorrectSound();
+    state.gameScore += 10;
+    state.gameCorrect++;
+    document.getElementById('gameScore').textContent = state.gameScore;
+    document.getElementById('feedbackArea').innerHTML =
+      `<div class="feedback correct">✅ Correct! "${ms.word}" = ${q.id}</div>
+       <div class="explanation">💡 "${q.ex}"</div>`;
+    document.querySelectorAll('.key-btn').forEach(b => b.disabled = true);
+    setTimeout(() => { ms.current++; renderMissing(); }, 1800);
+  } else {
+    playWrongSound();
+    state.gameWrong++;
+    // Mark wrong letters
+    ms.blanks.forEach(i => {
+      const expected = ms.word[i].toLowerCase();
+      const given = ms.filled[i];
+      if (given && given !== expected) {
+        const el = document.querySelector(`[data-pos="${i}"]`);
+        if (el) el.classList.add('wrong-letter');
+      }
+    });
+    document.getElementById('feedbackArea').innerHTML =
+      `<div class="feedback wrong">❌ Not quite. The word is: <b>${ms.word}</b></div>
+       <div class="explanation">💡 "${q.ex}"</div>`;
+    document.querySelectorAll('.key-btn').forEach(b => b.disabled = true);
+    setTimeout(() => { ms.current++; renderMissing(); }, 2200);
+  }
+}
+
+function finishMissing() {
+  const bonus = 20;
+  const elapsed = Math.floor((Date.now() - state.gameStartTime) / 1000);
+  const speedBonus = elapsed < 90 ? 10 : 0;
+  state.gameScore += bonus + speedBonus;
+  finishGame();
+}
+
+/* ============================================================
+   MODE 5: SPEED CHALLENGE
+   ============================================================ */
+function initSpeed() {
+  const vocab = shuffle(getVocabForLevel(state.currentLevel));
+  state.speedState = {
+    pool: vocab,
+    current: 0,
+    currentWord: null,
+    answered: 0,
+    correct: 0
+  };
+  document.getElementById('timer').textContent = '⏱ 60s';
+  document.getElementById('timer').classList.remove('warning');
+  renderSpeed();
+  startSpeedTimer();
+}
+
+function renderSpeed() {
+  const ss = state.speedState;
+  if (ss.current >= ss.pool.length) {
+    // Recycle
+    ss.pool = shuffle(getVocabForLevel(state.currentLevel));
+    ss.current = 0;
+  }
+  const q = ss.pool[ss.current];
+  ss.currentWord = q;
+  const allVocab = getVocabForLevel(state.currentLevel);
+  const distractors = shuffle(allVocab.filter(v => v.en !== q.en)).slice(0, 3);
+  const options = shuffle([q, ...distractors]);
+  ss.currentOptions = options;
+  ss.correctIdx = options.findIndex(o => o.en === q.en);
+
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="speed-question">
+      <div style="font-size:13px; opacity:.8; margin-bottom:8px;">🇮🇩 What is the English word for:</div>
+      <div class="meaning">${q.id}</div>
+      <div id="speedHint" style="font-size:12px; margin-top:8px; min-height:18px;"></div>
+    </div>
+    <div class="guess-options" id="speedOptions"></div>
+    <div style="text-align:center; margin-top:10px; font-size:14px;">
+      ⚡ Answered: <b id="speedAnswered">${ss.answered}</b> | ✅ Correct: <b id="speedCorrectCount">${ss.correct}</b>
+    </div>
+  `;
+  const optsDiv = document.getElementById('speedOptions');
+  options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'guess-option';
+    btn.innerHTML = `<div class="letter">${String.fromCharCode(65 + i)}</div><div>${opt.en}</div>`;
+    btn.onclick = () => selectSpeed(i, btn);
+    optsDiv.appendChild(btn);
+  });
+}
+
+function selectSpeed(idx, btn) {
+  const ss = state.speedState;
+  const opts = document.querySelectorAll('#speedOptions .guess-option');
+  opts.forEach(o => o.disabled = true);
+
+  if (idx === ss.correctIdx) {
+    btn.classList.add('correct');
+    playCorrectSound();
+    state.gameScore += 10;
+    state.gameCorrect++;
+    ss.correct++;
+  } else {
+    btn.classList.add('wrong');
+    opts[ss.correctIdx].classList.add('correct');
+    playWrongSound();
+    state.gameWrong++;
+  }
+  ss.answered++;
+  document.getElementById('gameScore').textContent = state.gameScore;
+  document.getElementById('speedAnswered').textContent = ss.answered;
+  document.getElementById('speedCorrectCount').textContent = ss.correct;
+
+  setTimeout(() => {
+    ss.current++;
+    renderSpeed();
+  }, 500);
+}
+
+function startSpeedTimer() {
+  state.timeLeft = 60;
+  const timerEl = document.getElementById('timer');
+  state.timer = setInterval(() => {
+    state.timeLeft--;
+    timerEl.textContent = `⏱ ${state.timeLeft}s`;
+    if (state.timeLeft <= 10) timerEl.classList.add('warning');
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timer);
+      finishSpeed();
+    }
+  }, 1000);
+}
+
+function finishSpeed() {
+  const bonus = 20;
+  const speedBonus = state.speedState.correct >= 10 ? 10 : 0;
+  state.gameScore += bonus + speedBonus;
+  finishGame();
+}
+
+/* ============================================================
+   FINISH GAME
+   ============================================================ */
+function finishGame() {
+  clearTimers();
+  const elapsed = Math.floor((Date.now() - state.gameStartTime) / 1000);
+  const total = state.gameCorrect + state.gameWrong;
+  const percent = total > 0 ? Math.round((state.gameCorrect / total) * 100) : 0;
+
+  // Update level progress
+  const prev = state.levelProgress[state.currentLevel] || { completed: false, bestScore: 0, stars: 0 };
+  const stars = percent >= 90 ? 3 : percent >= 70 ? 2 : percent >= 50 ? 1 : 0;
+  const completed = stars > 0 || prev.completed;
+  state.levelProgress[state.currentLevel] = {
+    completed,
+    bestScore: Math.max(prev.bestScore, state.gameScore),
+    stars: Math.max(prev.stars, stars)
+  };
+
+  // Recalculate total score from level bests
+  state.totalScore = 0;
+  Object.values(state.levelProgress).forEach(p => state.totalScore += p.bestScore);
+
+  saveProgress();
+  saveLeaderboard(state.playerName, state.totalScore);
+
+  // Grade
+  let grade, gradeClass, icon;
+  if (percent >= 90) { grade = "Vocabulary Master"; gradeClass = "grade-master"; icon = "👑"; }
+  else if (percent >= 80) { grade = "Word Expert"; gradeClass = "grade-expert"; icon = "🏆"; }
+  else if (percent >= 70) { grade = "English Explorer"; gradeClass = "grade-explorer"; icon = "🥉"; }
+  else if (percent >= 60) { grade = "Good Learner"; gradeClass = "grade-learner"; icon = "💪"; }
+  else { grade = "Keep Practicing"; gradeClass = "grade-practice"; icon = "🔥"; }
+
+  document.getElementById('resultIcon').textContent = icon;
+  document.getElementById('resultTitle').textContent = stars > 0 ? "Great Job!" : "Try Again!";
+  const g = document.getElementById('resultGrade');
+  g.textContent = grade;
+  g.className = 'result-grade ' + gradeClass;
+  document.getElementById('rCorrect').textContent = state.gameCorrect;
+  document.getElementById('rWrong').textContent = state.gameWrong;
+  document.getElementById('rScore').textContent = state.gameScore;
+  document.getElementById('rTime').textContent = elapsed + 's';
+
+  if (stars === 3) { confetti(); playLevelUpSound(); }
+  else if (stars > 0) playLevelUpSound();
+
+  // Check achievements
+  checkAchievements();
+
+  showScreen('resultScreen');
+}
+
+function checkAchievements() {
+  const completedLevels = Object.values(state.levelProgress).filter(p => p.completed).length;
+  if (completedLevels === 1 && !state.achievements.includes('first')) {
+    state.achievements.push('first');
+    showAchievement('🎖️', 'First Level Complete!');
+  }
+  if (completedLevels === 3 && !state.achievements.includes('half')) {
+    state.achievements.push('half');
+    showAchievement('🏅', 'Halfway There!');
+  }
+  if (completedLevels === 5 && !state.achievements.includes('master')) {
+    state.achievements.push('master');
+    showAchievement('👑', 'Vocabulary Master!');
+  }
+  if (state.gameScore >= 100 && !state.achievements.includes('century')) {
+    state.achievements.push('century');
+    showAchievement('💯', 'Century Score!');
+  }
+  saveProgress();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+createBgScene();
+loadProgress();
+if (state.playerName) document.getElementById('playerName').value = state.playerName;
+document.getElementById('highScoreValue').textContent = getHighScore();
+
+document.body.addEventListener('click', function initOnClick() {
+  initAudio();
+  if (musicOn && !musicInterval) startMusic();
+  document.body.removeEventListener('click', initOnClick);
+}, { once: true });
+</script>
+</body>
+</html>
