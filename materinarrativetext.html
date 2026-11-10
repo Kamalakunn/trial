@@ -1,0 +1,626 @@
+# =========================================================
+# 🏰 THE KINGDOM OF NARRATA - Narrative Text RPG Game
+# Game Edukasi Bahasa Inggris untuk SMP/SMA
+# =========================================================
+
+import random
+import time
+
+# =========================================================
+# KELAS PLAYER (KARAKTER PEMAIN)
+# =========================================================
+class Player:
+    def __init__(self, name, class_type):
+        self.name = name
+        self.class_type = class_type
+        self.hp = 100
+        self.max_hp = 100
+        self.xp = 0
+        self.inventory = []
+        self.crystals = []
+        self.mistakes = []  # untuk mencatat materi yang salah
+    
+    def take_damage(self, amount):
+        self.hp -= amount
+        if self.hp < 0:
+            self.hp = 0
+    
+    def gain_xp(self, amount):
+        self.xp += amount
+    
+    def add_crystal(self, crystal_name):
+        self.crystals.append(crystal_name)
+        self.inventory.append(crystal_name)
+    
+    def is_alive(self):
+        return self.hp > 0
+    
+    def display_status(self):
+        print("\n" + "="*50)
+        print(f"📊 STATUS - {self.name} the {self.class_type}")
+        print(f"❤️  HP : {self.hp}/{self.max_hp}")
+        print(f"⭐ XP : {self.xp}")
+        print(f"💎 Crystals: {len(self.crystals)}/4")
+        print(f"🎒 Inventory: {self.inventory if self.inventory else '[Empty]'}")
+        print("="*50 + "\n")
+
+
+# =========================================================
+# KELAS GAME UTAMA
+# =========================================================
+class Game:
+    def __init__(self):
+        self.player = None
+        self.quest_scores = {}
+        self.class_styles = {
+            "Warrior": "🗡️ *dengan pedang terangkat*",
+            "Mage": "🪄 *dengan tongkat sihir bersinar*",
+            "Archer": "🏹 *dengan mata tajam membidik*"
+        }
+    
+    # ---------- UTILITAS ----------
+    def slow_print(self, text, delay=0.02):
+        """Menampilkan teks dengan efek ketik lambat"""
+        for char in text:
+            print(char, end='', flush=True)
+            time.sleep(delay)
+        print()
+    
+    def get_input(self, prompt):
+        """Mendapatkan input dari pemain"""
+        return input(prompt).strip()
+    
+    def ask_choice(self, options):
+        """Meminta pemain memilih dari beberapa opsi"""
+        for i, opt in enumerate(options, 1):
+            print(f"  {i}. {opt}")
+        while True:
+            choice = self.get_input("\nPilih (angka): ")
+            if choice.isdigit() and 1 <= int(choice) <= len(options):
+                return int(choice)
+            print("❌ Pilihan tidak valid. Coba lagi!")
+    
+    def check_answer(self, correct_answer, user_answer, question_text=""):
+        """Memeriksa jawaban pemain. Return True jika benar."""
+        if user_answer.lower().strip() == str(correct_answer).lower().strip():
+            print("\n✅ **BENAR!** Kamu mendapat +20 XP!")
+            self.player.gain_xp(20)
+            return True
+        else:
+            print("\n❌ **SALAH!** HP -10")
+            self.player.take_damage(10)
+            self.player.mistakes.append(question_text)
+            return False
+    
+    def revive(self):
+        """Jika HP habis, revive di checkpoint"""
+        print("\n💀 Oh tidak! HP-mu habis!")
+        print("🌟 Tapi jangan khawatir, Story Hero akan di-revive di checkpoint!")
+        print("📚 Mari kita ulas materi singkat sebelum lanjut...\n")
+        self.player.hp = self.player.max_hp // 2
+        print("💡 **RINGKASAN MATERI:**")
+        print("   - Narrative text bertujuan menghibur & memberi pesan moral.")
+        print("   - Strukturnya: Orientation → Complication → Resolution.")
+        print("   - Menggunakan Simple Past Tense (V2).")
+        print("   - Time connectives: once upon a time, then, finally.")
+        print(f"\n❤️ HP dipulihkan menjadi {self.player.hp}. Lanjutkan petualangan!\n")
+    
+    # ---------- PROLOG ----------
+    def prologue(self):
+        print("\n" + "="*60)
+        print("✨  WELCOME TO THE KINGDOM OF NARRATA  ✨")
+        print("="*60)
+        self.slow_print("\nOnce upon a time, the Kingdom of Narrata was full of stories...")
+        self.slow_print("But the evil wizard LORD TENSA stole all the stories!")
+        self.slow_print("Now the world is gray and silent.")
+        self.slow_print("\nYou are the chosen STORY HERO!")
+        self.slow_print("Collect 4 Story Crystals and defeat Lord Tensa!\n")
+        
+        # Input nama
+        while True:
+            name = self.get_input("👤 Masukkan nama karaktermu: ")
+            if name:
+                break
+            print("Nama tidak boleh kosong!")
+        
+        # Pilih kelas
+        print("\n🎭 Pilih kelasmu:")
+        print("  1. 🗡️ Warrior - Brave and strong")
+        print("  2. 🪄 Mage    - Smart and magical")
+        print("  3. 🏹 Archer  - Fast and precise")
+        while True:
+            choice = self.get_input("Pilih (1/2/3): ")
+            if choice in ["1", "2", "3"]:
+                class_type = ["Warrior", "Mage", "Archer"][int(choice)-1]
+                break
+            print("❌ Pilihan tidak valid!")
+        
+        self.player = Player(name, class_type)
+        print(f"\n🎉 Selamat datang, {self.player.name} the {self.player.class_type}!")
+        print(f"{self.class_styles[self.player.class_type]} Petualangan dimulai!\n")
+        self.player.display_status()
+    
+    # ---------- QUEST 1: VILLAGE OF PURPOSE ----------
+    def quest_1(self):
+        print("\n" + "="*60)
+        print("🏘️  QUEST 1: VILLAGE OF PURPOSE")
+        print("="*60)
+        self.slow_print("\nKamu tiba di sebuah desa yang sunyi...")
+        print("👵 Seorang Nenek tua (NPC Guide) mendekatimu.\n")
+        
+        print("👵 NENEH: 'Halo, Story Hero! Aku akan mengajarkanmu tentang")
+        print("    SOCIAL FUNCTION dari Narrative Text.'")
+        print("\n📚 MATERI SINGKAT:")
+        print("   Narrative text memiliki 2 tujuan utama:")
+        print("   1. To AMUSE/ENTERTAIN the reader (menghibur pembaca)")
+        print("   2. To teach MORAL VALUE (mengajarkan nilai moral)")
+        print("\n   Jenis-jenis Narrative Text:")
+        print("   🏰 LEGEND    - cerita asal-usul tempat (Malin Kundang)")
+        print("   🦊 FABLE     - cerita hewan yang berperilaku seperti manusia")
+        print("   🧚 FAIRY TALE - dongeng dengan unsur ajaib (Cinderella)")
+        print("   👑 MYTH      - cerita dewa-dewi")
+        print("   💪 FOLKTALE  - cerita rakyat\n")
+        
+        # Tantangan 1
+        print("\n🎯 CHALLENGE 1/3:")
+        print("What is the main social function of narrative text?")
+        print("  A. To inform the reader")
+        print("  B. To amuse/entertain the reader")
+        print("  C. To describe something")
+        print("  D. To explain a process")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Social function"):
+            print("💡 Hint: Narrative = cerita untuk menghibur!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Social function")
+        
+        # Tantangan 2
+        print("\n🎯 CHALLENGE 2/3:")
+        print("'The Rabbit and the Turtle' termasuk jenis narrative text apa?")
+        print("  A. Legend")
+        print("  B. Fable")
+        print("  C. Fairy Tale")
+        print("  D. Myth")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Jenis narrative text"):
+            print("💡 Hint: Fable = cerita tentang HEWAN!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Jenis narrative text")
+        
+        # Tantangan 3
+        print("\n🎯 CHALLENGE 3/3:")
+        print("Cerita 'Malin Kundang' yang berasal dari Sumatera Barat")
+        print("termasuk jenis...")
+        print("  A. Fable")
+        print("  B. Fairy Tale")
+        print("  C. Legend")
+        print("  D. Myth")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("C", ans, "Jenis narrative text"):
+            print("💡 Hint: Legend = cerita asal-usul TEMPAT!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("C", ans, "Jenis narrative text")
+        
+        # Mini-boss
+        print("\n⚔️  MINI-BOSS: Nenek Memberimu Crystal of Purpose!")
+        print("👵 'Ambillah kristal ini, Story Hero!'")
+        self.player.add_crystal("💎 Crystal of Purpose")
+        print("✨ Kamu mendapatkan 💎 Crystal of Purpose!\n")
+        self.player.display_status()
+    
+    # ---------- QUEST 2: FOREST OF STRUCTURE ----------
+    def quest_2(self):
+        print("\n" + "="*60)
+        print("🌲 QUEST 2: FOREST OF STRUCTURE")
+        print("="*60)
+        self.slow_print("\nKamu memasuki hutan yang penuh teka-teki...")
+        print("🧙 Seorang Penyihir Bijak (NPC Guide) muncul.\n")
+        
+        print("🧙 PENYIHIR: 'Untuk melewati hutan ini, kamu harus")
+        print("    memahami STRUKTUR Narrative Text!'")
+        print("\n📚 STRUKTUR NARRATIVE TEXT:")
+        print("   1. ORIENTATION    - Pengenalan tokoh, tempat, waktu")
+        print("   2. COMPLICATION   - Masalah mulai muncul")
+        print("   3. RESOLUTION     - Masalah selesai (happy/sad ending)")
+        print("   4. REORIENTATION  - Pesan moral / coda (opsional)")
+        print("\n📝 Contoh (Cinderella):")
+        print("   Orientation : Cinderella lived with her stepmother.")
+        print("   Complication: She was not allowed to go to the ball.")
+        print("   Resolution  : She married the prince happily.")
+        print("   Reorientation: Kindness always wins.\n")
+        
+        # Tantangan 1 - Urutkan
+        print("\n🎯 CHALLENGE 1/3: Urutkan struktur yang BENAR!")
+        print("   A. Resolution - Orientation - Complication")
+        print("   B. Orientation - Complication - Resolution")
+        print("   C. Complication - Resolution - Orientation")
+        print("   D. Orientation - Resolution - Complication")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Struktur narrative"):
+            print("💡 Hint: Cerita dimulai dari PENGENALAN (Orientation)!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Struktur narrative")
+        
+        # Tantangan 2
+        print("\n🎯 CHALLENGE 2/3:")
+        print("'Once upon a time, there lived a poor farmer...'")
+        print("Kalimat ini termasuk bagian...")
+        print("  A. Orientation")
+        print("  B. Complication")
+        print("  C. Resolution")
+        print("  D. Reorientation")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("A", ans, "Identifikasi struktur"):
+            print("💡 Hint: 'Once upon a time' = PENGENALAN cerita!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("A", ans, "Identifikasi struktur")
+        
+        # Tantangan 3
+        print("\n🎯 CHALLENGE 3/3:")
+        print("'Finally, the prince and princess lived happily ever after.'")
+        print("Kalimat ini termasuk bagian...")
+        print("  A. Orientation")
+        print("  B. Complication")
+        print("  C. Resolution")
+        print("  D. Reorientation")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("C", ans, "Identifikasi struktur"):
+            print("💡 Hint: 'Finally...happily ever after' = MASALAH SELESAI!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("C", ans, "Identifikasi struktur")
+        
+        # Mini-boss
+        print("\n⚔️  MINI-BOSS: Penyihir Bijak tersenyum!")
+        print("🧙 'Kamu pantas mendapat Crystal of Structure!'")
+        self.player.add_crystal("💎 Crystal of Structure")
+        print("✨ Kamu mendapatkan 💎 Crystal of Structure!\n")
+        self.player.display_status()
+    
+    # ---------- QUEST 3: CAVE OF PAST TENSE ----------
+    def quest_3(self):
+        print("\n" + "="*60)
+        print("🕳️  QUEST 3: CAVE OF PAST TENSE")
+        print("="*60)
+        self.slow_print("\nKamu memasuki gua yang gelap dan penuh simbol...")
+        print("🧝 Seorang Elf Penjaga (NPC Guide) muncul.\n")
+        
+        print("🧝 ELF: 'Di gua ini, kamu harus menguasai LANGUAGE")
+        print("    FEATURES dari Narrative Text!'")
+        print("\n📚 Ciri Kebahasaan Narrative Text:")
+        print("   1. SIMPLE PAST TENSE (V2)")
+        print("      - Regular: play → played, walk → walked")
+        print("      - Irregular: go → went, eat → ate, see → saw")
+        print("   2. ACTION VERBS (kata kerja aksi)")
+        print("      - run, kill, walk, cry, etc.")
+        print("   3. TIME CONNECTIVES")
+        print("      - once upon a time, then, after that, finally")
+        print("   4. ADJECTIVES (kata sifat)")
+        print("      - beautiful, brave, kind, evil")
+        print("   5. DIRECT SPEECH (kutipan langsung)")
+        print("      - 'I will save you!' said the knight.\n")
+        
+        # Tantangan 1
+        print("\n🎯 CHALLENGE 1/4:")
+        print("Bentuk past tense dari 'GO' adalah...")
+        print("  A. Goed")
+        print("  B. Gone")
+        print("  C. Went")
+        print("  D. Going")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("C", ans, "Simple past tense"):
+            print("💡 Hint: 'Go' adalah IRREGULAR verb! V2-nya bukan +ed!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("C", ans, "Simple past tense")
+        
+        # Tantangan 2
+        print("\n🎯 CHALLENGE 2/4:")
+        print("Manakah yang merupakan TIME CONNECTIVE?")
+        print("  A. Beautiful")
+        print("  B. Once upon a time")
+        print("  C. Quickly")
+        print("  D. Yesterday")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Time connective"):
+            print("💡 Hint: Time connective = penghubung WAKTU dalam cerita!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Time connective")
+        
+        # Tantangan 3
+        print("\n🎯 CHALLENGE 3/4:")
+        print("'The princess was very ___ and kind.'")
+        print("Kata yang tepat untuk mengisi bagian kosong adalah...")
+        print("  A. Run")
+        print("  B. Beautiful")
+        print("  C. Quickly")
+        print("  D. Yesterday")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Adjective"):
+            print("💡 Hint: Kita butuh ADJECTIVE (kata sifat) setelah 'very'!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Adjective")
+        
+        # Tantangan 4
+        print("\n🎯 CHALLENGE 4/4:")
+        print("Bentuk past tense dari 'EAT' adalah...")
+        print("  A. Eated")
+        print("  B. Ate")
+        print("  C. Eaten")
+        print("  D. Eating")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Simple past tense"):
+            print("💡 Hint: 'Eat' adalah IRREGULAR verb!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Simple past tense")
+        
+        # Mini-boss
+        print("\n⚔️  MINI-BOSS: Elf Penjaga memberimu kristal!")
+        print("🧝 'Kamu menguasai bahasa masa lalu! Ambil Crystal of Language!'")
+        self.player.add_crystal("💎 Crystal of Language")
+        print("✨ Kamu mendapatkan 💎 Crystal of Language!\n")
+        self.player.display_status()
+    
+    # ---------- QUEST 4: TOWER OF READING ----------
+    def quest_4(self):
+        print("\n" + "="*60)
+        print("🗼 QUEST 4: TOWER OF READING")
+        print("="*60)
+        self.slow_print("\nKamu memanjat menara tinggi...")
+        print("📖 Di puncak, ada sebuah buku kuno terbuka.\n")
+        
+        print("📖 **THE ANT AND THE GRASSHOPPER** (Aesop's Fable)\n")
+        print("-" * 50)
+        print("One sunny day, an Ant was working hard, carrying")
+        print("corn to her nest. A Grasshopper saw her and laughed.")
+        print("'Why do you work so hard?' asked the Grasshopper.")
+        print("'Come and sing with me!'")
+        print("'I am preparing food for winter,' said the Ant.")
+        print("\nWinter came. It was very cold and snowy.")
+        print("The Grasshopper was hungry and cold. He had no food.")
+        print("He went to the Ant's house and knocked on the door.")
+        print("'Please, help me. I am starving,' said the Grasshopper.")
+        print("The Ant felt sorry and shared her food.")
+        print("'Thank you,' said the Grasshopper. 'I will work hard")
+        print("next time.'")
+        print("-" * 50)
+        
+        print("\n🧠 Baca cerita di atas dengan seksama, lalu jawab!\n")
+        
+        # Tantangan 1
+        print("🎯 CHALLENGE 1/4:")
+        print("What did the Ant do on the sunny day?")
+        print("  A. She sang with the Grasshopper")
+        print("  B. She carried corn to her nest")
+        print("  C. She slept under a tree")
+        print("  D. She looked for food in winter")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Reading comprehension"):
+            print("💡 Hint: Lihat kalimat ke-1 di cerita!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Reading comprehension")
+        
+        # Tantangan 2
+        print("\n🎯 CHALLENGE 2/4:")
+        print("Why was the Grasshopper hungry in winter?")
+        print("  A. Because the Ant stole his food")
+        print("  B. Because he did not prepare food")
+        print("  C. Because it was too hot")
+        print("  D. Because he was sick")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Reading comprehension"):
+            print("💡 Hint: Grasshopper hanya bernyanyi, tidak kerja!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Reading comprehension")
+        
+        # Tantangan 3
+        print("\n🎯 CHALLENGE 3/4:")
+        print("What is the moral value of the story?")
+        print("  A. Singing is important")
+        print("  B. Winter is the best season")
+        print("  C. Work hard and prepare for the future")
+        print("  D. Ants are better than grasshoppers")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("C", ans, "Moral value"):
+            print("💡 Hint: Moral value = pesan yang bisa kita PELAJARI!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("C", ans, "Moral value")
+        
+        # Tantangan 4
+        print("\n🎯 CHALLENGE 4/4:")
+        print("'The Ant FELT sorry and shared her food.'")
+        print("Kata 'felt' adalah bentuk past tense dari...")
+        print("  A. Fall")
+        print("  B. Feel")
+        print("  C. Feed")
+        print("  D. Find")
+        ans = self.get_input("Jawaban (A/B/C/D): ")
+        if not self.check_answer("B", ans, "Past tense verb"):
+            print("💡 Hint: Feel → Felt (irregular verb)!")
+            ans = self.get_input("Coba lagi (A/B/C/D): ")
+            self.check_answer("B", ans, "Past tense verb")
+        
+        # Mini-boss
+        print("\n⚔️  MINI-BOSS: Buku kuno bersinar terang!")
+        print("📖 'Kamu memahami cerita! Ambil Crystal of Understanding!'")
+        self.player.add_crystal("💎 Crystal of Understanding")
+        print("✨ Kamu mendapatkan 💎 Crystal of Understanding!\n")
+        self.player.display_status()
+    
+    # ---------- FINAL BOSS ----------
+    def final_boss(self):
+        print("\n" + "="*60)
+        print("🔥 FINAL BOSS: LORD TENSA'S CASTLE 🔥")
+        print("="*60)
+        self.slow_print("\nKamu tiba di kastil gelap Lord Tensa...")
+        print("🧙‍♂️ LORD TENSA muncul dengan aura hitam!\n")
+        
+        print("🧙‍♂️ LORD TENSA: 'HAHAHA! Kamu pikir bisa mengalahkanku?")
+        print("    Buktikan kamu bisa MENULIS Narrative Text!'")
+        print("\n⚔️  TANTANGAN AKHIR:")
+        print("Tulis narrative text pendek tentang tema:")
+        print("🌟 'The Brave Rabbit and the Lazy Lion' 🌟")
+        print("\n📝 Tulis minimal 4 kalimat untuk setiap bagian:")
+        print("   1. ORIENTATION (pengenalan)")
+        print("   2. COMPLICATION (masalah)")
+        print("   3. RESOLUTION (penyelesaian)")
+        print("   4. REORIENTATION (pesan moral)")
+        print("\n💡 Tips:")
+        print("   - Gunakan Simple Past Tense (V2)")
+        print("   - Pakai time connectives (once upon a time, then, finally)")
+        print("   - Tambahkan adjective (brave, lazy, big, small)")
+        print("   - Boleh pakai direct speech ('...')\n")
+        
+        print("="*60)
+        print("TULIS CERITAMU DI BAWAH INI")
+        print("(Tekan ENTER 2x setelah selesai setiap bagian)")
+        print("="*60)
+        
+        # Input cerita per bagian
+        story_parts = {}
+        parts = ["ORIENTATION", "COMPLICATION", "RESOLUTION", "REORIENTATION"]
+        
+        for part in parts:
+            print(f"\n📝 Tulis bagian {part} (minimal 4 kalimat):")
+            print("-" * 40)
+            lines = []
+            while True:
+                line = input()
+                if line.strip() == "" and len(lines) > 0:
+                    break
+                if line.strip():
+                    lines.append(line.strip())
+            story_parts[part] = lines
+        
+        # Validasi sederhana
+        print("\n" + "="*60)
+        print("📊 ANALISIS CERITAMU:")
+        print("="*60)
+        
+        total_sentences = 0
+        all_text = ""
+        for part, lines in story_parts.items():
+            count = len(lines)
+            total_sentences += count
+            all_text += " ".join(lines) + " "
+            status = "✅" if count >= 4 else "⚠️"
+            print(f"{status} {part}: {count} kalimat")
+        
+        # Cek fitur bahasa
+        past_tense_markers = ["was", "were", "went", "saw", "said", "came", 
+                              "had", "did", "felt", "ran", "walked", "lived"]
+        has_past = any(marker in all_text.lower() for marker in past_tense_markers)
+        has_time_conn = any(word in all_text.lower() for word in 
+                           ["once upon a time", "then", "finally", "after that", "one day"])
+        has_quote = "'" in all_text or '"' in all_text
+        
+        print("\n🔍 Cek Language Features:")
+        print(f"   {'✅' if has_past else '⚠️'} Simple Past Tense")
+        print(f"   {'✅' if has_time_conn else '⚠️'} Time Connectives")
+        print(f"   {'✅' if has_quote else '⚠️'} Direct Speech")
+        
+        # Hitung skor
+        score = 0
+        if total_sentences >= 16:
+            score += 40
+            print("\n✅ Struktur lengkap! +40 XP")
+        elif total_sentences >= 12:
+            score += 30
+            print("\n⚠️ Struktur hampir lengkap. +30 XP")
+        else:
+            score += 15
+            print("\n⚠️ Struktur belum lengkap. +15 XP")
+        
+        if has_past:
+            score += 20
+            print("✅ Menggunakan Past Tense! +20 XP")
+        if has_time_conn:
+            score += 20
+            print("✅ Menggunakan Time Connectives! +20 XP")
+        if has_quote:
+            score += 20
+            print("✅ Menggunakan Direct Speech! +20 XP")
+        
+        self.player.gain_xp(score)
+        
+        # Boss defeated!
+        print("\n" + "="*60)
+        print("🎉 LORD TENSA DEFEATED! 🎉")
+        print("="*60)
+        self.slow_print("\n🧙‍♂️ LORD TENSA: 'No... impossible! Your stories are too strong!'")
+        self.slow_print("*Lord Tensa menghilang dalam asap*")
+        self.slow_print("\n✨ Semua cerita di Kingdom of Narrata kembali!")
+        self.slow_print("🌈 Dunia kembali berwarna dan penuh kebahagiaan!")
+        self.slow_print(f"\n🏆 Selamat, {self.player.name}! Kamu adalah TRUE STORY HERO!")
+    
+    # ---------- RAPOR AKHIR ----------
+    def show_report(self):
+        print("\n" + "="*60)
+        print("📜 RAPOR PETUALANGAN - ADVENTURE REPORT")
+        print("="*60)
+        
+        print(f"\n👤 Hero Name : {self.player.name}")
+        print(f"🎭 Class     : {self.player.class_type}")
+        print(f"⭐ Total XP  : {self.player.xp}")
+        print(f"💎 Crystals  : {len(self.player.crystals)}/4")
+        
+        print("\n📊 MATERI YANG DIKUASAI:")
+        print("   ✅ Social Function of Narrative Text")
+        print("   ✅ Structure (Orientation-Complication-Resolution)")
+        print("   ✅ Language Features (Past Tense, Time Connectives)")
+        print("   ✅ Reading Comprehension")
+        print("   ✅ Writing Narrative Text")
+        
+        if self.player.mistakes:
+            print("\n📚 MATERI PERLU DIULANG:")
+            unique_mistakes = list(set(self.player.mistakes))
+            for m in unique_mistakes[:3]:
+                print(f"   ⚠️ {m}")
+        else:
+            print("\n🎉 SEMPURNA! Tidak ada materi yang perlu diulang!")
+        
+        print("\n💡 3 SARAN BELAJAR:")
+        print("   1. 📖 Baca lebih banyak cerita (fabel, legenda, dongeng)")
+        print("   2. ✍️  Latih menulis narrative text pendek setiap hari")
+        print("   3. 📝 Hafalkan daftar irregular verbs (go→went, eat→ate)")
+        
+        print("\n" + "="*60)
+        print("🌟 THANK YOU FOR PLAYING! 🌟")
+        print("="*60)
+    
+    # ---------- LOOP UTAMA ----------
+    def start(self):
+        self.prologue()
+        
+        # Quest 1
+        self.quest_1()
+        if not self.player.is_alive():
+            self.revive()
+        
+        # Quest 2
+        self.quest_2()
+        if not self.player.is_alive():
+            self.revive()
+        
+        # Quest 3
+        self.quest_3()
+        if not self.player.is_alive():
+            self.revive()
+        
+        # Quest 4
+        self.quest_4()
+        if not self.player.is_alive():
+            self.revive()
+        
+        # Final Boss
+        if len(self.player.crystals) >= 4:
+            self.final_boss()
+        
+        # Rapor
+        self.show_report()
+
+
+# =========================================================
+# JALANKAN GAME
+# =========================================================
+if __name__ == "__main__":
+    game = Game()
+    game.start()
