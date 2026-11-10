@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENGLISH JEOPARDY: THE CLASSROOM BATTLE</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial Black', Arial, sans-serif; }
+  
+  body {
+    background: linear-gradient(135deg, #0a1128 0%, #1a237e 50%, #0d47a1 100%);
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  .screen { display: none; padding: 20px; min-height: 100vh; }
+  .screen.active { display: block; animation: fadeIn 0.6s ease; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  /* SETUP SCREEN */
+  #setupScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .game-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    background: linear-gradient(45deg, #ffd700, #ff8c00, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5)); }
+    to { filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.9)); }
+  }
+  
+  .subtitle {
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    color: #bbdefb;
+    margin-bottom: 30px;
+    letter-spacing: 3px;
+  }
+  
+  .setup-box {
+    background: rgba(0, 0, 0, 0.5);
+    border: 3px solid #ffd700;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 700px;
+    width: 90%;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+  }
+  
+  .setup-box h2 {
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+  
+  .team-input {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  .team-color {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid white;
+    flex-shrink: 0;
+  }
+  
+  .team-input input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #ffd700;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .team-input input:focus { outline: none; border-color: #fff; }
+  
+  .btn {
+    background: linear-gradient(45deg, #ffd700, #ff8c00);
+    color: #0a1128;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s;
+    letter-spacing: 2px;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+  }
+  
+  .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.7);
+  }
+  
+  .btn:active { transform: translateY(0); }
+  
+  /* GAME SCREEN */
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    border: 2px solid #ffd700;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .game-header h1 {
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    color: #ffd700;
+    letter-spacing: 2px;
+  }
+  
+  .current-team-indicator {
+    font-size: 1.2rem;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .score-card {
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 3px solid white;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .score-card.active {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px currentColor;
+    animation: activeTeam 1s infinite alternate;
+  }
+  
+  @keyframes activeTeam {
+    from { box-shadow: 0 0 20px currentColor; }
+    to { box-shadow: 0 0 40px currentColor; }
+  }
+  
+  .score-card .team-name {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  }
+  
+  .score-card .score-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  }
+  
+  /* JEOPARDY BOARD */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .category-header {
+    background: linear-gradient(135deg, #1a237e, #0d47a1);
+    padding: 15px 5px;
+    text-align: center;
+    font-size: clamp(0.7rem, 1.2vw, 1rem);
+    font-weight: bold;
+    border: 3px solid #ffd700;
+    border-radius: 10px;
+    color: #ffd700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  }
+  
+  .question-cell {
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+    padding: 20px 5px;
+    text-align: center;
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    font-weight: bold;
+    color: #ffd700;
+    border: 3px solid #ffd700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  }
+  
+  .question-cell:hover:not(.used) {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+  }
+  
+  .question-cell.used {
+    background: #1a1a1a;
+    color: #333;
+    cursor: not-allowed;
+    border-color: #333;
+    opacity: 0.4;
+  }
+  
+  /* QUESTION MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.3s;
+  }
+  
+  .modal-overlay.active { display: flex; }
+  
+  .modal-content {
+    background: linear-gradient(135deg, #0d47a1, #1a237e);
+    border: 5px solid #ffd700;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.5);
+    animation: modalPop 0.5s ease;
+  }
+  
+  @keyframes modalPop {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  
+  .modal-category {
+    color: #bbdefb;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+  
+  .modal-points {
+    color: #ffd700;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  }
+  
+  .timer-container {
+    margin: 20px 0;
+  }
+  
+  .timer {
+    font-size: 3rem;
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+  
+  .timer.warning { color: #ff5722; animation: timerWarning 0.5s infinite; }
+  
+  @keyframes timerWarning {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+  
+  .timer-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  
+  .timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #ffd700, #ff5722);
+    transition: width 1s linear;
+    width: 100%;
+  }
+  
+  .question-text {
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    margin: 25px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 15px;
+    border: 2px solid #ffd700;
+    line-height: 1.5;
+    color: white;
+  }
+  
+  .answer-text {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(76, 175, 80, 0.2);
+    border: 2px solid #4caf50;
+    border-radius: 15px;
+    display: none;
+    animation: revealAnswer 0.5s ease;
+  }
+  
+  @keyframes revealAnswer {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .answer-text.show { display: block; }
+  
+  .answer-en {
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+  }
+  
+  .answer-id {
+    color: #bbdefb;
+    font-size: 0.9em;
+    font-style: italic;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255,255,255,0.3);
+  }
+  
+  .control-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  
+  .control-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+    font-family: inherit;
+  }
+  
+  .btn-reveal { background: #2196f3; color: white; }
+  .btn-correct { background: #4caf50; color: white; }
+  .btn-wrong { background: #f44336; color: white; }
+  .btn-skip { background: #9e9e9e; color: white; }
+  .btn-close { background: #607d8b; color: white; }
+  
+  .control-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  
+  .team-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+  }
+  
+  .team-select-btn {
+    padding: 12px;
+    border: 3px solid white;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+  }
+  
+  .team-select-btn:hover { transform: scale(1.05); }
+  .team-select-btn.selected { border-width: 5px; box-shadow: 0 0 20px currentColor; }
+  
+  /* FINAL JEOPARDY */
+  .final-modal .modal-content {
+    background: linear-gradient(135deg, #b71c1c, #880e4f);
+    border-color: #ffd700;
+  }
+  
+  .bet-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.5rem;
+    text-align: center;
+    border: 3px solid #ffd700;
+    background: rgba(0,0,0,0.5);
+    color: #ffd700;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-family: inherit;
+  }
+  
+  /* RESULTS SCREEN */
+  #resultsScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  
+  .trophy {
+    font-size: 8rem;
+    animation: trophyBounce 1s infinite alternate;
+    filter: drop-shadow(0 0 30px gold);
+  }
+  
+  @keyframes trophyBounce {
+    from { transform: translateY(0) rotate(-5deg); }
+    to { transform: translateY(-20px) rotate(5deg); }
+  }
+  
+  .champion-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: #ffd700;
+    margin: 20px 0;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .champion-name {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 30px;
+    padding: 20px 40px;
+    border: 5px solid #ffd700;
+    border-radius: 20px;
+    background: rgba(0,0,0,0.5);
+    animation: championPulse 2s infinite;
+  }
+  
+  @keyframes championPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+    50% { box-shadow: 0 0 60px rgba(255, 215, 0, 1); }
+  }
+  
+  .ranking {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    width: 100%;
+    margin: 30px 0;
+  }
+  
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 25px;
+    border-radius: 15px;
+    border: 3px solid white;
+    background: rgba(0,0,0,0.5);
+    font-size: 1.3rem;
+    transition: transform 0.3s;
+  }
+  
+  .rank-item:hover { transform: translateX(10px); }
+  
+  .rank-badge {
+    font-size: 2rem;
+    min-width: 60px;
+  }
+  
+  .rank-name { flex: 1; text-align: left; font-weight: bold; }
+  .rank-score { font-size: 1.5rem; color: #ffd700; font-weight: bold; }
+  
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 999;
+    animation: confettiFall 3s linear forwards;
+  }
+  
+  @keyframes confettiFall {
+    to {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  
+  /* POINT ANIMATION */
+  .point-popup {
+    position: fixed;
+    font-size: 3rem;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 2000;
+    animation: pointFloat 1.5s ease-out forwards;
+    text-shadow: 0 0 20px currentColor;
+  }
+  
+  @keyframes pointFloat {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { transform: translateY(-20px) scale(1.3); opacity: 1; }
+    100% { transform: translateY(-150px) scale(1); opacity: 0; }
+  }
+  
+  .point-popup.positive { color: #4caf50; }
+  .point-popup.negative { color: #f44336; }
+  
+  @media (max-width: 768px) {
+    .board { gap: 4px; }
+    .category-header, .question-cell { padding: 10px 3px; min-height: 60px; }
+    .question-cell { font-size: 1rem; }
+    .category-header { font-size: 0.6rem; }
+    .control-btn { padding: 10px 15px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setupScreen" class="screen active">
+  <h1 class="game-title">🏆 ENGLISH JEOPARDY 🏆</h1>
+  <p class="subtitle">THE CLASSROOM BATTLE</p>
+  <div class="setup-box">
+    <h2>📋 SETUP KELOMPOK</h2>
+    <p style="margin-bottom: 20px; color: #bbdefb;">Masukkan nama 4 kelompok yang akan bertanding:</p>
+    <div id="teamInputs"></div>
+    <button class="btn" onclick="startGame()">🎮 MULAI PERTANDINGAN</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" class="screen">
+  <div class="game-header">
+    <h1>🏆 ENGLISH JEOPARDY</h1>
+    <div id="currentTeamIndicator" class="current-team-indicator"></div>
+  </div>
+  
+  <div class="scoreboard" id="scoreboard"></div>
+  
+  <div class="board" id="gameBoard"></div>
+  
+  <div style="text-align: center; margin-top: 20px;">
+    <button class="btn" onclick="startFinalJeopardy()" id="finalBtn" style="display:none;">
+      ⭐ FINAL JEOPARDY ⭐
+    </button>
+  </div>
+</div>
+
+<!-- QUESTION MODAL -->
+<div id="questionModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-category" id="modalCategory"></div>
+    <div class="modal-points" id="modalPoints"></div>
+    <div class="timer-container">
+      <div class="timer" id="timer">20</div>
+      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+    </div>
+    <div class="question-text" id="questionText"></div>
+    <div class="answer-text" id="answerText">
+      <div class="answer-en" id="answerEn"></div>
+      <div class="answer-id" id="answerId"></div>
+    </div>
+    <div id="teamSelectorContainer" style="display:none;">
+      <p style="margin: 10px 0; color: #ffd700;">Kelompok mana yang menjawab?</p>
+      <div class="team-selector" id="teamSelector"></div>
+    </div>
+    <div class="control-buttons">
+      <button class="control-btn btn-reveal" onclick="revealAnswer()">👁 REVEAL ANSWER</button>
+      <button class="control-btn btn-correct" onclick="markCorrect()">✓ CORRECT</button>
+      <button class="control-btn btn-wrong" onclick="markWrong()">✗ WRONG</button>
+      <button class="control-btn btn-skip" onclick="skipQuestion()">⏭ SKIP</button>
+      <button class="control-btn btn-close" onclick="closeModal()">✕ CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL JEOPARDY MODAL -->
+<div id="finalModal" class="modal-overlay final-modal">
+  <div class="modal-content">
+    <h2 style="color: #ffd700; font-size: 2rem; margin-bottom: 10px;">⭐ FINAL JEOPARDY ⭐</h2>
+    <p style="color: #ffeb3b; margin-bottom: 20px;">Setiap kelompok harus memasang taruhan!</p>
+    <div class="modal-category" id="finalCategory"></div>
+    <div class="timer-container">
+      <div class="timer" id="finalTimer">30</div>
+      <div class="timer-bar"><div class="timer-fill" id="finalTimerFill"></div></div>
+    </div>
+    <div class="question-text" id="finalQuestion"></div>
+    <div class="answer-text" id="finalAnswer">
+      <div class="answer-en" id="finalAnswerEn"></div>
+      <div class="answer-id" id="finalAnswerId"></div>
+    </div>
+    <div id="bettingSection">
+      <h3 style="color: #ffd700; margin: 20px 0;">💰 PASANG TARUHAN 💰</h3>
+      <div id="betInputs"></div>
+      <button class="control-btn btn-reveal" onclick="startFinalTimer()" id="startFinalBtn">🎯 MULAI FINAL</button>
+    </div>
+    <div id="finalResultSection" style="display:none;">
+      <h3 style="color: #ffd700; margin: 20px 0;">🏆 HASIL FINAL JEOPARDY 🏆</h3>
+      <div id="finalTeamResults"></div>
+      <div class="control-buttons">
+        <button class="control-btn btn-reveal" onclick="revealFinalAnswer()">👁 REVEAL ANSWER</button>
+        <button class="control-btn btn-close" onclick="showResults()">🏆 LIHAT PERINGKAT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="resultsScreen" class="screen">
+  <div class="trophy">🏆</div>
+  <h1 class="champion-title">ENGLISH JEOPARDY CHAMPION</h1>
+  <div class="champion-name" id="championName"></div>
+  <div class="ranking" id="ranking"></div>
+  <button class="btn" onclick="resetGame()">🔄 MAIN LAGI</button>
+</div>
+
+<script>
+// ============ DATA PERTANYAAN ============
+const gameData = {
+  categories: [
+    {
+      name: "GRAMMAR MASTER",
+      questions: [
+        {
+          points: 100,
+          question: "Complete with Present Perfect Tense: 'I ___ (finish) my homework already.'",
+          answer: "have finished",
+          explanation: "Kalimat ini menggunakan Present Perfect Tense (S + have/has + V3) untuk menyatakan aksi yang sudah selesai terjadi. Subjek 'I' menggunakan 'have' + V3 'finished'."
+        },
+        {
+          points: 200,
+          question: "Complete with Past Perfect Tense: 'By the time we arrived, the movie ___ (start).'",
+          answer: "had started",
+          explanation: "Past Perfect Tense (had + V3) digunakan untuk aksi yang terjadi SEBELUM aksi lain di masa lampau. Film sudah dimulai SEBELUM kami tiba."
+        },
+        {
+          points: 300,
+          question: "Change to Passive Voice: 'My mother makes a cake every Sunday.'",
+          answer: "A cake is made by my mother every Sunday.",
+          explanation: "Passive Voice Simple Present: S + am/is/are + V3 + by + agent. 'Makes' (V1) berubah menjadi 'is made' (V3)."
+        },
+        {
+          points: 400,
+          question: "Complete the Conditional Sentence Type 2: 'If I ___ (be) you, I would study harder.'",
+          answer: "were",
+          explanation: "Conditional Type 2 (pengandaian tidak nyata di masa kini) menggunakan pola: If + S + V2 (were untuk semua subjek) + ..., S + would + V1. 'Were' digunakan untuk semua subjek dalam pengandaian."
+        },
+        {
+          points: 500,
+          question: "Change to Reported Speech: She said, 'I am tired.'",
+          answer: "She said that she was tired.",
+          explanation: "Dalam Reported Speech, 'am' berubah menjadi 'was' (backshift tense), 'I' berubah menjadi 'she'. Kata 'that' opsional tapi umum digunakan."
+        }
+      ]
+    },
+    {
+      name: "VOCABULARY CHALLENGE",
+      questions: [
+        {
+          points: 100,
+          question: "What is a SYNONYM of the word 'HAPPY'?",
+          answer: "Joyful / Cheerful / Delighted / Glad",
+          explanation: "Sinonim adalah kata yang memiliki makna SAMA atau MIRIP. 'Happy' (senang) bersinonim dengan joyful, cheerful, delighted, atau glad."
+        },
+        {
+          points: 200,
+          question: "What is the ANTONYM of the word 'ANCIENT'?",
+          answer: "Modern / New / Contemporary / Recent",
+          explanation: "Antonim adalah kata yang memiliki makna BERLAWANAN. 'Ancient' (kuno) berlawanan dengan modern, new, contemporary, atau recent."
+        },
+        {
+          points: 300,
+          question: "What does the academic word 'UBIQUITOUS' mean?",
+          answer: "Found everywhere / Existing everywhere / Widespread",
+          explanation: "'Ubiquitous' adalah kata akademik yang berarti 'ada di mana-mana' atau 'sangat umum ditemukan'. Contoh: 'Smartphones are ubiquitous in modern life.'"
+        },
+        {
+          points: 400,
+          question: "What is the meaning of the phrasal verb 'GIVE UP'?",
+          answer: "To stop trying / To surrender / To quit",
+          explanation: "'Give up' adalah phrasal verb yang berarti 'menyerah' atau 'berhenti mencoba'. Contoh: 'Don't give up on your dreams!' (Jangan menyerah pada mimpimu!)"
+        },
+        {
+          points: 500,
+          question: "What does 'BENEFICIAL' mean in this context: 'Exercise is beneficial for your health'?",
+          answer: "Good / Helpful / Advantageous / Positive",
+          explanation: "'Beneficial' berarti 'menguntungkan' atau 'bermanfaat'. Dalam konteks kalimat, olahraga BAIK/MEMBERI MANFAAT bagi kesehatan."
+        }
+      ]
+    },
+    {
+      name: "READING DETECTIVE",
+      questions: [
+        {
+          points: 100,
+          question: "What is the main purpose of an ANALYTICAL EXPOSITION TEXT?",
+          answer: "To persuade the reader that something is the case / To convince the reader",
+          explanation: "Analytical Exposition Text bertujuan untuk MEMBUYUK/MEYAKINKAN pembaca bahwa suatu isu itu penting atau benar, dengan memberikan argumen-argumen pendukung."
+        },
+        {
+          points: 200,
+          question: "What is the generic structure of an EXPLANATION TEXT?",
+          answer: "General Statement → Sequenced Explanation",
+          explanation: "Explanation Text memiliki struktur: (1) General Statement (pernyataan umum tentang fenomena), (2) Sequenced Explanation (penjelasan berurutan tentang proses/cause-effect)."
+        },
+        {
+          points: 300,
+          question: "In a NARRATIVE TEXT, what is the function of the 'ORIENTATION' part?",
+          answer: "To introduce the characters, setting, and time of the story",
+          explanation: "Orientation adalah bagian pembuka narrative yang memperkenalkan KARAKTER (tokoh), SETTING (tempat), dan TIME (waktu) cerita. Ini memberi konteks sebelum konflik dimulai."
+        },
+        {
+          points: 400,
+          question: "What is the MAIN IDEA of a paragraph that discusses: 'Smoking causes lung cancer, heart disease, and respiratory problems. It also affects non-smokers through secondhand smoke.'?",
+          answer: "Smoking has many negative effects on health (for smokers and non-smokers)",
+          explanation: "Main Idea adalah GAGASAN UTAMA paragraf. Paragraf ini membahas berbagai efek negatif merokok (kanker, jantung, pernapasan, secondhand smoke), jadi main idea-nya adalah bahaya merokok bagi kesehatan."
+        },
+        {
+          points: 500,
+          question: "In reading comprehension, what is an 'INFERENCE'?",
+          answer: "A conclusion based on evidence and reasoning, not directly stated in the text",
+          explanation: "Inference (kesimpulan tersirat) adalah kesimpulan yang ditarik berdasarkan BUKTI dan PENALARAN, bukan yang tertulis langsung di teks. Kita 'membaca antara baris' untuk memahami makna tersembunyi."
+        }
+      ]
+    },
+    {
+      name: "EXPRESSION EXPERT",
+      questions: [
+        {
+          points: 100,
+          question: "Give ONE expression for ASKING someone's opinion!",
+          answer: "What do you think about...? / What's your opinion? / Do you have any idea? / How do you feel about...?",
+          explanation: "Ekspresi asking opinion digunakan untuk MEMINTA pendapat orang lain. Contoh: 'What do you think about this movie?' (Apa pendapatmu tentang film ini?)"
+        },
+        {
+          points: 200,
+          question: "Give ONE expression to show AGREEMENT with someone's opinion!",
+          answer: "I agree with you / You're right / I think so too / That's a good point / Absolutely",
+          explanation: "Ekspresi agreement digunakan untuk MENYETUJUI pendapat orang lain. Contoh: 'I agree with you, education is very important.' (Saya setuju, pendidikan sangat penting.)"
+        },
+        {
+          points: 300,
+          question: "Give ONE expression for giving a SUGGESTION!",
+          answer: "You should... / Why don't you...? / How about...? / I suggest that... / Let's...",
+          explanation: "Ekspresi suggestion digunakan untuk MEMBERI saran. Contoh: 'You should study harder for the exam.' (Kamu sebaiknya belajar lebih giat untuk ujian.)"
+        },
+        {
+          points: 400,
+          question: "Give ONE expression to give a COMPLIMENT about someone's appearance or work!",
+          answer: "You look beautiful/handsome! / What a great job! / Your presentation was amazing! / I love your dress!",
+          explanation: "Compliment adalah PUJIAN untuk menghargai orang lain. Contoh: 'Your presentation was amazing!' (Presentasimu luar biasa!) - ini menunjukkan apresiasi terhadap pekerjaan seseorang."
+        },
+        {
+          points: 500,
+          question: "Give ONE ARGUMENTATIVE EXPRESSION to strengthen your argument in a debate!",
+          answer: "Furthermore... / Moreover... / In addition... / It is evident that... / The fact is that...",
+          explanation: "Argumentative expression digunakan untuk MEMPERKUAT argumen dalam debat. Kata seperti 'Furthermore' (selanjutnya), 'Moreover' (lebih lagi), 'It is evident that' (terbukti bahwa) menambah bobot argumen."
+        }
+      ]
+    },
+    {
+      name: "ENGLISH KNOWLEDGE",
+      questions: [
+        {
+          points: 100,
+          question: "What does the English idiom 'A PIECE OF CAKE' mean?",
+          answer: "Something very easy / Very simple task",
+          explanation: "'A piece of cake' adalah idiom yang berarti 'sesuatu yang SANGAT MUDAH'. Contoh: 'The test was a piece of cake!' (Ujiannya sangat mudah!)"
+        },
+        {
+          points: 200,
+          question: "What is the meaning of the proverb 'ACTIONS SPEAK LOUDER THAN WORDS'?",
+          answer: "What you do is more important than what you say",
+          explanation: "Peribahasa ini berarti 'TINDAKAN lebih bermakna daripada kata-kata'. Seseorang dinilai dari perbuatannya, bukan hanya dari janjinya."
+        },
+        {
+          points: 300,
+          question: "What is the capital city of the United Kingdom, where the famous 'Big Ben' clock tower is located?",
+          answer: "London",
+          explanation: "London adalah ibu kota United Kingdom (Inggris Raya). Big Ben adalah jam besar terkenal yang terletak di gedung Houses of Parliament di London."
+        },
+        {
+          points: 400,
+          question: "What is 'HALLOWEEN' and when is it celebrated in English-speaking countries?",
+          answer: "A festival on October 31st where people wear costumes and children go trick-or-treating",
+          explanation: "Halloween adalah festival pada 31 OKTOBER di negara berbahasa Inggris. Orang memakai kostum seram dan anak-anak melakukan 'trick-or-treating' (mengunjungi rumah untuk permen)."
+        },
+        {
+          points: 500,
+          question: "What does the common expression 'BREAK A LEG' mean when said to someone before a performance?",
+          answer: "Good luck! (Said to wish someone success before a performance)",
+          explanation: "'Break a leg' adalah ungkapan yang berarti 'SEMOGA BERUNTUNG!' - diucapkan kepada seseorang SEBELUM pertunjukan. Ini adalah superstition di dunia teater - mengucapkan 'good luck' justru dianggap sial!"
+        }
+      ]
+    }
+  ],
+  finalJeopardy: {
+    category: "ULTIMATE CHALLENGE",
+    question: "Complete this famous quote by William Shakespeare: 'To be, or not to be, that is the ___.' (From the play 'Hamlet')",
+    answer: "question",
+    explanation: "Kutipan terkenal dari William Shakespeare dalam drama 'Hamlet': 'To be, or not to be, that is the QUESTION.' Ini adalah monolog Hamlet yang merenungkan tentang eksistensi hidup. Shakespeare adalah penulis drama terbesar dalam bahasa Inggris."
+  }
+};
+
+// ============ VARIABEL GLOBAL ============
+const teamColors = ['#e53935', '#43a047', '#1e88e5', '#fb8c00'];
+const teamDefaultNames = ['TEAM RED', 'TEAM GREEN', 'TEAM BLUE', 'TEAM ORANGE'];
+let teams = [];
+let currentTeamIndex = 0;
+let usedQuestions = new Set();
+let currentQuestion = null;
+let currentCategoryIndex = null;
+let currentQuestionIndex = null;
+let timer = null;
+let timeLeft = 20;
+let answeringTeamIndex = null;
+let finalTimer = null;
+let finalTimeLeft = 30;
+let audioCtx = null;
+
+// ============ INISIALISASI ============
+function initSetup() {
+  const container = document.getElementById('teamInputs');
+  container.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const div = document.createElement('div');
+    div.className = 'team-input';
+    div.innerHTML = `
+      <div class="team-color" style="background: ${teamColors[i]};"></div>
+      <input type="text" id="team${i}" placeholder="Nama Kelompok ${i+1}" value="${teamDefaultNames[i]}" maxlength="20">
+    `;
+    container.appendChild(div);
+  }
+}
+
+function startGame() {
+  teams = [];
+  for (let i = 0; i < 4; i++) {
+    const name = document.getElementById(`team${i}`).value.trim() || teamDefaultNames[i];
+    teams.push({
+      name: name.toUpperCase(),
+      color: teamColors[i],
+      score: 0
+    });
+  }
+  currentTeamIndex = 0;
+  usedQuestions.clear();
+  
+  document.getElementById('setupScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  
+  renderScoreboard();
+  renderBoard();
+  updateCurrentTeamIndicator();
+}
+
+// ============ RENDERING ============
+function renderScoreboard() {
+  const sb = document.getElementById('scoreboard');
+  sb.innerHTML = '';
+  teams.forEach((team, i) => {
+    const card = document.createElement('div');
+    card.className = 'score-card' + (i === currentTeamIndex ? ' active' : '');
+    card.style.background = team.color;
+    card.style.color = 'white';
+    card.innerHTML = `
+      <div class="team-name">${team.name}</div>
+      <div class="score-value">${team.score}</div>
+    `;
+    sb.appendChild(card);
+  });
+}
+
+function renderBoard() {
+  const board = document.getElementById('gameBoard');
+  board.innerHTML = '';
+  
+  // Category headers
+  gameData.categories.forEach(cat => {
+    const header = document.createElement('div');
+    header.className = 'category-header';
+    header.textContent = cat.name;
+    board.appendChild(header);
+  });
+  
+  // Question cells (row by row)
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 5; col++) {
+      const q = gameData.categories[col].questions[row];
+      const key = `${col}-${row}`;
+      const cell = document.createElement('div');
+      cell.className = 'question-cell' + (usedQuestions.has(key) ? ' used' : '');
+      cell.textContent = usedQuestions.has(key) ? '✓' : q.points;
+      if (!usedQuestions.has(key)) {
+        cell.onclick = () => openQuestion(col, row);
+      }
+      board.appendChild(cell);
+    }
+  }
+  
+  // Check if all questions used
+  if (usedQuestions.size === 25) {
+    document.getElementById('finalBtn').style.display = 'inline-block';
+  }
+}
+
+function updateCurrentTeamIndicator() {
+  const indicator = document.getElementById('currentTeamIndicator');
+  const team = teams[currentTeamIndex];
+  indicator.textContent = `🎯 GILIRAN: ${team.name}`;
+  indicator.style.background = team.color;
+  indicator.style.color = 'white';
+}
+
+// ============ QUESTION MODAL ============
+function openQuestion(catIdx, qIdx) {
+  currentCategoryIndex = catIdx;
+  currentQuestionIndex = qIdx;
+  const q = gameData.categories[catIdx].questions[qIdx];
+  currentQuestion = q;
+  answeringTeamIndex = currentTeamIndex;
+  
+  document.getElementById('modalCategory').textContent = gameData.categories[catIdx].name;
+  document.getElementById('modalPoints').textContent = q.points + ' POINTS';
+  document.getElementById('questionText').textContent = q.question;
+  document.getElementById('answerEn').textContent = 'Answer: ' + q.answer;
+  document.getElementById('answerId').textContent = '💡 ' + q.explanation;
+  document.getElementById('answerText').classList.remove('show');
+  document.getElementById('teamSelectorContainer').style.display = 'none';
+  
+  document.getElementById('questionModal').classList.add('active');
+  startTimer();
+  playSound('question');
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 20;
+  updateTimerDisplay();
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      playSound('timeout');
+      document.getElementById('timer').textContent = 'TIME UP!';
+      revealAnswer();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const timerEl = document.getElementById('timer');
+  const fillEl = document.getElementById('timerFill');
+  timerEl.textContent = timeLeft;
+  fillEl.style.width = (timeLeft / 20 * 100) + '%';
+  if (timeLeft <= 5) {
+    timerEl.classList.add('warning');
+  } else {
+    timerEl.classList.remove('warning');
+  }
+}
+
+function revealAnswer() {
+  clearInterval(timer);
+  document.getElementById('answerText').classList.add('show');
+  document.getElementById('teamSelectorContainer').style.display = 'block';
+  renderTeamSelector();
+  playSound('reveal');
+}
+
+function renderTeamSelector() {
+  const container = document.getElementById('teamSelector');
+  container.innerHTML = '';
+  teams.forEach((team, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'team-select-btn' + (i === answeringTeamIndex ? ' selected' : '');
+    btn.style.background = team.color;
+    btn.textContent = team.name;
+    btn.onclick = () => selectAnsweringTeam(i);
+    container.appendChild(btn);
+  });
+}
+
+function selectAnsweringTeam(i) {
+  answeringTeamIndex = i;
+  renderTeamSelector();
+}
+
+function markCorrect() {
+  if (answeringTeamIndex === null) {
+    alert('Pilih kelompok yang menjawab terlebih dahulu!');
+    return;
+  }
+  clearInterval(timer);
+  const points = currentQuestion.points;
+  teams[answeringTeamIndex].score += points;
+  showPointPopup(answeringTeamIndex, '+' + points, true);
+  playSound('correct');
+  closeModal(true);
+}
+
+function markWrong() {
+  if (answeringTeamIndex === null) {
+    alert('Pilih kelompok yang menjawab terlebih dahulu!');
+    return;
+  }
+  clearInterval(timer);
+  const penalty = Math.floor(currentQuestion.points / 2);
+  teams[answeringTeamIndex].score -= penalty;
+  showPointPopup(answeringTeamIndex, '-' + penalty, false);
+  playSound('wrong');
+  closeModal(true);
+}
+
+function skipQuestion() {
+  clearInterval(timer);
+  closeModal(true);
+}
+
+function closeModal(markUsed = false) {
+  document.getElementById('questionModal').classList.remove('active');
+  if (markUsed && currentCategoryIndex !== null) {
+    const key = `${currentCategoryIndex}-${currentQuestionIndex}`;
+    usedQuestions.add(key);
+    currentTeamIndex = (currentTeamIndex + 1) % 4;
+    renderBoard();
+    renderScoreboard();
+    updateCurrentTeamIndicator();
+  }
+}
+
+// ============ POINT POPUP ============
+function showPointPopup(teamIdx, text, positive) {
+  const popup = document.createElement('div');
+  popup.className = 'point-popup ' + (positive ? 'positive' : 'negative');
+  popup.textContent = text;
+  const scoreCard = document.querySelectorAll('.score-card')[teamIdx];
+  const rect = scoreCard.getBoundingClientRect();
+  popup.style.left = (rect.left + rect.width / 2 - 50) + 'px';
+  popup.style.top = (rect.top) + 'px';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1500);
+}
+
+// ============ SOUND EFFECTS ============
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playSound(type) {
+  try {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    const now = audioCtx.currentTime;
+    
+    if (type === 'correct') {
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.1);
+      osc.frequency.setValueAtTime(783.99, now + 0.2);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (type === 'wrong') {
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    } else if (type === 'question') {
+      osc.frequency.setValueAtTime(440, now);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } else if (type === 'reveal') {
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.setValueAtTime(800, now + 0.1);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } else if (type === 'timeout') {
+      osc.frequency.setValueAtTime(200, now);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    } else if (type === 'victory') {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.frequency.setValueAtTime(freq, now + i * 0.15);
+        g.gain.setValueAtTime(0.3, now + i * 0.15);
+        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.15 + 0.3);
+        o.start(now + i * 0.15);
+        o.stop(now + i * 0.15 + 0.3);
+      });
+    }
+  } catch (e) {
+    console.log('Audio error:', e);
+  }
+}
+
+// ============ FINAL JEOPARDY ============
+function startFinalJeopardy() {
+  document.getElementById('finalCategory').textContent = gameData.finalJeopardy.category;
+  document.getElementById('finalQuestion').textContent = gameData.finalJeopardy.question;
+  document.getElementById('finalAnswerEn').textContent = 'Answer: ' + gameData.finalJeopardy.answer;
+  document.getElementById('finalAnswerId').textContent = '💡 ' + gameData.finalJeopardy.explanation;
+  document.getElementById('finalAnswer').classList.remove('show');
+  document.getElementById('bettingSection').style.display = 'block';
+  document.getElementById('finalResultSection').style.display = 'none';
+  document.getElementById('startFinalBtn').style.display = 'inline-block';
+  
+  const betInputs = document.getElementById('betInputs');
+  betInputs.innerHTML = '';
+  teams.forEach((team, i) => {
+    const maxBet = Math.max(team.score, 100);
+    const div = document.createElement('div');
+    div.style.margin = '10px 0';
+    div.style.padding = '10px';
+    div.style.background = 'rgba(0,0,0,0.3)';
+    div.style.borderRadius = '10px';
+    div.innerHTML = `
+      <label style="color: ${team.color}; font-weight: bold;">${team.name} (Skor: ${team.score})</label>
+      <input type="number" class="bet-input" id="bet${i}" min="0" max="${maxBet}" value="${Math.min(100, maxBet)}" placeholder="Taruhan (maks ${maxBet})">
+    `;
+    betInputs.appendChild(div);
+  });
+  
+  document.getElementById('finalModal').classList.add('active');
+  playSound('question');
+}
+
+function startFinalTimer() {
+  document.getElementById('startFinalBtn').style.display = 'none';
+  finalTimeLeft = 30;
+  updateFinalTimerDisplay();
+  finalTimer = setInterval(() => {
+    finalTimeLeft--;
+    updateFinalTimerDisplay();
+    if (finalTimeLeft <= 0) {
+      clearInterval(finalTimer);
+      playSound('timeout');
+      showFinalResults();
+    }
+  }, 1000);
+}
+
+function updateFinalTimerDisplay() {
+  document.getElementById('finalTimer').textContent = finalTimeLeft;
+  document.getElementById('finalTimerFill').style.width = (finalTimeLeft / 30 * 100) + '%';
+}
+
+function revealFinalAnswer() {
+  document.getElementById('finalAnswer').classList.add('show');
+  playSound('reveal');
+}
+
+function showFinalResults() {
+  clearInterval(finalTimer);
+  document.getElementById('bettingSection').style.display = 'none';
+  document.getElementById('finalResultSection').style.display = 'block';
+  
+  const resultsDiv = document.getElementById('finalTeamResults');
+  resultsDiv.innerHTML = '';
+  
+  teams.forEach((team, i) => {
+    const bet = parseInt(document.getElementById(`bet${i}`).value) || 0;
+    const div = document.createElement('div');
+    div.style.margin = '10px 0';
+    div.style.padding = '15px';
+    div.style.background = team.color;
+    div.style.borderRadius = '10px';
+    div.style.color = 'white';
+    div.innerHTML = `
+      <strong>${team.name}</strong> - Taruhan: ${bet}<br>
+      <button class="control-btn btn-correct" style="margin: 5px;" onclick="applyFinalResult(${i}, ${bet}, true)">✓ BENAR (+${bet})</button>
+      <button class="control-btn btn-wrong" style="margin: 5px;" onclick="applyFinalResult(${i}, ${bet}, false)">✗ SALAH (-${bet})</button>
+    `;
+    resultsDiv.appendChild(div);
+  });
+}
+
+function applyFinalResult(teamIdx, bet, correct) {
+  if (correct) {
+    teams[teamIdx].score += bet;
+    showPointPopup(teamIdx, '+' + bet, true);
+    playSound('correct');
+  } else {
+    teams[teamIdx].score -= bet;
+    showPointPopup(teamIdx, '-' + bet, false);
+    playSound('wrong');
+  }
+  renderScoreboard();
+}
+
+// ============ RESULTS ============
+function showResults() {
+  document.getElementById('finalModal').classList.remove('active');
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('resultsScreen').classList.add('active');
+  
+  const sorted = [...teams].sort((a, b) => b.score - a.score);
+  
+  document.getElementById('championName').textContent = sorted[0].name;
+  document.getElementById('championName').style.color = sorted[0].color;
+  document.getElementById('championName').style.borderColor = sorted[0].color;
+  
+  const ranking = document.getElementById('ranking');
+  ranking.innerHTML = '';
+  const medals = ['🥇', '🥈', '🥉', '4️⃣'];
+  sorted.forEach((team, i) => {
+    const item = document.createElement('div');
+    item.className = 'rank-item';
+    item.style.borderColor = team.color;
+    item.innerHTML = `
+      <div class="rank-badge">${medals[i]}</div>
+      <div class="rank-name" style="color: ${team.color};">${team.name}</div>
+      <div class="rank-score">${team.score}</div>
+    `;
+    ranking.appendChild(item);
+  });
+  
+  playSound('victory');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const colors = ['#ffd700', '#ff8c00', '#e53935', '#43a047', '#1e88e5', '#fb8c00'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.top = '-20px';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+      confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 4000);
+    }, i * 50);
+  }
+}
+
+function resetGame() {
+  document.getElementById('resultsScreen').classList.remove('active');
+  document.getElementById('setupScreen').classList.add('active');
+  document.getElementById('finalBtn').style.display = 'none';
+  initSetup();
+}
+
+// ============ INIT ============
+window.onload = () => {
+  initSetup();
+  // Init audio on first user interaction
+  document.addEventListener('click', () => initAudio(), { once: true });
+};
+</script>
+
+</body>
+</html>
