@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recount Quest - Belajar Recount Text</title>
+<style>
+  /* ===== VARIABEL & RESET ===== */
+  :root{
+    --primary:#6C5CE7;
+    --secondary:#00B894;
+    --accent:#FDCB6E;
+    --danger:#E17055;
+    --bg1:#A29BFE;
+    --bg2:#74B9FF;
+    --text:#2D3436;
+    --card:#FFFFFF;
+    --shadow:0 8px 24px rgba(0,0,0,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));
+    min-height:100vh;
+    color:var(--text);
+    padding:12px;
+    overflow-x:hidden;
+  }
+  .container{
+    max-width:800px;margin:0 auto;
+    background:var(--card);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:20px;
+    position:relative;
+  }
+  h1,h2,h3{color:var(--primary)}
+  button{
+    cursor:pointer;border:none;
+    font-family:inherit;font-weight:600;
+    transition:transform .15s, box-shadow .15s;
+  }
+  button:hover{transform:translateY(-2px)}
+  button:active{transform:translateY(0)}
+
+  /* ===== HEADER ===== */
+  .header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 16px;
+    background:linear-gradient(90deg,var(--primary),var(--bg1));
+    color:white;border-radius:16px;margin-bottom:16px;
+    flex-wrap:wrap;gap:8px;
+  }
+  .header .title{font-size:1.3em;font-weight:700}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;font-size:.95em}
+  .stat{
+    background:rgba(255,255,255,.2);
+    padding:6px 12px;border-radius:20px;
+    display:flex;align-items:center;gap:4px;
+  }
+
+  /* ===== LAYAR ===== */
+  .screen{display:none;animation:fadeIn .4s ease}
+  .screen.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== MENU UTAMA ===== */
+  .welcome{text-align:center;padding:24px 12px}
+  .welcome h1{font-size:2em;margin-bottom:8px}
+  .welcome p{margin-bottom:20px;color:#555;line-height:1.5}
+  .level-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:14px;margin-top:20px;
+  }
+  .level-card{
+    background:linear-gradient(135deg,#fff,#f1f2f6);
+    border:3px solid transparent;
+    border-radius:18px;padding:18px;
+    text-align:left;cursor:pointer;
+    transition:all .2s;position:relative;
+  }
+  .level-card:hover{border-color:var(--primary);transform:translateY(-4px)}
+  .level-card.locked{opacity:.5;cursor:not-allowed}
+  .level-card.locked:hover{transform:none;border-color:transparent}
+  .level-card .emoji{font-size:2.2em;display:block;margin-bottom:6px}
+  .level-card h3{font-size:1.05em;margin-bottom:4px}
+  .level-card p{font-size:.82em;color:#636e72;line-height:1.4}
+  .level-stars{margin-top:8px;color:var(--accent);font-size:1.1em}
+
+  /* ===== TOMBOL ===== */
+  .btn{
+    padding:12px 24px;border-radius:12px;
+    font-size:1em;color:white;
+    background:var(--primary);
+    box-shadow:0 4px 12px rgba(108,92,231,.3);
+  }
+  .btn.secondary{background:var(--secondary)}
+  .btn.danger{background:var(--danger)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+  /* ===== AREA SOAL ===== */
+  .question-box{
+    background:#F8F9FA;border-radius:16px;
+    padding:18px;margin-bottom:16px;
+    border-left:6px solid var(--primary);
+  }
+  .question-box h3{font-size:1.05em;margin-bottom:10px}
+  .question-text{font-size:1.1em;line-height:1.6;color:var(--text)}
+  .question-text em{color:var(--primary);font-weight:700;font-style:normal}
+
+  /* ===== PILIHAN JAWABAN ===== */
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  @media(max-width:500px){.options{grid-template-columns:1fr}}
+  .option{
+    padding:12px 14px;background:white;
+    border:2px solid #dfe6e9;border-radius:12px;
+    text-align:left;font-size:.98em;color:var(--text);
+    transition:all .15s;
+  }
+  .option:hover{border-color:var(--primary);background:#F3F0FF}
+  .option.correct{background:#D4EDDA;border-color:var(--secondary);color:#155724}
+  .option.wrong{background:#F8D7DA;border-color:var(--danger);color:#721C24}
+  .option:disabled{cursor:default}
+
+  /* ===== FEEDBACK ===== */
+  .feedback{
+    margin-top:14px;padding:14px;border-radius:12px;
+    font-size:.95em;line-height:1.5;
+    display:none;animation:pop .3s ease;
+  }
+  .feedback.show{display:block}
+  .feedback.correct{background:#D4EDDA;color:#155724;border-left:4px solid var(--secondary)}
+  .feedback.wrong{background:#F8D7DA;color:#721C24;border-left:4px solid var(--danger)}
+  @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* ===== STORY SORTER ===== */
+  .sentence-bank{
+    display:flex;flex-direction:column;gap:8px;margin:12px 0;
+  }
+  .sentence{
+    padding:12px 14px;background:white;
+    border:2px solid #dfe6e9;border-radius:12px;
+    cursor:pointer;font-size:.95em;line-height:1.5;
+    transition:all .15s;
+  }
+  .sentence:hover{border-color:var(--primary)}
+  .sentence.selected{
+    background:#F3F0FF;border-color:var(--primary);
+    order:-1;
+  }
+  .sentence.correct-order{background:#D4EDDA;border-color:var(--secondary)}
+  .sentence.wrong-order{background:#F8D7DA;border-color:var(--danger)}
+  .order-area{
+    background:#F8F9FA;border-radius:12px;padding:12px;
+    min-height:60px;margin-bottom:12px;
+    border:2px dashed #b2bec3;
+  }
+  .order-area .sentence{margin-bottom:6px}
+  .order-number{
+    display:inline-block;background:var(--primary);color:white;
+    width:22px;height:22px;border-radius:50%;text-align:center;
+    line-height:22px;font-size:.8em;margin-right:8px;
+  }
+
+  /* ===== STRUCTURE DETECTIVE ===== */
+  .paragraph{
+    padding:12px 14px;background:white;
+    border:2px solid #dfe6e9;border-radius:12px;
+    margin-bottom:10px;cursor:pointer;
+    font-size:.95em;line-height:1.6;
+    transition:all .15s;
+  }
+  .paragraph:hover{border-color:var(--primary)}
+  .paragraph.ori{background:#FFEAA7;border-color:#FDCB6E}
+  .paragraph.evt{background:#81ECEC;border-color:#00CEC9}
+  .paragraph.reo{background:#FAB1A0;border-color:#E17055}
+  .structure-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .structure-buttons button{
+    flex:1;min-width:100px;padding:10px;border-radius:10px;
+    background:white;border:2px solid #dfe6e9;color:var(--text);
+    font-size:.88em;
+  }
+  .structure-buttons button.active-ori{background:#FFEAA7;border-color:#FDCB6E}
+  .structure-buttons button.active-evt{background:#81ECEC;border-color:#00CEC9}
+  .structure-buttons button.active-reo{background:#FAB1A0;border-color:#E17055}
+
+  /* ===== FILL IN THE BLANK ===== */
+  .blank-select{
+    padding:4px 8px;border-radius:8px;
+    border:2px solid var(--primary);background:#F3F0FF;
+    font-size:.95em;font-weight:600;color:var(--primary);
+    cursor:pointer;margin:0 4px;
+  }
+  .blank-select.correct{background:#D4EDDA;border-color:var(--secondary);color:#155724}
+  .blank-select.wrong{background:#F8D7DA;border-color:var(--danger);color:#721C24}
+
+  /* ===== HASIL AKHIR ===== */
+  .result-box{text-align:center;padding:20px 10px}
+  .result-box h2{font-size:1.8em;margin-bottom:10px}
+  .result-stars{font-size:3em;margin:10px 0;color:var(--accent)}
+  .result-score{font-size:1.4em;color:var(--primary);font-weight:700;margin:10px 0}
+  .result-summary{
+    background:#F8F9FA;border-radius:12px;padding:14px;
+    text-align:left;margin:16px 0;font-size:.92em;line-height:1.6;
+  }
+  .result-summary h4{margin-bottom:8px;color:var(--primary)}
+  .result-summary ul{padding-left:20px}
+  .result-summary li{margin-bottom:4px}
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar{
+    height:8px;background:#dfe6e9;border-radius:4px;
+    overflow:hidden;margin-bottom:14px;
+  }
+  .progress-fill{
+    height:100%;background:linear-gradient(90deg,var(--secondary),var(--primary));
+    transition:width .3s;
+  }
+
+  /* ===== ANIMASI BENAR ===== */
+  .shake{animation:shake .4s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-8px)}
+    75%{transform:translateX(8px)}
+  }
+  .bounce{animation:bounce .5s}
+  @keyframes bounce{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.08)}
+  }
+
+  /* ===== TIMER ===== */
+  .timer{
+    display:inline-block;padding:4px 10px;
+    background:var(--accent);color:var(--text);
+    border-radius:12px;font-weight:700;font-size:.9em;
+  }
+  .timer.warning{background:var(--danger);color:white;animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.6}}
+
+  .nav-buttons{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+
+  .info-box{
+    background:#FFF3CD;border-left:4px solid var(--accent);
+    padding:12px;border-radius:8px;margin-bottom:14px;
+    font-size:.9em;line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="title">🎓 Recount Quest</div>
+    <div class="stats">
+      <div class="stat" id="lives">❤️ 5</div>
+      <div class="stat" id="score">⭐ 0</div>
+      <div class="stat" id="levelInfo">📚 Menu</div>
+    </div>
+  </div>
+
+  <!-- LAYAR MENU -->
+  <div class="screen active" id="menuScreen">
+    <div class="welcome">
+      <h1>🌟 Selamat Datang! 🌟</h1>
+      <p>Yuk belajar <b>Recount Text</b> sambil bermain!<br>
+         Kamu akan menjelajahi 4 level seru untuk menguasai cara menceritakan pengalaman masa lalu dalam Bahasa Inggris.</p>
+      <div class="info-box">
+        💡 <b>Recount Text</b> = teks yang menceritakan kembali peristiwa/ pengalaman di masa lalu.
+        Strukturnya: <b>Orientation</b> (pembuka: siapa, kapan, di mana) → <b>Events</b> (urutan kejadian) → <b>Re-orientation</b> (penutup/kesan).
+      </div>
+      <div class="level-grid" id="levelGrid"></div>
+    </div>
+  </div>
+
+  <!-- LAYAR GAME -->
+  <div class="screen" id="gameScreen">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div id="questionContainer"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="nav-buttons">
+      <button class="btn secondary" id="nextBtn" style="display:none">Lanjut ▶</button>
+      <button class="btn" id="checkBtn" style="display:none">Periksa ✓</button>
+    </div>
+  </div>
+
+  <!-- LAYAR HASIL LEVEL -->
+  <div class="screen" id="resultScreen">
+    <div class="result-box" id="resultBox"></div>
+  </div>
+
+  <!-- LAYAR HASIL AKHIR -->
+  <div class="screen" id="finalScreen">
+    <div class="result-box" id="finalBox"></div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   DATA SOAL - RECOUNT TEXT
+   ========================================================= */
+
+// LEVEL 1: Verb Hunter - pilih past tense yang benar
+const LEVEL1 = [
+  {present:"go", options:["goed","went","gone","going"], answer:1, explain:"'Go' adalah irregular verb. Bentuk past tense-nya adalah 'went'."},
+  {present:"play", options:["plaied","played","playd","playing"], answer:1, explain:"'Play' adalah regular verb. Tambahkan '-ed' menjadi 'played'."},
+  {present:"eat", options:["eated","ate","eaten","eating"], answer:1, explain:"'Eat' adalah irregular verb. Bentuk past tense-nya 'ate'."},
+  {present:"visit", options:["visitted","visited","visitied","visiting"], answer:1, explain:"'Visit' adalah regular verb → 'visited' (hanya tambah -ed, tidak perlu dobel t)."},
+  {present:"swim", options:["swimed","swam","swum","swimming"], answer:1, explain:"'Swim' adalah irregular verb. Bentuk past tense-nya 'swam'."},
+  {present:"buy", options:["buyed","bought","boughted","buying"], answer:1, explain:"'Buy' adalah irregular verb. Bentuk past tense-nya 'bought'."},
+  {present:"study", options:["studyed","studied","studded","studying"], answer:1, explain:"'Study' berakhiran konsonan + y → ubah y jadi i, lalu tambah -ed = 'studied'."},
+  {present:"see", options:["seed","saw","seen","seeing"], answer:1, explain:"'See' adalah irregular verb. Bentuk past tense-nya 'saw'."},
+  {present:"write", options:["writed","wrote","written","writing"], answer:1, explain:"'Write' adalah irregular verb. Bentuk past tense-nya 'wrote'."},
+  {present:"take", options:["taked","took","taken","taking"], answer:1, explain:"'Take' adalah irregular verb. Bentuk past tense-nya 'took'."},
+  {present:"watch", options:["watched","watchd","watchs","watching"], answer:0, explain:"'Watch' adalah regular verb → 'watched'."},
+  {present:"drink", options:["drinked","drank","drunk","drinking"], answer:1, explain:"'Drink' adalah irregular verb. Bentuk past tense-nya 'drank'."}
+];
+
+// LEVEL 2: Story Sorter - 3 cerita pendek yang harus diurutkan
+const LEVEL2 = [
+  {
+    title:"🏖️ A Trip to Parangtriti Beach",
+    sentences:[
+      "Last holiday, my family and I went to Parangtriti Beach in Yogyakarta.",
+      "We arrived there at 9 a.m. and the weather was very sunny.",
+      "First, we played with the sand and took many photos.",
+      "Then, we swam in the sea and enjoyed the cool water.",
+      "After that, we ate some fresh seafood at a small warung nearby.",
+      "Finally, we went home in the evening feeling very happy."
+    ],
+    explain:"Urutan yang benar: pembuka (orientation) → kegiatan pertama → kegiatan berikutnya → kegiatan selanjutnya → penutup (re-orientation). Perhatikan time connectors: First, Then, After that, Finally."
+  },
+  {
+    title:"🏫 My First Day at Senior High School",
+    sentences:[
+      "Monday, July 15th was my first day at senior high school.",
+      "I woke up early and prepared my new uniform carefully.",
+      "When I arrived at school, I felt nervous but excited.",
+      "Next, I met my new classmates and introduced myself.",
+      "After the flag ceremony, we went to our classroom to meet the homeroom teacher.",
+      "In the end, I felt happy because I made some new friends."
+    ],
+    explain:"Cerita dimulai dengan keterangan waktu (orientation), lalu urutan kejadian (events) yang ditandai 'When', 'Next', 'After', dan diakhiri kesan (re-orientation)."
+  },
+  {
+    title:"🎂 My 16th Birthday Party",
+    sentences:[
+      "Last Saturday was my sixteenth birthday, and my parents threw a small party for me.",
+      "In the morning, my mother baked a chocolate cake while my father decorated the living room.",
+      "Then, my friends came one by one bringing some lovely gifts.",
+      "After that, we played some fun games and sang happy birthday together.",
+      "Next, we cut the cake and enjoyed the delicious food.",
+      "Finally, we took a group photo and I felt so grateful for the wonderful day."
+    ],
+    explain:"Pola recount: orientation (kalimat 1) → events berurutan (kalimat 2-5 dengan Then, After that, Next) → re-orientation (kalimat 6 dengan Finally + kesan)."
+  }
+];
+
+// LEVEL 3: Structure Detective - tandai tiap paragraf
+const LEVEL3 = [
+  {
+    title:"🐘 Visit to Gembira Loka Zoo",
+    paragraphs:[
+      "Last Sunday, my classmates and I visited Gembira Loka Zoo in Yogyakarta. We went there by school bus and arrived at 8 a.m.",
+      "First, we saw the elephants eating grass. Then, we watched the monkeys jumping from one tree to another. After that, we fed the giraffes and took some pictures with them.",
+      "At noon, we had lunch under a big tree near the lake. We shared our food and laughed together.",
+      "Finally, we went home at 3 p.m. It was a tiring but unforgettable day. I really enjoyed the trip with my friends."
+    ],
+    answers:["orientation","events","events","re-orientation"],
+    explain:"Paragraf 1 = Orientation (siapa, kapan, di mana). Paragraf 2 & 3 = Events (urutan kegiatan). Paragraf 4 = Re-orientation (kesan/penutup)."
+  },
+  {
+    title:"🌧️ A Rainy Day at Home",
+    paragraphs:[
+      "It was a rainy Sunday last week. I stayed at home with my younger brother because we could not go out to play.",
+      "In the morning, we watched our favorite cartoon on TV. Then, our mother taught us how to make fried banana.",
+      "After lunch, I read a novel in my room while my brother played with his toys. We also played some board games together in the afternoon.",
+      "Although we stayed at home, we had a wonderful day. I hope it will rain again next Sunday!"
+    ],
+    answers:["orientation","events","events","re-orientation"],
+    explain:"Paragraf 1 membuka cerita (orientation). Paragraf 2 & 3 berisi kegiatan (events). Paragraf 4 berisi kesan pribadi (re-orientation)."
+  },
+  {
+    title:"🏛️ Learning History at the Museum",
+    paragraphs:[
+      "On Wednesday, our history class went to the National Museum in Jakarta. Our teacher, Mr. Budi, accompanied us.",
+      "We saw many old artifacts such as ancient statues, traditional clothes, and old weapons. The guide explained the history behind each item.",
+      "After that, we watched a short documentary about Indonesian independence in the auditorium. We also took notes for our assignment.",
+      "The trip ended at 2 p.m. I learned a lot of new things about our country's history. It was really educational and fun."
+    ],
+    answers:["orientation","events","events","re-orientation"],
+    explain:"Paragraf 1 = Orientation (who, when, where). Paragraf 2 & 3 = Events (kegiatan di museum). Paragraf 4 = Re-orientation (kesan & penutup)."
+  }
+];
+
+// LEVEL 4: Complete My Story - fill in the blank
+const LEVEL4 = [
+  {
+    title:"🌊 My Holiday in Bali",
+    intro:"Read the recount text below and choose the correct word for each blank.",
+    text:[
+      {type:"text",content:"Last month, my family "},
+      {type:"blank",options:["go","went","gone"],answer:1},
+      {type:"text",content:" to Bali for a holiday. "},
+      {type:"blank",options:["First","Finally","Then"],answer:0},
+      {type:"text",content:", we visited Kuta Beach and enjoyed the beautiful sunset. "},
+      {type:"blank",options:["Before","After that","Finally"],answer:1},
+      {type:"text",content:", we "},
+      {type:"blank",options:["swim","swam","swum"],answer:1},
+      {type:"text",content:" in the clear water. The next day, we "},
+      {type:"blank",options:["visit","visited","visiting"],answer:1},
+      {type:"text",content:" Ubud and saw the traditional dances. "},
+      {type:"blank",options:["First","While","Finally"],answer:2},
+      {type:"text",content:", we went back to Jakarta. It "},
+      {type:"blank",options:["is","was","were"],answer:1},
+      {type:"text",content:" an amazing holiday. I hope I can go there again."}
+    ],
+    explain:"Recount text menggunakan simple past tense (went, swam, visited, was). Time connectors: First (pertama) → After that (setelah itu) → Finally (terakhir)."
+  },
+  {
+    title:"📚 A Memorable School Day",
+    intro:"Complete the story with the correct past tense verb or connector.",
+    text:[
+      {type:"text",content:"Yesterday "},
+      {type:"blank",options:["is","was","were"],answer:1},
+      {type:"text",content:" a very special day at my school. We "},
+      {type:"blank",options:["have","had","has"],answer:1},
+      {type:"text",content:" an English competition. "},
+      {type:"blank",options:["First","Finally","After that"],answer:0},
+      {type:"text",content:", the teacher explained the rules. "},
+      {type:"blank",options:["While","Then","Finally"],answer:1},
+      {type:"text",content:", each student "},
+      {type:"blank",options:["tell","told","tells"],answer:1},
+      {type:"text",content:" a short story in English. I "},
+      {type:"blank",options:["feel","felt","feeling"],answer:1},
+      {type:"text",content:" nervous at first, but I "},
+      {type:"blank",options:["do","did","done"],answer:1},
+      {type:"text",content:" my best. "},
+      {type:"blank",options:["First","Finally","While"],answer:1},
+      {type:"text",content:", the winner was announced, and I got the second prize! I was so proud."}
+    ],
+    explain:"Simple past tense: was, had, told, felt, did. Connector 'Then' untuk urutan kegiatan, 'Finally' untuk penutup."
+  }
+];
+
+/* =========================================================
+   STATE GAME
+   ========================================================= */
+const state = {
+  lives:5,
+  score:0,
+  currentLevel:0,       // 0=menu, 1-4=level
+  currentQuestion:0,
+  levelScore:0,         // skor per level (untuk hitung bintang)
+  levelMistakes:0,      // jumlah salah per level
+  levelStars:{1:0,2:0,3:0,4:0},
+  levelCompleted:{1:false,2:false,3:false,4:false},
+  shuffledL1:[], shuffledL2:[],
+  // untuk level 2: urutan yang dipilih user
+  sorterSelection:[],
+  // untuk level 3: label per paragraf
+  structureLabels:{},
+  // untuk level 4: jawaban blank
+  blankAnswers:{},
+  timer:null,
+  timeLeft:0,
+  USE_TIMER:true,
+  TIME_PER_Q:30
+};
+
+/* =========================================================
+   UTILITAS
+   ========================================================= */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function $(id){return document.getElementById(id)}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function updateHeader(){
+  $('lives').textContent = '❤️ '+state.lives;
+  $('score').textContent = '⭐ '+state.score;
+  const names={0:'Menu',1:'Verb Hunter',2:'Story Sorter',3:'Structure Detective',4:'Complete Story'};
+  $('levelInfo').textContent = '📚 '+(names[state.currentLevel]||'Menu');
+}
+
+/* =========================================================
+   MENU UTAMA
+   ========================================================= */
+function renderMenu(){
+  state.currentLevel=0;
+  updateHeader();
+  const levels=[
+    {id:1,emoji:'🎯',title:'Level 1: Verb Hunter',desc:'Pilih bentuk past tense yang benar dari kata kerja.'},
+    {id:2,emoji:'🧩',title:'Level 2: Story Sorter',desc:'Susun kalimat acak menjadi recount text yang runtut.'},
+    {id:3,emoji:'🔍',title:'Level 3: Structure Detective',desc:'Tandai tiap paragraf: Orientation, Events, atau Re-orientation.'},
+    {id:4,emoji:'✍️',title:'Level 4: Complete My Story',desc:'Lengkapi recount text dengan kata yang tepat.'}
+  ];
+  const grid=$('levelGrid');
+  grid.innerHTML='';
+  levels.forEach(lv=>{
+    const unlocked = lv.id===1 || state.levelCompleted[lv.id-1];
+    const stars = state.levelStars[lv.id];
+    const starStr = '★'.repeat(stars)+'☆'.repeat(3-stars);
+    const card=document.createElement('div');
+    card.className='level-card'+(unlocked?'':' locked');
+    card.innerHTML=`
+      <span class="emoji">${lv.emoji}</span>
+      <h3>${lv.title}</h3>
+      <p>${lv.desc}</p>
+      <div class="level-stars">${state.levelCompleted[lv.id]?'✅ Selesai | '+starStr:(unlocked?'🔓 Siap dimainkan':'🔒 Selesaikan level sebelumnya')}</div>
+    `;
+    if(unlocked){
+      card.onclick=()=>startLevel(lv.id);
+    }
+    grid.appendChild(card);
+  });
+  showScreen('menuScreen');
+}
+
+/* =========================================================
+   MULAI LEVEL
+   ========================================================= */
+function startLevel(n){
+  state.currentLevel=n;
+  state.currentQuestion=0;
+  state.levelScore=0;
+  state.levelMistakes=0;
+  // acak soal tiap main
+  if(n===1) state.shuffledL1 = shuffle(LEVEL1).slice(0,10);
+  if(n===2) state.shuffledL2 = shuffle(LEVEL2);
+  updateHeader();
+  renderQuestion();
+  showScreen('gameScreen');
+}
+
+/* =========================================================
+   RENDER SOAL BERDASARKAN LEVEL
+   ========================================================= */
+function renderQuestion(){
+  const cont=$('questionContainer');
+  cont.innerHTML='';
+  $('feedback').classList.remove('show');
+  $('feedback').className='feedback';
+  $('nextBtn').style.display='none';
+  $('checkBtn').style.display='none';
+  clearInterval(state.timer);
+
+  const L=state.currentLevel;
+
+  if(L===1) renderLevel1(cont);
+  else if(L===2) renderLevel2(cont);
+  else if(L===3) renderLevel3(cont);
+  else if(L===4) renderLevel4(cont);
+}
+
+/* ---------- LEVEL 1: VERB HUNTER ---------- */
+function renderLevel1(cont){
+  const q=state.shuffledL1[state.currentQuestion];
+  if(!q){finishLevel();return}
+  const total=state.shuffledL1.length;
+  $('progressFill').style.width=(state.currentQuestion/total*100)+'%';
+
+  // acak opsi tapi ingat index jawaban
+  const opts=q.options.map((o,i)=>({o,correct:i===q.answer}));
+  const shuffled=shuffle(opts);
+
+  cont.innerHTML=`
+    <div class="question-box">
+      <h3>🎯 Level 1 - Verb Hunter (${state.currentQuestion+1}/${total})</h3>
+      <div class="question-text">
+        Apa bentuk <em>past tense</em> dari kata kerja: <b>"${q.present}"</b>?
+      </div>
+      <div class="options" id="optionsBox">
+        ${shuffled.map((op,i)=>`<button class="option" data-correct="${op.correct}">${op.o}</button>`).join('')}
+      </div>
+    </div>
+  `;
+  // timer
+  if(state.USE_TIMER) startTimer(30,()=>handleAnswer1(false,q.explain,"Waktu habis!"));
+
+  $('optionsBox').querySelectorAll('.option').forEach(btn=>{
+    btn.onclick=()=>{
+      clearInterval(state.timer);
+      const correct=btn.dataset.correct==='true';
+      $('optionsBox').querySelectorAll('.option').forEach(b=>{
+        b.disabled=true;
+        if(b.dataset.correct==='true') b.classList.add('correct');
+      });
+      if(!correct){
+        btn.classList.add('wrong');
+        btn.classList.add('shake');
+      } else {
+        btn.classList.add('bounce');
+      }
+      handleAnswer1(correct,q.explain);
+    };
+  });
+}
+
+function handleAnswer1(correct,explain,customMsg){
+  state.levelScore += correct?10:0;
+  state.score += correct?10:0;
+  if(!correct){
+    state.lives--;
+    state.levelMistakes++;
+  }
+  showFeedback(correct, customMsg || (correct?"Hebat! Jawaban benar.":"Yah, kurang tepat."), explain);
+  updateHeader();
+  $('nextBtn').style.display='inline-block';
+  $('nextBtn').onclick=()=>{
+    state.currentQuestion++;
+    if(state.lives<=0){gameOver();return}
+    renderQuestion();
+  };
+}
+
+/* ---------- LEVEL 2: STORY SORTER ---------- */
+function renderLevel2(cont){
+  const story=state.shuffledL2[state.currentQuestion];
+  if(!story){finishLevel();return}
+  const total=state.shuffledL2.length;
+  $('progressFill').style.width=(state.currentQuestion/total*100)+'%';
+  state.sorterSelection=[];
+
+  // acak urutan kalimat
+  const indices=story.sentences.map((_,i)=>i);
+  const shuffledIdx=shuffle(indices);
+
+  cont.innerHTML=`
+    <div class="question-box">
+      <h3>🧩 Level 2 - Story Sorter (${state.currentQuestion+1}/${total})</h3>
+      <p style="margin-bottom:8px"><b>${story.title}</b></p>
+      <p style="font-size:.9em;color:#636e72;margin-bottom:10px">Klik kalimat satu per satu sesuai urutan cerita yang benar (dari awal sampai akhir).</p>
+      <div class="order-area" id="orderArea"><em style="color:#95a5a6;font-size:.9em">Urutan pilihanmu akan muncul di sini...</em></div>
+      <div class="sentence-bank" id="sentenceBank">
+        ${shuffledIdx.map(i=>`<div class="sentence" data-idx="${i}">${story.sentences[i]}</div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  $('sentenceBank').querySelectorAll('.sentence').forEach(el=>{
+    el.onclick=()=>{
+      if(el.classList.contains('selected')) return;
+      const idx=parseInt(el.dataset.idx);
+      state.sorterSelection.push(idx);
+      el.classList.add('selected');
+      updateOrderArea(story);
+      if(state.sorterSelection.length===story.sentences.length){
+        checkSorter(story);
+      }
+    };
+  });
+}
+
+function updateOrderArea(story){
+  const area=$('orderArea');
+  if(state.sorterSelection.length===0){
+    area.innerHTML='<em style="color:#95a5a6;font-size:.9em">Urutan pilihanmu akan muncul di sini...</em>';
+    return;
+  }
+  area.innerHTML=state.sorterSelection.map((idx,i)=>
+    `<div class="sentence"><span class="order-number">${i+1}</span>${story.sentences[idx]}</div>`
+  ).join('');
+}
+
+function checkSorter(story){
+  const correct=story.sentences.map((_,i)=>i);
+  let allRight=true;
+  state.sorterSelection.forEach((chosen,i)=>{
+    if(chosen!==correct[i]) allRight=false;
+  });
+  state.levelScore += allRight?20:0;
+  state.score += allRight?20:0;
+  if(!allRight){
+    state.lives--;
+    state.levelMistakes++;
+  }
+  // tampilkan urutan benar
+  const bank=$('sentenceBank');
+  bank.querySelectorAll('.sentence').forEach(el=>{
+    const idx=parseInt(el.dataset.idx);
+    const userPos=state.sorterSelection.indexOf(idx);
+    if(idx===userPos) el.classList.add('correct-order');
+    else if(userPos!==-1 && idx!==userPos) el.classList.add('wrong-order');
+  });
+  showFeedback(allRight,
+    allRight?"Sempurna! Urutan ceritamu sudah runtut.":"Urutan belum tepat. Perhatikan time connectors (First, Then, After that, Finally).",
+    story.explain);
+  updateHeader();
+  $('nextBtn').style.display='inline-block';
+  $('nextBtn').onclick=()=>{
+    state.currentQuestion++;
+    if(state.lives<=0){gameOver();return}
+    renderQuestion();
+  };
+}
+
+/* ---------- LEVEL 3: STRUCTURE DETECTIVE ---------- */
+function renderLevel3(cont){
+  const text=LEVEL3[state.currentQuestion];
+  if(!text){finishLevel();return}
+  const total=LEVEL3.length;
+  $('progressFill').style.width=(state.currentQuestion/total*100)+'%';
+  state.structureLabels={};
+
+  cont.innerHTML=`
+    <div class="question-box">
+      <h3>🔍 Level 3 - Structure Detective (${state.currentQuestion+1}/${total})</h3>
+      <p style="margin-bottom:8px"><b>${text.title}</b></p>
+      <p style="font-size:.9em;color:#636e72;margin-bottom:10px">Klik tiap paragraf, lalu pilih strukturnya: <b>Orientation</b> (pembuka), <b>Events</b> (kegiatan), atau <b>Re-orientation</b> (penutup/kesan).</p>
+      <div id="paragraphsBox">
+        ${text.paragraphs.map((p,i)=>`
+          <div class="paragraph" data-idx="${i}">${p}</div>
+          <div class="structure-buttons" data-idx="${i}">
+            <button data-label="orientation">📖 Orientation</button>
+            <button data-label="events">🎬 Events</button>
+            <button data-label="re-orientation">💭 Re-orientation</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // aktifkan tombol label
+  document.querySelectorAll('.structure-buttons').forEach(group=>{
+    const idx=group.dataset.idx;
+    group.querySelectorAll('button').forEach(btn=>{
+      btn.onclick=()=>{
+        const label=btn.dataset.label;
+        state.structureLabels[idx]=label;
+        // update tampilan tombol aktif
+        group.querySelectorAll('button').forEach(b=>{
+          b.classList.remove('active-ori','active-evt','active-reo');
+        });
+        btn.classList.add(label==='orientation'?'active-ori':label==='events'?'active-evt':'active-reo');
+        // update warna paragraf
+        const para=document.querySelector(`.paragraph[data-idx="${idx}"]`);
+        para.classList.remove('ori','evt','reo');
+        para.classList.add(label==='orientation'?'ori':label==='events'?'evt':'reo');
+        // cek apakah semua sudah diisi
+        if(Object.keys(state.structureLabels).length===text.paragraphs.length){
+          checkStructure(text);
+        }
+      };
+    });
+  });
+}
+
+function checkStructure(text){
+  let correct=0;
+  text.answers.forEach((ans,i)=>{
+    if(state.structureLabels[i]===ans) correct++;
+  });
+  const allRight=correct===text.answers.length;
+  const points=correct*7;
+  state.levelScore += points;
+  state.score += points;
+  if(!allRight){
+    state.lives--;
+    state.levelMistakes++;
+  }
+  showFeedback(allRight,
+    allRight?"Luar biasa! Semua struktur tepat.":`Kamu benar ${correct} dari ${text.answers.length} paragraf.`,
+    text.explain);
+  updateHeader();
+  $('nextBtn').style.display='inline-block';
+  $('nextBtn').onclick=()=>{
+    state.currentQuestion++;
+    if(state.lives<=0){gameOver();return}
+    renderQuestion();
+  };
+}
+
+/* ---------- LEVEL 4: COMPLETE MY STORY ---------- */
+function renderLevel4(cont){
+  const story=LEVEL4[state.currentQuestion];
+  if(!story){finishLevel();return}
+  const total=LEVEL4.length;
+  $('progressFill').style.width=(state.currentQuestion/total*100)+'%';
+  state.blankAnswers={};
+
+  // bangun teks dengan blank
+  let html=`<div class="question-box">
+    <h3>✍️ Level 4 - Complete My Story (${state.currentQuestion+1}/${total})</h3>
+    <p style="margin-bottom:6px"><b>${story.title}</b></p>
+    <p style="font-size:.9em;color:#636e72;margin-bottom:12px">${story.intro}</p>
+    <div class="question-text" id="storyText" style="line-height:2">`;
+  story.text.forEach((part,i)=>{
+    if(part.type==='text') html+=part.content;
+    else {
+      html+=`<select class="blank-select" data-idx="${i}">
+        <option value="">--?</option>
+        ${part.options.map((o,j)=>`<option value="${j}">${o}</option>`).join('')}
+      </select>`;
+    }
+  });
+  html+=`</div></div>`;
+  cont.innerHTML=html;
+
+  // hitung total blank
+  const blanks=story.text.filter(p=>p.type==='blank').length;
+
+  document.querySelectorAll('.blank-select').forEach(sel=>{
+    sel.onchange=()=>{
+      const idx=parseInt(sel.dataset.idx);
+      state.blankAnswers[idx]=parseInt(sel.value);
+      // cek apakah semua sudah diisi
+      if(Object.keys(state.blankAnswers).length===blanks){
+        checkBlanks(story);
+      }
+    };
+  });
+}
+
+function checkBlanks(story){
+  let correct=0;
+  const totalBlanks=story.text.filter(p=>p.type==='blank').length;
+  story.text.forEach((part,i)=>{
+    if(part.type==='blank'){
+      const sel=document.querySelector(`.blank-select[data-idx="${i}"]`);
+      if(state.blankAnswers[i]===part.answer){
+        correct++;
+        sel.classList.add('correct');
+      } else {
+        sel.classList.add('wrong');
+      }
+      sel.disabled=true;
+    }
+  });
+  const allRight=correct===totalBlanks;
+  const points=correct*5;
+  state.levelScore += points;
+  state.score += points;
+  if(!allRight){
+    state.lives--;
+    state.levelMistakes++;
+  }
+  showFeedback(allRight,
+    allRight?"Mantap! Semua isian tepat.":`Kamu benar ${correct} dari ${totalBlanks} isian.`,
+    story.explain);
+  updateHeader();
+  $('nextBtn').style.display='inline-block';
+  $('nextBtn').onclick=()=>{
+    state.currentQuestion++;
+    if(state.lives<=0){gameOver();return}
+    renderQuestion();
+  };
+}
+
+/* =========================================================
+   TIMER
+   ========================================================= */
+function startTimer(seconds,onExpire){
+  state.timeLeft=seconds;
+  const timerEl=document.createElement('div');
+  timerEl.className='timer';
+  timerEl.id='timerEl';
+  const box=document.querySelector('.question-box');
+  if(box) box.insertBefore(timerEl,box.firstChild);
+  timerEl.textContent='⏱ '+state.timeLeft+'s';
+  state.timer=setInterval(()=>{
+    state.timeLeft--;
+    timerEl.textContent='⏱ '+state.timeLeft+'s';
+    if(state.timeLeft<=5) timerEl.classList.add('warning');
+    if(state.timeLeft<=0){
+      clearInterval(state.timer);
+      onExpire && onExpire();
+    }
+  },1000);
+}
+
+/* =========================================================
+   FEEDBACK
+   ========================================================= */
+function showFeedback(correct,title,explain){
+  const fb=$('feedback');
+  fb.className='feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=`<b>${correct?'✅ ':'❌ '}${title}</b><br>${explain||''}`;
+}
+
+/* =========================================================
+   SELESAI LEVEL
+   ========================================================= */
+function finishLevel(){
+  const L=state.currentLevel;
+  // hitung bintang berdasarkan kesalahan
+  let stars=3;
+  if(state.levelMistakes>=1) stars=2;
+  if(state.levelMistakes>=3) stars=1;
+  if(state.levelMistakes>=5 || state.lives<=0) stars=0;
+  state.levelStars[L]=Math.max(state.levelStars[L],stars);
+  state.levelCompleted[L]=true;
+
+  const starStr='★'.repeat(stars)+'☆'.repeat(3-stars);
+  const messages={
+    3:"Luar biasa! Kamu menguasai level ini!",
+    2:"Bagus! Sedikit lagi sempurna.",
+    1:"Lumayan, tapi masih bisa lebih baik.",
+    0:"Jangan menyerah, coba lagi ya!"
+  };
+
+  $('resultBox').innerHTML=`
+    <h2>🎉 Level ${L} Selesai!</h2>
+    <div class="result-stars">${starStr}</div>
+    <div class="result-score">Skor Level: ${state.levelScore} poin</div>
+    <p style="margin:10px 0">${messages[stars]}</p>
+    <div class="result-summary">
+      <h4>📊 Ringkasan</h4>
+      <ul>
+        <li>❤️ Sisa nyawa: ${state.lives}</li>
+        <li>❌ Kesalahan: ${state.levelMistakes}</li>
+        <li>⭐ Total skor: ${state.score}</li>
+      </ul>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn secondary" onclick="renderMenu()">🏠 Menu Utama</button>
+      ${L<4?`<button class="btn" onclick="startLevel(${L+1})">▶ Lanjut Level ${L+1}</button>`
+            :`<button class="btn" onclick="showFinalResult()">🏆 Lihat Hasil Akhir</button>`}
+    </div>
+  `;
+  showScreen('resultScreen');
+  updateHeader();
+}
+
+/* =========================================================
+   GAME OVER (nyawa habis)
+   ========================================================= */
+function gameOver(){
+  $('resultBox').innerHTML=`
+    <h2>💔 Nyawa Habis!</h2>
+    <p style="margin:14px 0">Kamu kehabisan nyawa di Level ${state.currentLevel}.<br>Tapi jangan khawatir, belajar itu proses. Yuk coba lagi!</p>
+    <div class="result-score">Skor akhir: ${state.score}</div>
+    <div class="nav-buttons">
+      <button class="btn secondary" onclick="resetGame()">🔄 Main Lagi dari Awal</button>
+      <button class="btn" onclick="startLevel(${state.currentLevel})">🔁 Ulangi Level ${state.currentLevel}</button>
+    </div>
+  `;
+  showScreen('resultScreen');
+}
+
+/* =========================================================
+   HASIL AKHIR
+   ========================================================= */
+function showFinalResult(){
+  const totalStars=Object.values(state.levelStars).reduce((a,b)=>a+b,0);
+  const maxStars=12;
+  let grade="";
+  if(totalStars>=10) grade="🏆 Master Recount Text!";
+  else if(totalStars>=7) grade="🌟 Hebat! Kamu sudah mahir.";
+  else if(totalStars>=4) grade="👍 Bagus! Terus berlatih ya.";
+  else grade="💪 Semangat! Perlu latihan lagi.";
+
+  const topics=[
+    {id:1,name:'Simple Past Tense (Regular & Irregular Verbs)',done:state.levelStars[1]>=2},
+    {id:2,name:'Urutan Events dengan Time Connectors',done:state.levelStars[2]>=2},
+    {id:3,name:'Struktur Recount Text (Orientation, Events, Re-orientation)',done:state.levelStars[3]>=2},
+    {id:4,name:'Melengkapi Recount Text',done:state.levelStars[4]>=2}
+  ];
+  const mastered=topics.filter(t=>t.done).map(t=>t.name);
+  const review=topics.filter(t=>!t.done).map(t=>t.name);
+
+  $('finalBox').innerHTML=`
+    <h2>🏆 Hasil Akhir</h2>
+    <div class="result-stars">${'★'.repeat(totalStars)}${'☆'.repeat(maxStars-totalStars)}</div>
+    <div class="result-score">${totalStars} / ${maxStars} Bintang</div>
+    <p style="font-size:1.1em;margin:10px 0"><b>${grade}</b></p>
+    <div class="result-summary">
+      <h4>✅ Topik yang Sudah Dikuasai</h4>
+      <ul>${mastered.length?mastered.map(t=>`<li>${t}</li>`).join(''):'<li><i>Belum ada, ayo ulangi levelnya!</i></li>'}</ul>
+    </div>
+    <div class="result-summary">
+      <h4>📚 Topik yang Perlu Diulang</h4>
+      <ul>${review.length?review.map(t=>`<li>${t}</li>`).join(''):'<li><i>Tidak ada, kamu luar biasa!</i></li>'}</ul>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn danger" onclick="resetGame()">🔄 Main Lagi dari Awal</button>
+      <button class="btn secondary" onclick="renderMenu()">🏠 Pilih Level</button>
+    </div>
+  `;
+  showScreen('finalScreen');
+}
+
+/* =========================================================
+   RESET GAME
+   ========================================================= */
+function resetGame(){
+  state.lives=5;
+  state.score=0;
+  state.currentLevel=0;
+  state.currentQuestion=0;
+  state.levelScore=0;
+  state.levelMistakes=0;
+  state.levelStars={1:0,2:0,3:0,4:0};
+  state.levelCompleted={1:false,2:false,3:false,4:false};
+  renderMenu();
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderMenu();
+</script>
+</body>
+</html>
